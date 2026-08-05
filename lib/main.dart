@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/theme/app_theme.dart';
-import 'features/home_add_ride/presentation/home_add_ride_view.dart';
+import 'features/home_add_ride/home_add_ride_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

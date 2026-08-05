@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../financial_history/financial_history_view.dart';
+
 /// Home do app — resumo financeiro do motorista (POC, dados mockados).
 ///
 /// Estrutura:
@@ -80,7 +82,11 @@ class _HomeAddRideViewState extends State<HomeAddRideView> {
   ];
 
   void _onAddRidePressed() {
-    // TODO: navegar para o fluxo de adicionar passeio.
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const FinancialHistoryView(),
+      ),
+    );
   }
 
   void _onDestinationSelected(int index) {
