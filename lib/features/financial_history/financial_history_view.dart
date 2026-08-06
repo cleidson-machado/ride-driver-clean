@@ -57,6 +57,16 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		return Scaffold(
+			appBar: AppBar(
+				centerTitle: true,
+				title: Text(
+					_mockDate,
+					style: textTheme.titleMedium?.copyWith(
+						fontStyle: FontStyle.italic,
+						color: colorScheme.onSurfaceVariant,
+					),
+				),
+			),
 			body: SafeArea(
 				child: LayoutBuilder(
 					builder: (BuildContext context, BoxConstraints constraints) {
@@ -69,30 +79,23 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 							child: ConstrainedBox(
 								constraints: BoxConstraints(maxWidth: contentMaxWidth),
 								child: SingleChildScrollView(
-									padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+									padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
 									child: Column(
 										crossAxisAlignment: CrossAxisAlignment.stretch,
 										children: [
-											Text(
-												_mockDate,
-												textAlign: TextAlign.center,
-												style: textTheme.titleMedium?.copyWith(
-													fontStyle: FontStyle.italic,
-													color: colorScheme.onSurfaceVariant,
-												),
-											),
-											const SizedBox(height: 12),
-											Divider(color: colorScheme.outlineVariant),
-											const SizedBox(height: 14),
-											Row(
-												crossAxisAlignment: CrossAxisAlignment.start,
+											Wrap(
+												spacing: 12,
+												runSpacing: 12,
+												crossAxisAlignment: WrapCrossAlignment.start,
 												children: [
-													Expanded(
+													SizedBox(
+														width: compact ? double.infinity : 320,
 														child: Column(
+															crossAxisAlignment: CrossAxisAlignment.stretch,
 															children: [
 																_LabeledField(
 																	label: 'Data - Passeio',
-																	child: OutlinedButton.icon(
+																	child: FilledButton.tonalIcon(
 																		onPressed: () {},
 																		icon: const Icon(Icons.calendar_month_outlined),
 																		label: Text(_mockRideDate),
@@ -111,16 +114,15 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 																_LabeledField(
 																	label: 'Hodometro 2 - Zerado?',
 																	child: SegmentedButton<bool>(
+																		showSelectedIcon: false,
 																		segments: const [
 																			ButtonSegment<bool>(
 																				value: true,
-																				label: Text('YES'),
-																				icon: Icon(Icons.radio_button_checked),
+																				label: Text('SIM'),
 																			),
 																			ButtonSegment<bool>(
 																				value: false,
-																				label: Text('NO'),
-																				icon: Icon(Icons.stop_rounded),
+																				label: Text('NAO'),
 																			),
 																		],
 																		selected: <bool>{_zeroedOdometer},
@@ -132,14 +134,17 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 															],
 														),
 													),
-													const SizedBox(width: 12),
 													SizedBox(
-														width: compact ? 76 : 84,
-														child: _ProfitColumn(value: '€ 55,89'),
+														width: compact ? double.infinity : 140,
+														child: _ProfitColumn(
+															compact: compact,
+															value: '€ 55,89',
+														),
 													),
-													const SizedBox(width: 12),
-													Expanded(
+													SizedBox(
+														width: compact ? double.infinity : 320,
 														child: Column(
+															crossAxisAlignment: CrossAxisAlignment.stretch,
 															children: [
 																_LabeledField(
 																	label: 'Valor - Abastecimento',
@@ -191,34 +196,43 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 												],
 											),
 											const SizedBox(height: 14),
-											Row(
-												children: [
-													Expanded(
-														child: CheckboxListTile(
-															contentPadding: EdgeInsets.zero,
-															controlAffinity: ListTileControlAffinity.leading,
-															title: const Text('Com imagens?'),
-															value: _withImages,
-															onChanged: (bool? value) {
-																setState(() => _withImages = value ?? false);
-															},
-														),
+											Card(
+												margin: EdgeInsets.zero,
+												child: Padding(
+													padding: const EdgeInsets.all(8),
+													child: Wrap(
+														spacing: 12,
+														runSpacing: 4,
+														children: [
+															SizedBox(
+																width: compact ? double.infinity : 300,
+																child: CheckboxListTile(
+																	contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+																	controlAffinity: ListTileControlAffinity.leading,
+																	title: const Text('Com imagens?'),
+																	value: _withImages,
+																	onChanged: (bool? value) {
+																		setState(() => _withImages = value ?? false);
+																	},
+																),
+															),
+															SizedBox(
+																width: compact ? double.infinity : 300,
+																child: CheckboxListTile(
+																	contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+																	controlAffinity: ListTileControlAffinity.leading,
+																	title: const Text('Concluido?'),
+																	value: _isCompleted,
+																	onChanged: (bool? value) {
+																		setState(() => _isCompleted = value ?? false);
+																	},
+																),
+															),
+														],
 													),
-													const SizedBox(width: 12),
-													Expanded(
-														child: CheckboxListTile(
-															contentPadding: EdgeInsets.zero,
-															controlAffinity: ListTileControlAffinity.leading,
-															title: const Text('Concluido?'),
-															value: _isCompleted,
-															onChanged: (bool? value) {
-																setState(() => _isCompleted = value ?? false);
-															},
-														),
-													),
-												],
+												),
 											),
-											const SizedBox(height: 10),
+											const SizedBox(height: 12),
 											Column(
 												children: [
 													Text(
@@ -251,21 +265,23 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 											FilledButton(
 												onPressed: () {},
 												style: FilledButton.styleFrom(
-													backgroundColor: colorScheme.error,
-													foregroundColor: colorScheme.onError,
-													minimumSize: const Size.fromHeight(54),
+													minimumSize: const Size.fromHeight(56),
+													padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 												),
-												child: Text(
-													'SALVAR / ATUALIZAR - ( PASSEIO 011 )',
-													style: textTheme.titleMedium?.copyWith(
-														fontWeight: FontWeight.w800,
+												child: SizedBox(
+													width: double.infinity,
+													child: Text(
+														'SALVAR / ATUALIZAR - ( PASSEIO 011 )',
+														textAlign: TextAlign.center,
+														maxLines: 2,
+														style: textTheme.titleMedium?.copyWith(
+															color: colorScheme.onPrimary,
+															fontWeight: FontWeight.w800,
+														),
 													),
 												),
 											),
-											const SizedBox(height: 16),
-											Divider(color: colorScheme.outlineVariant),
 											const SizedBox(height: 8),
-											_SecondaryActionBar(compact: compact),
 										],
 									),
 								),
@@ -317,25 +333,36 @@ class _StepperField extends StatelessWidget {
 		return Row(
 			children: [
 				Expanded(
-					child: OutlinedButton(
-						onPressed: onDecrement,
-						child: const Icon(Icons.remove),
-					),
-				),
-				Expanded(
-					flex: 2,
-					child: OutlinedButton(
-						onPressed: () {},
-						child: Text(
-							value,
-							overflow: TextOverflow.ellipsis,
+					child: SizedBox(
+						height: 48,
+						child: OutlinedButton(
+							onPressed: onDecrement,
+							child: const Icon(Icons.remove),
 						),
 					),
 				),
+				const SizedBox(width: 8),
 				Expanded(
-					child: OutlinedButton(
-						onPressed: onIncrement,
-						child: const Icon(Icons.add),
+					flex: 2,
+					child: SizedBox(
+						height: 48,
+						child: FilledButton.tonal(
+							onPressed: () {},
+							child: Text(
+								value,
+								overflow: TextOverflow.ellipsis,
+							),
+						),
+					),
+				),
+				const SizedBox(width: 8),
+				Expanded(
+					child: SizedBox(
+						height: 48,
+						child: OutlinedButton(
+							onPressed: onIncrement,
+							child: const Icon(Icons.add),
+						),
 					),
 				),
 			],
@@ -344,7 +371,9 @@ class _StepperField extends StatelessWidget {
 }
 
 class _ProfitColumn extends StatelessWidget {
-	const _ProfitColumn({required this.value});
+	const _ProfitColumn({required this.compact, required this.value});
+
+	final bool compact;
 
 	final String value;
 
@@ -361,7 +390,7 @@ class _ProfitColumn extends StatelessWidget {
 				),
 				const SizedBox(height: 6),
 				Container(
-					height: 280,
+					height: compact ? 160 : 240,
 					decoration: BoxDecoration(
 						border: Border.all(color: colorScheme.outline),
 						borderRadius: BorderRadius.circular(12),
@@ -503,91 +532,6 @@ class _PlatformSummaryCard extends StatelessWidget {
 						),
 					],
 				),
-			),
-		);
-	}
-}
-
-class _SecondaryActionBar extends StatelessWidget {
-	const _SecondaryActionBar({required this.compact});
-
-	final bool compact;
-
-	@override
-	Widget build(BuildContext context) {
-		final TextTheme textTheme = Theme.of(context).textTheme;
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-		return Wrap(
-			alignment: WrapAlignment.spaceAround,
-			runSpacing: 8,
-			spacing: compact ? 8 : 20,
-			children: [
-				_ActionItem(
-					icon: Icons.add_circle_outline_rounded,
-					label: 'Button 1',
-					onPressed: () {},
-					foregroundColor: colorScheme.outline,
-					textTheme: textTheme,
-				),
-				_ActionItem(
-					icon: Icons.search_rounded,
-					label: 'Button 2',
-					onPressed: () {},
-					foregroundColor: colorScheme.onSurfaceVariant,
-					textTheme: textTheme,
-				),
-				_ActionItem(
-					icon: Icons.copy_all_outlined,
-					label: 'Button 3',
-					onPressed: () {},
-					foregroundColor: colorScheme.onSurfaceVariant,
-					textTheme: textTheme,
-				),
-				_ActionItem(
-					icon: Icons.delete_outline_rounded,
-					label: 'Button 4',
-					onPressed: () {},
-					foregroundColor: colorScheme.onSurfaceVariant,
-					textTheme: textTheme,
-				),
-			],
-		);
-	}
-}
-
-class _ActionItem extends StatelessWidget {
-	const _ActionItem({
-		required this.icon,
-		required this.label,
-		required this.onPressed,
-		required this.foregroundColor,
-		required this.textTheme,
-	});
-
-	final IconData icon;
-	final String label;
-	final VoidCallback onPressed;
-	final Color foregroundColor;
-	final TextTheme textTheme;
-
-	@override
-	Widget build(BuildContext context) {
-		return SizedBox(
-			width: 78,
-			child: Column(
-				children: [
-					IconButton(
-						tooltip: label,
-						onPressed: onPressed,
-						icon: Icon(icon, color: foregroundColor),
-					),
-					Text(
-						label,
-						textAlign: TextAlign.center,
-						style: textTheme.labelLarge?.copyWith(color: foregroundColor),
-					),
-				],
 			),
 		);
 	}
