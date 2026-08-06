@@ -51,7 +51,7 @@ class _HomeContentTabViewState extends State<HomeContentTabView> {
 						: IconButton(
 								tooltip: 'Voltar para Home',
 								onPressed: () => _onDestinationSelected(0),
-								icon: const Icon(Icons.arrow_back_rounded),
+								icon: const BackButtonIcon(),
 							),
 				centerTitle: true,
 				toolbarHeight: 44,
