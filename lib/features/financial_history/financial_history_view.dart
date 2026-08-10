@@ -639,13 +639,12 @@ class _SaveButton extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		final TextTheme textTheme = Theme.of(context).textTheme;
 		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		return SizedBox(
 			width: double.infinity,
 			height: 52,
-			child: FilledButton(
+			child: FilledButton.icon(
 				style: FilledButton.styleFrom(
 					backgroundColor: colorScheme.error,
 					foregroundColor: colorScheme.onError,
@@ -654,13 +653,8 @@ class _SaveButton extends StatelessWidget {
 				onPressed: () {
 					// TODO: salvar/atualizar passeio
 				},
-				child: Text(
-					'SALVAR / ATUALIZAR - ( PASSEIO 011 )',
-					style: textTheme.labelLarge?.copyWith(
-						fontWeight: FontWeight.w900,
-						color: colorScheme.onError,
-					),
-				),
+				icon: const Icon(Icons.save_rounded),
+				label: const Text('SALVAR / ATUALIZAR - ( PASSEIO 011 )'),
 			),
 		);
 	}
