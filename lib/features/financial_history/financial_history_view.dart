@@ -50,19 +50,8 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 									],
 								),
 							),
-							const SizedBox(height: 12),
+							const SizedBox(height: 1),
 							Divider(color: colorScheme.outline),
-							const SizedBox(height: 16),
-							Expanded(
-								child: DecoratedBox(
-									decoration: BoxDecoration(
-										color: colorScheme.surfaceContainerLowest,
-										borderRadius: BorderRadius.circular(24),
-										border: Border.all(color: colorScheme.outlineVariant),
-									),
-									child: const SizedBox.expand(),
-								),
-							),
 						],
 					),
 				),
