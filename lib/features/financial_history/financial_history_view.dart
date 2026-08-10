@@ -24,14 +24,30 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					child: Column(
 						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
-							Text(
-								_mockDate,
-								textAlign: TextAlign.center,
-								style: textTheme.titleLarge?.copyWith(
-									fontStyle: FontStyle.italic,
-									fontWeight: FontWeight.w500,
-                  fontSize: 14,
-									color: colorScheme.onSurface,
+							SizedBox(
+								height: 48,
+								child: Stack(
+									alignment: Alignment.center,
+									children: [
+										Align(
+											alignment: Alignment.centerLeft,
+											child: IconButton(
+												tooltip: 'Voltar',
+												onPressed: () => Navigator.of(context).maybePop(),
+												icon: const BackButtonIcon(),
+											),
+										),
+										Text(
+											_mockDate,
+											textAlign: TextAlign.center,
+											style: textTheme.titleLarge?.copyWith(
+												fontStyle: FontStyle.italic,
+												fontWeight: FontWeight.w500,
+												fontSize: 14,
+												color: colorScheme.onSurface,
+											),
+										),
+									],
 								),
 							),
 							const SizedBox(height: 12),
