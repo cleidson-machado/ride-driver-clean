@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 /// Única fonte de cores do projeto: nenhuma view deve criar `Color` própria —
 /// sempre consumir `Theme.of(context).colorScheme.*` e `textTheme.*`.
 abstract final class AppTheme {
-  /// Seed única do app — teal profundo, moderno, remete a finanças/movimento.
-  static const Color _seedColor = Color(0xFF00696E);
+  /// Seed única do app — verde claro para uma UI limpa, leve e operacional.
+  static const Color _seedColor = Color(0xFF8CCFA2);
 
   static ThemeData light() => _build(Brightness.light);
 
@@ -22,12 +22,33 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        surfaceTintColor: colorScheme.surface,
+        elevation: 0,
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: colorScheme.surfaceContainerLow,
+        color: colorScheme.surfaceContainerLowest,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: colorScheme.outlineVariant),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainerLowest,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.4),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -37,6 +58,28 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          side: BorderSide(color: colorScheme.outline),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: WidgetStateProperty.all(const Size.fromHeight(54)),
+          textStyle: WidgetStateProperty.all(
+            const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
