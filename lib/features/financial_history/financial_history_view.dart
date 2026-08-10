@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Tela de cadastro/edicao de passeio com dados mockados para POC.
+/// Tela de cadastro/edicao de passeio — skeleton M3 responsivo.
 class FinancialHistoryView extends StatefulWidget {
 	const FinancialHistoryView({super.key});
 
@@ -16,128 +16,136 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
 	@override
 	Widget build(BuildContext context) {
-		final TextTheme textTheme = Theme.of(context).textTheme;
 		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		return Scaffold(
 			backgroundColor: colorScheme.surface,
 			body: SafeArea(
-				child: LayoutBuilder(
-					builder: (BuildContext context, BoxConstraints constraints) {
-						final bool compact = constraints.maxWidth < 600;
-
-						return Padding(
-							padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.stretch,
-								children: [
-									SizedBox(
-										height: 48,
-										child: Stack(
-											alignment: Alignment.center,
-											children: [
-												Align(
-													alignment: Alignment.centerLeft,
-													child: IconButton(
-														tooltip: 'Voltar',
-														onPressed: () => Navigator.of(context).maybePop(),
-														icon: const BackButtonIcon(),
-													),
-												),
-												Text(
-													_mockDate,
-													textAlign: TextAlign.center,
-													style: textTheme.titleMedium?.copyWith(
-														fontStyle: FontStyle.italic,
-														fontWeight: FontWeight.w700,
-														color: colorScheme.onSurface,
-													),
-												),
-											],
-										),
-									),
-									const SizedBox(height: 1),
-									Divider(color: colorScheme.outline),
-									const SizedBox(height: 10),
-									Expanded(
-										child: _ThreeColumnSlots(
-											compact: compact,
+				child: Column(
+					crossAxisAlignment: CrossAxisAlignment.stretch,
+					children: [
+						// 1. Header
+						_Header(date: _mockDate),
+						Divider(color: colorScheme.outline, height: 1),
+						// Scrollable body
+						Expanded(
+							child: SingleChildScrollView(
+								padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+								child: Column(
+									crossAxisAlignment: CrossAxisAlignment.stretch,
+									children: [
+										// 2. Grelha de 3 colunas superiores
+										_TopDataGrid(
 											rideDate: _mockRideDate,
 											startMileage: _mockStartMileage,
 											emptyValue: _mockEmptyValue,
 										),
-									),
-								],
+										const SizedBox(height: 16),
+										// 3. Secção plataformas base
+										const _PlatformsSection(),
+										const SizedBox(height: 16),
+										// 4. Linha de opções rápidas
+										const _QuickOptionsRow(),
+										const SizedBox(height: 16),
+										// 5. Campo de notas
+										const _NotesField(),
+										const SizedBox(height: 16),
+										// 6. Footer — botão salvar
+										const _SaveButton(),
+									],
+								),
 							),
-						);
-					},
+						),
+					],
 				),
 			),
 		);
 	}
 }
 
-class _ThreeColumnSlots extends StatelessWidget {
-	const _ThreeColumnSlots({
-		required this.compact,
+// ─── Header ───────────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+	const _Header({required this.date});
+
+	final String date;
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return SizedBox(
+			height: 48,
+			child: Stack(
+				alignment: Alignment.center,
+				children: [
+					Align(
+						alignment: Alignment.centerLeft,
+						child: IconButton(
+							tooltip: 'Voltar',
+							onPressed: () => Navigator.of(context).maybePop(),
+							icon: const BackButtonIcon(),
+						),
+					),
+					Text(
+						date,
+						textAlign: TextAlign.center,
+						style: textTheme.titleSmall?.copyWith(
+							fontStyle: FontStyle.italic,
+							fontWeight: FontWeight.w700,
+							color: colorScheme.onSurface,
+						),
+					),
+				],
+			),
+		);
+	}
+}
+
+// ─── Bloco superior — grelha 3 colunas ───────────────────────────────────────
+
+class _TopDataGrid extends StatelessWidget {
+	const _TopDataGrid({
 		required this.rideDate,
 		required this.startMileage,
 		required this.emptyValue,
 	});
 
-	final bool compact;
 	final String rideDate;
 	final String startMileage;
 	final String emptyValue;
 
 	@override
 	Widget build(BuildContext context) {
-		if (compact) {
-			return Row(
-				crossAxisAlignment: CrossAxisAlignment.start,
+		return IntrinsicHeight(
+			child: Row(
+				crossAxisAlignment: CrossAxisAlignment.stretch,
 				children: [
+					// Coluna esquerda (flex 4)
 					Expanded(
-						flex: 10,
-						child: _LeftColumnSlots(
-							rideDate: rideDate,
-							startMileage: startMileage,
-						),
+						flex: 4,
+						child: _LeftColumn(rideDate: rideDate, startMileage: startMileage),
 					),
 					const SizedBox(width: 8),
-					const Expanded(flex: 3, child: _ProfitVerticalSlot()),
+					// Coluna central (flex 2) — LUCRO
+					const Expanded(flex: 2, child: _ProfitColumn()),
 					const SizedBox(width: 8),
+					// Coluna direita (flex 4)
 					Expanded(
-						flex: 10,
-						child: _RightColumnSlots(emptyValue: emptyValue),
+						flex: 4,
+						child: _RightColumn(emptyValue: emptyValue),
 					),
 				],
-			);
-		}
-
-		return Row(
-			crossAxisAlignment: CrossAxisAlignment.start,
-			children: [
-				Expanded(
-					flex: 10,
-					child: _LeftColumnSlots(
-						rideDate: rideDate,
-						startMileage: startMileage,
-					),
-				),
-				const SizedBox(width: 12),
-				const Expanded(flex: 3, child: _ProfitVerticalSlot()),
-				const SizedBox(width: 12),
-				Expanded(
-					flex: 10,
-					child: _RightColumnSlots(emptyValue: emptyValue),
-				),
-			],
+			),
 		);
 	}
 }
 
-class _LeftColumnSlots extends StatelessWidget {
-	const _LeftColumnSlots({required this.rideDate, required this.startMileage});
+// ─── Coluna esquerda ──────────────────────────────────────────────────────────
+
+class _LeftColumn extends StatelessWidget {
+	const _LeftColumn({required this.rideDate, required this.startMileage});
 
 	final String rideDate;
 	final String startMileage;
@@ -147,27 +155,20 @@ class _LeftColumnSlots extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				_FieldSlot(
-					label: 'Data - PASSEIO',
-					child: _DateRowMock(value: rideDate),
-				),
-				const SizedBox(height: 12),
-				_FieldSlot(
-					label: 'Kilometragem - SAIDA',
-					child: _StepperRowMock(value: startMileage),
-				),
-				const SizedBox(height: 12),
-				const _FieldSlot(
-					label: 'Hodometro 2 - ZERADO?',
-					child: _BinaryRowMock(),
-				),
+				_FieldSlot(label: 'Data - PASSEIO', child: _DateRowMock(value: rideDate)),
+				const SizedBox(height: 8),
+				_FieldSlot(label: 'Kilometragem - SAÍDA', child: _StepperRowMock(value: startMileage)),
+				const SizedBox(height: 8),
+				const _FieldSlot(label: 'Hodômetro 2 - ZERADO?', child: _BinaryRowMock()),
 			],
 		);
 	}
 }
 
-class _RightColumnSlots extends StatelessWidget {
-	const _RightColumnSlots({required this.emptyValue});
+// ─── Coluna direita ───────────────────────────────────────────────────────────
+
+class _RightColumn extends StatelessWidget {
+	const _RightColumn({required this.emptyValue});
 
 	final String emptyValue;
 
@@ -176,24 +177,66 @@ class _RightColumnSlots extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				_FieldSlot(
-					label: 'Valor - ABASTECIMENTO',
-					child: _StepperRowMock(value: emptyValue),
+				_FieldSlot(label: 'Valor - ABASTECIMENTO', child: _StepperRowMock(value: emptyValue)),
+				const SizedBox(height: 8),
+				_FieldSlot(label: 'Kilometragem - CHEGADA', child: _StepperRowMock(value: emptyValue)),
+				const SizedBox(height: 8),
+				_FieldSlot(label: 'Hodômetro 2 - TRAJETO', child: _StepperRowMock(value: emptyValue)),
+			],
+		);
+	}
+}
+
+// ─── Coluna central — indicador LUCRO ────────────────────────────────────────
+
+class _ProfitColumn extends StatelessWidget {
+	const _ProfitColumn();
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.stretch,
+			children: [
+				Text(
+					'LUCRO',
+					textAlign: TextAlign.center,
+					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900),
 				),
-				const SizedBox(height: 12),
-				_FieldSlot(
-					label: 'Kilometragem - CHEGADA',
-					child: _StepperRowMock(value: emptyValue),
-				),
-				const SizedBox(height: 12),
-				_FieldSlot(
-					label: 'Hodometro 2 - TRAJETO',
-					child: _StepperRowMock(value: emptyValue),
+				const SizedBox(height: 4),
+				Expanded(
+					child: Container(
+						decoration: BoxDecoration(
+							borderRadius: BorderRadius.circular(2),
+							border: Border.all(color: colorScheme.outline),
+						),
+						child: Column(
+							children: [
+								const Spacer(),
+								// placeholder: barra de progresso (preenchimento inferior)
+								Container(
+									height: 28,
+									width: double.infinity,
+									decoration: BoxDecoration(
+										color: colorScheme.onSurface,
+										borderRadius: const BorderRadius.only(
+											bottomLeft: Radius.circular(2),
+											bottomRight: Radius.circular(2),
+										),
+									),
+								),
+							],
+						),
+					),
 				),
 			],
 		);
 	}
 }
+
+// ─── Field slot (label + input) ───────────────────────────────────────────────
 
 class _FieldSlot extends StatelessWidget {
 	const _FieldSlot({required this.label, required this.child});
@@ -210,14 +253,17 @@ class _FieldSlot extends StatelessWidget {
 			children: [
 				Text(
 					label,
-					style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+					style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900),
+					overflow: TextOverflow.ellipsis,
 				),
-				const SizedBox(height: 6),
+				const SizedBox(height: 4),
 				child,
 			],
 		);
 	}
 }
+
+// ─── Date row ─────────────────────────────────────────────────────────────────
 
 class _DateRowMock extends StatelessWidget {
 	const _DateRowMock({required this.value});
@@ -230,7 +276,7 @@ class _DateRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 50,
+			height: 44,
 			decoration: BoxDecoration(
 				borderRadius: BorderRadius.circular(2),
 				border: Border.all(color: colorScheme.outline),
@@ -239,19 +285,24 @@ class _DateRowMock extends StatelessWidget {
 				children: [
 					Expanded(
 						child: Padding(
-							padding: const EdgeInsets.symmetric(horizontal: 12),
-							child: Align(
-								alignment: Alignment.centerLeft,
-								child: Text(value, style: textTheme.titleMedium),
+							padding: const EdgeInsets.symmetric(horizontal: 6),
+							child: Text(
+								value,
+								style: textTheme.bodySmall,
+								overflow: TextOverflow.ellipsis,
 							),
 						),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
 					SizedBox(
-						width: 48,
+						width: 38,
 						child: Tooltip(
 							message: 'Selecionar data',
-							child: Icon(Icons.calendar_month_outlined, color: colorScheme.onSurfaceVariant),
+							child: Icon(
+								Icons.calendar_month_outlined,
+								size: 18,
+								color: colorScheme.onSurfaceVariant,
+							),
 						),
 					),
 				],
@@ -259,6 +310,8 @@ class _DateRowMock extends StatelessWidget {
 		);
 	}
 }
+
+// ─── Stepper row ──────────────────────────────────────────────────────────────
 
 class _StepperRowMock extends StatelessWidget {
 	const _StepperRowMock({required this.value});
@@ -271,7 +324,7 @@ class _StepperRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 50,
+			height: 44,
 			decoration: BoxDecoration(
 				borderRadius: BorderRadius.circular(2),
 				border: Border.all(color: colorScheme.outline),
@@ -279,9 +332,7 @@ class _StepperRowMock extends StatelessWidget {
 			child: Row(
 				children: [
 					Expanded(
-						child: Center(
-							child: Text('-', style: textTheme.headlineSmall),
-						),
+						child: Center(child: Text('-', style: textTheme.titleSmall)),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
 					Expanded(
@@ -289,21 +340,22 @@ class _StepperRowMock extends StatelessWidget {
 						child: Center(
 							child: Text(
 								value,
-								style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+								style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+								overflow: TextOverflow.ellipsis,
 							),
 						),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
 					Expanded(
-						child: Center(
-							child: Text('+', style: textTheme.headlineSmall),
-						),
+						child: Center(child: Text('+', style: textTheme.titleSmall)),
 					),
 				],
 			),
 		);
 	}
 }
+
+// ─── Binary row ───────────────────────────────────────────────────────────────
 
 class _BinaryRowMock extends StatelessWidget {
 	const _BinaryRowMock();
@@ -314,7 +366,7 @@ class _BinaryRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 50,
+			height: 44,
 			decoration: BoxDecoration(
 				borderRadius: BorderRadius.circular(2),
 				border: Border.all(color: colorScheme.outline),
@@ -324,7 +376,7 @@ class _BinaryRowMock extends StatelessWidget {
 					Expanded(
 						child: Tooltip(
 							message: 'Alternar status zerado',
-							child: Icon(Icons.circle_outlined, color: colorScheme.onSurfaceVariant),
+							child: Icon(Icons.circle_outlined, size: 18, color: colorScheme.onSurfaceVariant),
 						),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
@@ -333,7 +385,7 @@ class _BinaryRowMock extends StatelessWidget {
 						child: Center(
 							child: Text(
 								'YES',
-								style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+								style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
 							),
 						),
 					),
@@ -341,7 +393,7 @@ class _BinaryRowMock extends StatelessWidget {
 					Expanded(
 						child: Tooltip(
 							message: 'Status alternativo',
-							child: Icon(Icons.square, color: colorScheme.onSurface),
+							child: Icon(Icons.square, size: 18, color: colorScheme.onSurface),
 						),
 					),
 				],
@@ -350,8 +402,10 @@ class _BinaryRowMock extends StatelessWidget {
 	}
 }
 
-class _ProfitVerticalSlot extends StatelessWidget {
-	const _ProfitVerticalSlot();
+// ─── Secção plataformas base ──────────────────────────────────────────────────
+
+class _PlatformsSection extends StatelessWidget {
+	const _PlatformsSection();
 
 	@override
 	Widget build(BuildContext context) {
@@ -362,30 +416,252 @@ class _ProfitVerticalSlot extends StatelessWidget {
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
 				Text(
-					'LUCRO',
+					'PLATAFORMAS BASE',
 					textAlign: TextAlign.center,
-					style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900),
 				),
 				const SizedBox(height: 6),
-				Expanded(
-					child: Container(
-						decoration: BoxDecoration(
-							borderRadius: BorderRadius.circular(2),
-							border: Border.all(color: colorScheme.outline),
-						),
-						child: Column(
-							children: [
-								const Spacer(),
-								Container(
-									height: 28,
-									width: double.infinity,
-									color: colorScheme.onSurface,
-								),
-							],
-						),
+				Container(
+					decoration: BoxDecoration(
+						color: colorScheme.surfaceContainerHighest,
+						borderRadius: BorderRadius.circular(4),
+						border: Border.all(color: colorScheme.outline),
+					),
+					padding: const EdgeInsets.all(8),
+					child: Row(
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: [
+							// Card UBER
+							const Expanded(child: _PlatformCard(name: 'UBER', totalValue: '€ 55,89', totalRides: '06')),
+							const SizedBox(width: 8),
+							// Card BOLT
+							const Expanded(child: _PlatformCard(name: 'BOLT', totalValue: '€ 10,09', totalRides: '06')),
+						],
 					),
 				),
 			],
+		);
+	}
+}
+
+class _PlatformCard extends StatelessWidget {
+	const _PlatformCard({
+		required this.name,
+		required this.totalValue,
+		required this.totalRides,
+	});
+
+	final String name;
+	final String totalValue;
+	final String totalRides;
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Container(
+			decoration: BoxDecoration(
+				borderRadius: BorderRadius.circular(4),
+				border: Border.all(color: colorScheme.outline),
+				color: colorScheme.surface,
+			),
+			padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.stretch,
+				children: [
+					// Nome da plataforma
+					Center(
+						child: Text(
+							name,
+							style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900),
+						),
+					),
+					const SizedBox(height: 8),
+					Text('Valor total dia:', textAlign: TextAlign.center, style: textTheme.labelSmall),
+					const SizedBox(height: 4),
+					// placeholder valor
+					Container(
+						padding: const EdgeInsets.symmetric(vertical: 6),
+						decoration: BoxDecoration(
+							border: Border.all(color: colorScheme.outline),
+							borderRadius: BorderRadius.circular(2),
+						),
+						child: Text(
+							totalValue,
+							textAlign: TextAlign.center,
+							style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+						),
+					),
+					const SizedBox(height: 8),
+					Text('Corridas total dia:', textAlign: TextAlign.center, style: textTheme.labelSmall),
+					const SizedBox(height: 4),
+					// placeholder corridas
+					Container(
+						padding: const EdgeInsets.symmetric(vertical: 6),
+						decoration: BoxDecoration(
+							border: Border.all(color: colorScheme.outline),
+							borderRadius: BorderRadius.circular(2),
+						),
+						child: Text(
+							totalRides,
+							textAlign: TextAlign.center,
+							style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+						),
+					),
+				],
+			),
+		);
+	}
+}
+
+// ─── Linha de opções rápidas ──────────────────────────────────────────────────
+
+class _QuickOptionsRow extends StatelessWidget {
+	const _QuickOptionsRow();
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Row(
+			crossAxisAlignment: CrossAxisAlignment.center,
+			children: [
+				// COM IMAGENS?
+				Expanded(
+					child: Row(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: [
+							Tooltip(
+								message: 'Com imagens',
+								child: Icon(Icons.check_circle, color: colorScheme.primary, size: 22),
+							),
+							const SizedBox(width: 4),
+							Flexible(
+								child: Text(
+									'COM IMAGENS?',
+									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+									overflow: TextOverflow.ellipsis,
+								),
+							),
+						],
+					),
+				),
+				// Botão + PLATAFORMA (central)
+				Column(
+					children: [
+						Text(
+							'PLATAFORMA',
+							style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+						),
+						const SizedBox(height: 4),
+						Tooltip(
+							message: 'Adicionar plataforma',
+							child: Container(
+								width: 44,
+								height: 44,
+								decoration: BoxDecoration(
+									shape: BoxShape.circle,
+									border: Border.all(color: colorScheme.outline, width: 2),
+								),
+								child: Icon(Icons.add, color: colorScheme.onSurface),
+							),
+						),
+					],
+				),
+				// CONCLUÍDO?
+				Expanded(
+					child: Row(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: [
+							Flexible(
+								child: Text(
+									'CONCLUÍDO?',
+									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+									overflow: TextOverflow.ellipsis,
+								),
+							),
+							const SizedBox(width: 4),
+							Tooltip(
+								message: 'Concluído',
+								child: Icon(Icons.check_circle, color: colorScheme.primary, size: 22),
+							),
+						],
+					),
+				),
+			],
+		);
+	}
+}
+
+// ─── Campo de notas ───────────────────────────────────────────────────────────
+
+class _NotesField extends StatelessWidget {
+	const _NotesField();
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.start,
+			children: [
+				Text(
+					'Anotações / Observações',
+					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+				),
+				const SizedBox(height: 6),
+				Container(
+					height: 90,
+					width: double.infinity,
+					decoration: BoxDecoration(
+						borderRadius: BorderRadius.circular(4),
+						border: Border.all(color: colorScheme.outline),
+					),
+					padding: const EdgeInsets.all(10),
+					// placeholder: área de texto livre
+					child: Text(
+						'USANDO ABASTECIMENTO DO DIA / PASSEIO ANTERIOR NESSE MOMENTO',
+						style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+					),
+				),
+			],
+		);
+	}
+}
+
+// ─── Footer — botão salvar ────────────────────────────────────────────────────
+
+class _SaveButton extends StatelessWidget {
+	const _SaveButton();
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return SizedBox(
+			width: double.infinity,
+			height: 52,
+			child: FilledButton(
+				style: FilledButton.styleFrom(
+					backgroundColor: colorScheme.error,
+					foregroundColor: colorScheme.onError,
+					shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+				),
+				onPressed: () {
+					// TODO: salvar/atualizar passeio
+				},
+				child: Text(
+					'SALVAR / ATUALIZAR - ( PASSEIO 011 )',
+					style: textTheme.labelLarge?.copyWith(
+						fontWeight: FontWeight.w900,
+						color: colorScheme.onError,
+					),
+				),
+			),
 		);
 	}
 }
