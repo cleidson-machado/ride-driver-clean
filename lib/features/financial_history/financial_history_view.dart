@@ -639,17 +639,10 @@ class _SaveButton extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
 		return SizedBox(
 			width: double.infinity,
 			height: 52,
 			child: FilledButton.icon(
-				style: FilledButton.styleFrom(
-					backgroundColor: colorScheme.error,
-					foregroundColor: colorScheme.onError,
-					shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-				),
 				onPressed: () {
 					// TODO: salvar/atualizar passeio
 				},
