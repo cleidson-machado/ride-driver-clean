@@ -425,7 +425,7 @@ class _PlatformsSection extends StatelessWidget {
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
 				Text(
-					'PLATAFORMAS BASE',
+					'PLATAFORMAS - UTILIZADAS',
 					textAlign: TextAlign.center,
 					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900),
 				),
@@ -540,7 +540,7 @@ class _QuickOptionsRow extends StatelessWidget {
 				// COM IMAGENS?
 				Expanded(
 					child: Row(
-						mainAxisAlignment: MainAxisAlignment.center,
+						mainAxisAlignment: MainAxisAlignment.start,
 						children: [
 							Tooltip(
 								message: 'Com imagens',
@@ -549,7 +549,7 @@ class _QuickOptionsRow extends StatelessWidget {
 							const SizedBox(width: 4),
 							Flexible(
 								child: Text(
-									'COM IMAGENS?',
+									'HAS IMAGES?',
 									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
 									overflow: TextOverflow.ellipsis,
 								),
@@ -561,7 +561,7 @@ class _QuickOptionsRow extends StatelessWidget {
 				Column(
 					children: [
 						Text(
-							'PLATAFORMA',
+							'PLUS - PL',
 							style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
 						),
 						const SizedBox(height: 4),
@@ -572,7 +572,7 @@ class _QuickOptionsRow extends StatelessWidget {
 								height: 44,
 								decoration: BoxDecoration(
 									shape: BoxShape.circle,
-									border: Border.all(color: colorScheme.outline, width: 2),
+									border: Border.all(color: colorScheme.outline, width: 4),
 								),
 								child: Icon(Icons.add, color: colorScheme.onSurface),
 							),
@@ -582,11 +582,11 @@ class _QuickOptionsRow extends StatelessWidget {
 				// CONCLUÍDO?
 				Expanded(
 					child: Row(
-						mainAxisAlignment: MainAxisAlignment.center,
+						mainAxisAlignment: MainAxisAlignment.end,
 						children: [
 							Flexible(
 								child: Text(
-									'CONCLUÍDO?',
+									'IS FINISHED?',
 									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
 									overflow: TextOverflow.ellipsis,
 								),
@@ -656,7 +656,7 @@ class _SaveButton extends StatelessWidget {
 					// TODO: salvar/atualizar passeio
 				},
 				icon: const Icon(Icons.save_rounded),
-				label: const Text('SALVAR / ATUALIZAR - ( PASSEIO 011 )'),
+				label: const Text('SALVAR / ATUALIZAR esse PASSEIO?'),
 			),
 		);
 	}
