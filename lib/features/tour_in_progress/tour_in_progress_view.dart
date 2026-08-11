@@ -191,8 +191,8 @@ class _CurrentRideCard extends StatelessWidget {
 								// TODO: encerrar passeio em curso
 							},
 							child: Text(
-								'ENCERRAR',
-								style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+								'ENCERRAR - PASSEIO?',
+								style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onError),
 							),
 						),
 					),
