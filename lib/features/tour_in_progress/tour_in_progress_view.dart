@@ -324,10 +324,39 @@ class _StatusIndicator extends StatelessWidget {
 	}
 }
 
-class _RecentRidesSection extends StatelessWidget {
+class _RecentRidesSection extends StatefulWidget {
 	const _RecentRidesSection({required this.items});
 
 	final List<_RecentRideItem> items;
+
+	@override
+	State<_RecentRidesSection> createState() => _RecentRidesSectionState();
+}
+
+class _RecentRidesSectionState extends State<_RecentRidesSection> {
+	late final ScrollController _scrollController;
+	bool _showHeader = true;
+
+	@override
+	void initState() {
+		super.initState();
+		_scrollController = ScrollController()..addListener(_handleScroll);
+	}
+
+	void _handleScroll() {
+		final bool shouldShowHeader = _scrollController.hasClients && _scrollController.offset <= 0;
+		if (_showHeader != shouldShowHeader) {
+			setState(() => _showHeader = shouldShowHeader);
+		}
+	}
+
+	@override
+	void dispose() {
+		_scrollController
+			..removeListener(_handleScroll)
+			..dispose();
+		super.dispose();
+	}
 
 	@override
 	Widget build(BuildContext context) {
@@ -345,16 +374,32 @@ class _RecentRidesSection extends StatelessWidget {
 				child: Column(
 					crossAxisAlignment: CrossAxisAlignment.start,
 					children: [
-						Text(
-							'Passeios Recentes:',
-							style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+						AnimatedSize(
+							duration: const Duration(milliseconds: 180),
+							curve: Curves.easeOut,
+							child: ClipRect(
+								child: Align(
+									alignment: Alignment.topLeft,
+									heightFactor: _showHeader ? 1 : 0,
+									child: Column(
+										crossAxisAlignment: CrossAxisAlignment.start,
+										children: [
+											Text(
+												'Passeios Recentes:',
+												style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+											),
+											const SizedBox(height: 8),
+										],
+									),
+								),
+							),
 						),
-						const SizedBox(height: 8),
 						Expanded(
 							// Sem itemCount para permitir scroll vertical continuo com dados mockados.
 							child: ListView.builder(
+								controller: _scrollController,
 								itemBuilder: (BuildContext context, int index) {
-									final _RecentRideItem item = items[index % items.length];
+									final _RecentRideItem item = widget.items[index % widget.items.length];
 									return Padding(
 										padding: const EdgeInsets.only(bottom: 10),
 										child: _RecentRideDataTableCard(item: item),
