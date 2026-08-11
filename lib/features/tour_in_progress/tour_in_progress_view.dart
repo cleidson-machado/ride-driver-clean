@@ -130,10 +130,19 @@ class _CurrentRideCard extends StatelessWidget {
 
 		return Container(
 			decoration: BoxDecoration(
-				borderRadius: BorderRadius.circular(14),
-				border: Border.all(color: colorScheme.outline),
+				color: colorScheme.surfaceContainerLow,
+				borderRadius: BorderRadius.circular(22),
+				border: Border.all(color: colorScheme.outlineVariant),
+				boxShadow: [
+					BoxShadow(
+						color: colorScheme.shadow.withValues(alpha: 0.18),
+						blurRadius: 5,
+						spreadRadius: 0,
+						offset: const Offset(0, 2),
+					),
+				],
 			),
-			padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+			padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
 			child: Column(
 				crossAxisAlignment: CrossAxisAlignment.stretch,
 				children: [
@@ -163,28 +172,21 @@ class _CurrentRideCard extends StatelessWidget {
 								),
 							),
 							const SizedBox(width: 8),
-							Container(
-								width: 34,
-								height: 34,
-								decoration: BoxDecoration(
-									color: isInProgress ? colorScheme.primary : colorScheme.secondary,
-									shape: BoxShape.circle,
-								),
-							),
+							_StatusIndicator(isInProgress: isInProgress),
 						],
 					),
 					const SizedBox(height: 14),
 					Row(
 						children: [
 							Expanded(
-								child: Align(
+								child: _MetricPanel(
 									alignment: Alignment.centerLeft,
 									child: _TopMetric(label: 'COMBUSTIVEL', value: fuelValue),
 								),
 							),
 							const SizedBox(width: 12),
 							Expanded(
-								child: Align(
+								child: _MetricPanel(
 									alignment: Alignment.centerRight,
 									child: _TopMetric(label: 'FATURAMENTO', value: revenueValue),
 								),
@@ -198,9 +200,11 @@ class _CurrentRideCard extends StatelessWidget {
 								minimumSize: const Size(154, 52),
 								backgroundColor: colorScheme.error,
 								foregroundColor: colorScheme.onError,
+								elevation: 4,
+								shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
 								shape: RoundedRectangleBorder(
-									borderRadius: BorderRadius.circular(10),
-									side: BorderSide(color: colorScheme.onSurface, width: 2),
+									borderRadius: BorderRadius.circular(14),
+									side: BorderSide(color: colorScheme.errorContainer, width: 1.5),
 								),
 							),
 							onPressed: () {
@@ -248,6 +252,64 @@ class _TopMetric extends StatelessWidget {
 					),
 				),
 			],
+		);
+	}
+}
+
+class _MetricPanel extends StatelessWidget {
+	const _MetricPanel({required this.alignment, required this.child});
+
+	final Alignment alignment;
+	final Widget child;
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Container(
+			padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+			decoration: BoxDecoration(
+				color: colorScheme.surfaceContainerLowest,
+				borderRadius: BorderRadius.circular(12),
+			),
+			child: Align(
+				alignment: alignment,
+				child: child,
+			),
+		);
+	}
+}
+
+class _StatusIndicator extends StatelessWidget {
+	const _StatusIndicator({required this.isInProgress});
+
+	final bool isInProgress;
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+		final Color baseColor = isInProgress ? colorScheme.primary : colorScheme.secondary;
+
+		return Container(
+			width: 34,
+			height: 34,
+			decoration: BoxDecoration(
+				shape: BoxShape.circle,
+				boxShadow: [
+					BoxShadow(
+						color: baseColor.withValues(alpha: 0.30),
+						blurRadius: 12,
+						spreadRadius: 2,
+					),
+				],
+				gradient: RadialGradient(
+					colors: [
+						colorScheme.primaryContainer,
+						baseColor,
+					],
+				),
+				border: Border.all(color: colorScheme.outlineVariant),
+			),
 		);
 	}
 }
