@@ -9,7 +9,7 @@ class FinancialHistoryView extends StatefulWidget {
 }
 
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-	static const String _mockDate = '16-07-2026 - SEGUNDA-FEIRA';
+	static const String _mockDate = '( PASSEIO 011 )';
 	static const String _mockRideDate = '16 Julho 2016';
 	static const String _mockStartMileage = '44.762';
 	static const String _mockEmptyValue = 'NONE';
