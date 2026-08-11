@@ -733,6 +733,35 @@ class _TermsLegendSection extends StatelessWidget {
 								term: 'KM - OUT',
 								description: 'Quilometragem final ao encerrar o dia.',
 							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'PLUS - PL',
+								description: 'Adiciona novas plataformas e afins.',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'HAS IMAGES?',
+								description:
+									'Indica no relatorio se existem imagens anexadas para apoiar os registros do dia.',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'IS FINISHED?',
+								description:
+									'Indica no relatorio se o dia de trabalho foi concluido e fechado corretamente.',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'Hodo-2 - is ZERO?',
+								description:
+									'Lembrete para o usuario zerar o hodometro 2 antes de iniciar as corridas.',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'Hodo-2 - NUMBER',
+								description:
+									'Registra o valor final marcado no hodometro 2 do carro ao fim do dia.',
+							),
 						],
 					),
 				),
