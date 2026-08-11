@@ -131,11 +131,13 @@ class _CurrentRideCard extends StatelessWidget {
 		return Container(
 			decoration: BoxDecoration(
 				gradient: LinearGradient(
-					begin: Alignment.topLeft,
-					end: Alignment.bottomRight,
+					begin: Alignment.topCenter,
+					end: Alignment.bottomCenter,
+					stops: const [0.0, 0.35, 1.0],
 					colors: [
-						colorScheme.secondaryContainer.withValues(alpha: 0.75),
-						colorScheme.tertiaryContainer.withValues(alpha: 0.55),
+						colorScheme.tertiary.withValues(alpha: 0.22),
+						colorScheme.tertiaryContainer.withValues(alpha: 0.16),
+						colorScheme.surface,
 					],
 				),
 				borderRadius: BorderRadius.circular(22),
