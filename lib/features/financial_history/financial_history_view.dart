@@ -52,6 +52,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										const SizedBox(height: 26 ),
 										// 6. Footer — botão salvar
 										const _SaveButton(),
+										const SizedBox(height: 12),
+										// 7. Footer — botão combustível (forma de pagamento)
+										const _FuelPaymentButton(),
 									],
 								),
 							),
@@ -182,7 +185,7 @@ class _RightColumn extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				_FieldSlot(label: 'CASH - Gas/Energia', child: _StepperRowMock(value: emptyValue)),
+				_FieldSlot(label: 'CASH - Gas / Energia', child: _StepperRowMock(value: emptyValue)),
 				const SizedBox(height: 12),
 				_FieldSlot(label: 'KM - OUT', child: _StepperRowMock(value: emptyValue)),
 				const SizedBox(height: 12),
@@ -657,6 +660,29 @@ class _SaveButton extends StatelessWidget {
 				},
 				icon: const Icon(Icons.save_rounded),
 				label: const Text('SALVAR / ATUALIZAR esse PASSEIO?'),
+			),
+		);
+	}
+}
+
+class _FuelPaymentButton extends StatelessWidget {
+	const _FuelPaymentButton();
+
+	@override
+	Widget build(BuildContext context) {
+		return SizedBox(
+			width: double.infinity,
+			height: 52,
+			child: FilledButton.icon(
+				style: FilledButton.styleFrom(alignment: Alignment.center),
+				onPressed: () {
+					// TODO: adicionar forma de pagamento do combustivel
+				},
+				icon: const Icon(Icons.credit_card_rounded),
+				label: const Text(
+					'ADD FORMA PAGAMENTO - Gas / Energia?',
+					textAlign: TextAlign.center,
+				),
 			),
 		);
 	}
