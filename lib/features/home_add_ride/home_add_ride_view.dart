@@ -16,6 +16,7 @@ class HomeAddRideView extends StatefulWidget {
 class _HomeAddRideViewState extends State<HomeAddRideView> {
   bool _lastRideExpanded = true;
   bool _weekExpanded = true;
+  Set<_RideAction> _selectedRideAction = <_RideAction>{};
 
   static const List<_MetricItem> _mockLastRideMetrics = [
     _MetricItem(
@@ -106,16 +107,45 @@ class _HomeAddRideViewState extends State<HomeAddRideView> {
           if (!_lastRideExpanded && !_weekExpanded) const Spacer(),
           Padding(
             padding: const EdgeInsets.only(top: 10, bottom: 4),
-            child: FilledButton.icon(
-              onPressed: widget.onAddRidePressed,
-              icon: const Icon(Icons.add_road_rounded),
-              label: const Text('ADICIONAR PASSEIO'),
+            child: SegmentedButton<_RideAction>(
+              segments: const [
+                ButtonSegment<_RideAction>(
+                  value: _RideAction.addRide,
+                  icon: Icon(Icons.add_road_rounded),
+                  label: Text('Add PASSEIO'),
+                ),
+                ButtonSegment<_RideAction>(
+                  value: _RideAction.viewInProgressRide,
+                  icon: Icon(Icons.visibility_rounded),
+                  label: Text('VER em CURSO'),
+                  enabled: false,
+                ),
+              ],
+              selected: _selectedRideAction,
+              emptySelectionAllowed: true,
+              multiSelectionEnabled: false,
+              showSelectedIcon: false,
+              onSelectionChanged: (Set<_RideAction> newSelection) {
+                if (newSelection.contains(_RideAction.addRide)) {
+                  widget.onAddRidePressed();
+                }
+
+                // Limpa a selecao para permitir novo toque e reabrir a tela de adicionar.
+                setState(() {
+                  _selectedRideAction = <_RideAction>{};
+                });
+              },
             ),
           ),
         ],
       ),
     );
   }
+}
+
+enum _RideAction {
+  addRide,
+  viewInProgressRide,
 }
 
 /// Título de seção como botão: expande/recolhe a tabela correspondente.
