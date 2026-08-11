@@ -59,7 +59,10 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										// 8. Footer — botão para adicionar imagens
 										const _AddImagesButton(),
 										const SizedBox(height: 20),
-										// 9. Legenda de termos abreviados/ingles
+										// 9. Footer — botão para gastos extras/alimentacao
+										const _ExtraExpensesButton(),
+										const SizedBox(height: 20),
+										// 10. Legenda de termos abreviados/ingles
 										const _TermsLegendSection(),
 									],
 								),
@@ -728,6 +731,35 @@ class _AddImagesButton extends StatelessWidget {
 				icon: const Icon(Icons.image_outlined),
 				label: const Text(
 					'ADD IMAGENS / ANEXOS? ',
+					textAlign: TextAlign.center,
+				),
+			),
+		);
+	}
+}
+
+class _ExtraExpensesButton extends StatelessWidget {
+	const _ExtraExpensesButton();
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return SizedBox(
+			width: double.infinity,
+			height: 52,
+			child: FilledButton.icon(
+				style: FilledButton.styleFrom(
+					alignment: Alignment.center,
+					backgroundColor: colorScheme.surfaceContainerHigh,
+					foregroundColor: colorScheme.onSurface,
+				),
+				onPressed: () {
+					// TODO: adicionar gastos extras e alimentacao
+				},
+				icon: const Icon(Icons.receipt_long_outlined),
+				label: const Text(
+					'ADD GASTOS EXTRAS / ALIMENTACAO?',
 					textAlign: TextAlign.center,
 				),
 			),
