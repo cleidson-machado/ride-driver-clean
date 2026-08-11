@@ -9,7 +9,8 @@ class FinancialHistoryView extends StatefulWidget {
 }
 
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-	static const String _mockDate = '( PASSEIO 011 ) - em curso!';
+	static const String _mockRideSku = 'PASSEIO 011';
+	static const bool _mockIsRideInProgress = true;
 	static const String _mockRideDate = '16 Julho 2016';
 	static const String _mockStartMileage = '44.762';
 	static const String _mockEmptyValue = 'NONE';
@@ -25,7 +26,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					crossAxisAlignment: CrossAxisAlignment.stretch,
 					children: [
 						// 1. Header
-						_Header(date: _mockDate),
+						_Header(rideSku: _mockRideSku, isRideInProgress: _mockIsRideInProgress),
 						Divider(color: colorScheme.outline, height: 1),
 						// Scrollable body
 						Expanded(
@@ -78,9 +79,10 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
-	const _Header({required this.date});
+	const _Header({required this.rideSku, required this.isRideInProgress});
 
-	final String date;
+	final String rideSku;
+	final bool isRideInProgress;
 
 	@override
 	Widget build(BuildContext context) {
@@ -100,16 +102,58 @@ class _Header extends StatelessWidget {
 							icon: const BackButtonIcon(),
 						),
 					),
-					Text(
-						date,
-						textAlign: TextAlign.center,
-						style: textTheme.titleSmall?.copyWith(
-							fontStyle: FontStyle.italic,
-							fontWeight: FontWeight.w700,
-							color: colorScheme.onSurface,
+					FittedBox(
+						fit: BoxFit.scaleDown,
+						child: Row(
+							mainAxisSize: MainAxisSize.min,
+							children: [
+								Text(
+									'Report: $rideSku',
+									textAlign: TextAlign.center,
+									style: textTheme.titleSmall?.copyWith(
+										fontWeight: FontWeight.w800,
+										color: colorScheme.onSurface,
+									),
+								),
+								const SizedBox(width: 8),
+								_RideStatusPill(isInProgress: isRideInProgress),
+							],
 						),
 					),
 				],
+			),
+		);
+	}
+}
+
+class _RideStatusPill extends StatelessWidget {
+	const _RideStatusPill({required this.isInProgress});
+
+	final bool isInProgress;
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		final Color backgroundColor = isInProgress ? colorScheme.tertiaryContainer : colorScheme.primaryContainer;
+		final Color foregroundColor = isInProgress ? colorScheme.onTertiaryContainer : colorScheme.onPrimaryContainer;
+		final String label = isInProgress ? 'EM CURSO' : 'CONCLUIDO';
+
+		return Container(
+			constraints: const BoxConstraints(minHeight: 24),
+			padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+			decoration: BoxDecoration(
+				color: backgroundColor,
+				borderRadius: BorderRadius.circular(999),
+				border: Border.all(color: colorScheme.outline),
+			),
+			child: Text(
+				label,
+				style: textTheme.labelSmall?.copyWith(
+					fontWeight: FontWeight.w800,
+					color: foregroundColor,
+				),
 			),
 		);
 	}
