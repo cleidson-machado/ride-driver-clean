@@ -297,9 +297,10 @@ class _StatusIndicator extends StatelessWidget {
 				shape: BoxShape.circle,
 				boxShadow: [
 					BoxShadow(
-						color: baseColor.withValues(alpha: 0.30),
-						blurRadius: 12,
-						spreadRadius: 2,
+						color: baseColor.withValues(alpha: 0.18),
+						blurRadius: 4,
+						spreadRadius: 0,
+						offset: const Offset(0, 1),
 					),
 				],
 				gradient: RadialGradient(
