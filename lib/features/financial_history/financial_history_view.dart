@@ -30,7 +30,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 						// Scrollable body
 						Expanded(
 							child: SingleChildScrollView(
-								padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+								padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
 								child: Column(
 									crossAxisAlignment: CrossAxisAlignment.stretch,
 									children: [
@@ -40,16 +40,16 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 											startMileage: _mockStartMileage,
 											emptyValue: _mockEmptyValue,
 										),
-										const SizedBox(height: 16),
+										const SizedBox(height: 26),
 										// 3. Secção plataformas base
 										const _PlatformsSection(),
-										const SizedBox(height: 16),
+										const SizedBox(height: 26),
 										// 4. Linha de opções rápidas
 										const _QuickOptionsRow(),
-										const SizedBox(height: 16),
+										const SizedBox(height: 26),
 										// 5. Campo de notas
 										const _NotesField(),
-										const SizedBox(height: 16),
+										const SizedBox(height: 26 ),
 										// 6. Footer — botão salvar
 										const _SaveButton(),
 									],
@@ -122,16 +122,21 @@ class _TopDataGrid extends StatelessWidget {
 			child: Row(
 				crossAxisAlignment: CrossAxisAlignment.stretch,
 				children: [
+
 					// Coluna esquerda (flex 4)
 					Expanded(
 						flex: 4,
 						child: _LeftColumn(rideDate: rideDate, startMileage: startMileage),
 					),
+
 					const SizedBox(width: 8),
-					// Coluna central (flex 2) — LUCRO
-					const Expanded(flex: 2, child: _ProfitColumn()),
+					// Coluna central (flex 1) — LUCRO
+
+					const Expanded(flex: 1, child: _ProfitColumn()),
+
 					const SizedBox(width: 8),
 					// Coluna direita (flex 4)
+          
 					Expanded(
 						flex: 4,
 						child: _RightColumn(emptyValue: emptyValue),
@@ -155,11 +160,11 @@ class _LeftColumn extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				_FieldSlot(label: 'Data - PASSEIO', child: _DateRowMock(value: rideDate)),
-				const SizedBox(height: 8),
-				_FieldSlot(label: 'Kilometragem - SAÍDA', child: _StepperRowMock(value: startMileage)),
-				const SizedBox(height: 8),
-				const _FieldSlot(label: 'Hodômetro 2 - ZERADO?', child: _BinaryRowMock()),
+				_FieldSlot(label: 'DIA do PASSEIO', child: _DateRowMock(value: rideDate)),
+				const SizedBox(height: 12),
+				_FieldSlot(label: 'KM - IN', child: _StepperRowMock(value: startMileage)),
+				const SizedBox(height:12),
+				const _FieldSlot(label: 'Hodo-2 - is ZERO?', child: _BinaryRowMock()),
 			],
 		);
 	}
@@ -177,11 +182,11 @@ class _RightColumn extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				_FieldSlot(label: 'Valor - ABASTECIMENTO', child: _StepperRowMock(value: emptyValue)),
-				const SizedBox(height: 8),
-				_FieldSlot(label: 'Kilometragem - CHEGADA', child: _StepperRowMock(value: emptyValue)),
-				const SizedBox(height: 8),
-				_FieldSlot(label: 'Hodômetro 2 - TRAJETO', child: _StepperRowMock(value: emptyValue)),
+				_FieldSlot(label: 'CASH - Gas/Energia', child: _StepperRowMock(value: emptyValue)),
+				const SizedBox(height: 12),
+				_FieldSlot(label: 'KM - OUT', child: _StepperRowMock(value: emptyValue)),
+				const SizedBox(height: 12),
+				_FieldSlot(label: 'Hodo-2 - NUMBER', child: _StepperRowMock(value: emptyValue)),
 			],
 		);
 	}
@@ -200,10 +205,13 @@ class _ProfitColumn extends StatelessWidget {
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.stretch,
 			children: [
-				Text(
-					'LUCRO',
-					textAlign: TextAlign.center,
-					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900),
+				FittedBox(
+					fit: BoxFit.scaleDown,
+					child: Text(
+						'L1',
+						textAlign: TextAlign.center,
+						style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900, fontSize: 16),
+					),
 				),
 				const SizedBox(height: 4),
 				Expanded(
@@ -237,6 +245,7 @@ class _ProfitColumn extends StatelessWidget {
 }
 
 // ─── Field slot (label + input) ───────────────────────────────────────────────
+// This widget is used to wrap each field with a label and the corresponding input widget.
 
 class _FieldSlot extends StatelessWidget {
 	const _FieldSlot({required this.label, required this.child});
@@ -253,7 +262,7 @@ class _FieldSlot extends StatelessWidget {
 			children: [
 				Text(
 					label,
-					style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900),
+					style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800),
 					overflow: TextOverflow.ellipsis,
 				),
 				const SizedBox(height: 4),
