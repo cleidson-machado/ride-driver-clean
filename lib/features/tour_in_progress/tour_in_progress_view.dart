@@ -54,7 +54,7 @@ class _TourInProgressViewState extends State<TourInProgressView> {
 					crossAxisAlignment: CrossAxisAlignment.stretch,
 					children: [
 						Padding(
-							padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+							padding: const EdgeInsets.symmetric(horizontal: 14),
 							child: SizedBox(
 								height: 48,
 								child: Stack(
@@ -84,11 +84,7 @@ class _TourInProgressViewState extends State<TourInProgressView> {
 								),
 							),
 						),
-						Divider(
-							height: 1,
-							thickness: 1,
-							color: colorScheme.outline,
-						),
+						Divider(color: colorScheme.outline, height: 1),
 						Expanded(
 							child: Padding(
 								padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
