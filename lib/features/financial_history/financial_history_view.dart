@@ -52,11 +52,14 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										const SizedBox(height: 26 ),
 										// 6. Footer — botão salvar
 										const _SaveButton(),
-										const SizedBox(height: 12),
+										const SizedBox(height: 20),
 										// 7. Footer — botão combustível (forma de pagamento)
 										const _FuelPaymentButton(),
-										const SizedBox(height: 16),
-										// 8. Legenda de termos abreviados/ingles
+										const SizedBox(height: 20),
+										// 8. Footer — botão para adicionar imagens
+										const _AddImagesButton(),
+										const SizedBox(height: 20),
+										// 9. Legenda de termos abreviados/ingles
 										const _TermsLegendSection(),
 									],
 								),
@@ -654,10 +657,16 @@ class _SaveButton extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
 		return SizedBox(
 			width: double.infinity,
 			height: 52,
 			child: FilledButton.icon(
+				style: FilledButton.styleFrom(
+					backgroundColor: colorScheme.primaryContainer,
+					foregroundColor: colorScheme.onPrimaryContainer,
+				),
 				onPressed: () {
 					// TODO: salvar/atualizar passeio
 				},
@@ -673,17 +682,52 @@ class _FuelPaymentButton extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
 		return SizedBox(
 			width: double.infinity,
 			height: 52,
 			child: FilledButton.icon(
-				style: FilledButton.styleFrom(alignment: Alignment.center),
+				style: FilledButton.styleFrom(
+					alignment: Alignment.center,
+					backgroundColor: colorScheme.secondaryContainer,
+					foregroundColor: colorScheme.onSecondaryContainer,
+				),
 				onPressed: () {
 					// TODO: adicionar forma de pagamento do combustivel
 				},
 				icon: const Icon(Icons.credit_card_rounded),
 				label: const Text(
 					'ADD FORMA PAGAMENTO - Gas / Energia?',
+					textAlign: TextAlign.center,
+				),
+			),
+		);
+	}
+}
+
+class _AddImagesButton extends StatelessWidget {
+	const _AddImagesButton();
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return SizedBox(
+			width: double.infinity,
+			height: 52,
+			child: FilledButton.icon(
+				style: FilledButton.styleFrom(
+					alignment: Alignment.center,
+					backgroundColor: colorScheme.tertiaryContainer,
+					foregroundColor: colorScheme.onTertiaryContainer,
+				),
+				onPressed: () {
+					// TODO: adicionar imagens e anexos da jornada
+				},
+				icon: const Icon(Icons.image_outlined),
+				label: const Text(
+					'ADD IMAGENS / ANEXOS? ',
 					textAlign: TextAlign.center,
 				),
 			),
