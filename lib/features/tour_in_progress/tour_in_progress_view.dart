@@ -50,12 +50,12 @@ class _TourInProgressViewState extends State<TourInProgressView> {
 		return Scaffold(
 			backgroundColor: colorScheme.surface,
 			body: SafeArea(
-				child: Padding(
-					padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.stretch,
-						children: [
-							SizedBox(
+				child: Column(
+					crossAxisAlignment: CrossAxisAlignment.stretch,
+					children: [
+						Padding(
+							padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+							child: SizedBox(
 								height: 48,
 								child: Stack(
 									alignment: Alignment.center,
@@ -83,19 +83,31 @@ class _TourInProgressViewState extends State<TourInProgressView> {
 									],
 								),
 							),
-							const SizedBox(height: 8),
-							Divider(color: colorScheme.outline, height: 1),
-							const SizedBox(height: 14),
-							_CurrentRideCard(
-								rideSku: _mockRideSku,
-								isInProgress: _mockIsInProgress,
-								fuelValue: _mockFuelValue,
-								revenueValue: _mockRevenueValue,
+						),
+						Divider(
+							height: 1,
+							thickness: 1,
+							color: colorScheme.outline,
+						),
+						Expanded(
+							child: Padding(
+								padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+								child: Column(
+									crossAxisAlignment: CrossAxisAlignment.stretch,
+									children: [
+										_CurrentRideCard(
+											rideSku: _mockRideSku,
+											isInProgress: _mockIsInProgress,
+											fuelValue: _mockFuelValue,
+											revenueValue: _mockRevenueValue,
+										),
+										const SizedBox(height: 16),
+										_RecentRidesSection(items: _recentRides),
+									],
+								),
 							),
-							const SizedBox(height: 16),
-							_RecentRidesSection(items: _recentRides),
-						],
-					),
+						),
+					],
 				),
 			),
 		);
@@ -169,11 +181,17 @@ class _CurrentRideCard extends StatelessWidget {
 					Row(
 						children: [
 							Expanded(
-								child: _TopMetric(label: 'COMBUSTIVEL', value: fuelValue),
+								child: Align(
+									alignment: Alignment.centerLeft,
+									child: _TopMetric(label: 'COMBUSTIVEL', value: fuelValue),
+								),
 							),
 							const SizedBox(width: 12),
 							Expanded(
-								child: _TopMetric(label: 'FATURAMENTO', value: revenueValue),
+								child: Align(
+									alignment: Alignment.centerRight,
+									child: _TopMetric(label: 'FATURAMENTO', value: revenueValue),
+								),
 							),
 						],
 					),
@@ -215,18 +233,21 @@ class _TopMetric extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Column(
-			crossAxisAlignment: CrossAxisAlignment.start,
+			mainAxisSize: MainAxisSize.min,
+			crossAxisAlignment: CrossAxisAlignment.center,
 			children: [
 				Text(
 					label,
+					textAlign: TextAlign.center,
 					style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
 				),
 				const SizedBox(height: 2),
 				FittedBox(
 					fit: BoxFit.scaleDown,
-					alignment: Alignment.centerLeft,
+					alignment: Alignment.center,
 					child: Text(
 						value,
+						textAlign: TextAlign.center,
 						style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
 					),
 				),
