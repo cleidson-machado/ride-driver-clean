@@ -380,83 +380,107 @@ class _RecentRideDataTableCard extends StatelessWidget {
 		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		return Container(
+			constraints: const BoxConstraints(minHeight: 88),
+			padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
 			decoration: BoxDecoration(
-				color: colorScheme.surface,
-				borderRadius: BorderRadius.circular(10),
-				border: Border.all(color: colorScheme.outlineVariant),
-			),
-			child: SingleChildScrollView(
-				scrollDirection: Axis.horizontal,
-				child: DataTable(
-					headingRowHeight: 0,
-					dataRowMinHeight: 54,
-					dataRowMaxHeight: 54,
-					horizontalMargin: 10,
-					columnSpacing: 12,
-					columns: const [
-						DataColumn(label: SizedBox.shrink()),
-						DataColumn(label: SizedBox.shrink()),
-						DataColumn(label: SizedBox.shrink()),
-						DataColumn(label: SizedBox.shrink()),
-						DataColumn(label: SizedBox.shrink()),
-						DataColumn(label: SizedBox.shrink()),
+				gradient: LinearGradient(
+					begin: Alignment.topCenter,
+					end: Alignment.bottomCenter,
+					colors: [
+						colorScheme.surface,
+						colorScheme.surfaceContainerLowest,
 					],
-					rows: [
-						DataRow(
-							cells: [
-								DataCell(
-									Row(
-										mainAxisSize: MainAxisSize.min,
-										children: [
-											Icon(Icons.directions_car_rounded, size: 18, color: colorScheme.onSurfaceVariant),
-											const SizedBox(width: 8),
-											Text(
-												item.sku,
-												style: textTheme.titleMedium?.copyWith(
-													fontWeight: FontWeight.w700,
-													color: colorScheme.onSurfaceVariant,
-												),
-											),
-										],
-									),
-								),
-								DataCell(
-									Text(
-										item.date,
-										style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-									),
-								),
-								DataCell(
-									Text(
-										item.amount,
-										style: textTheme.titleMedium?.copyWith(
-											color: colorScheme.primary,
-											fontWeight: FontWeight.w700,
+				),
+				borderRadius: BorderRadius.circular(12),
+				border: Border.all(color: colorScheme.outlineVariant),
+				boxShadow: [
+					BoxShadow(
+						color: colorScheme.shadow.withValues(alpha: 0.08),
+						blurRadius: 4,
+						offset: const Offset(0, 1),
+					),
+				],
+			),
+			child: Row(
+				children: [
+					SizedBox(
+						width: 112,
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							mainAxisAlignment: MainAxisAlignment.center,
+							crossAxisAlignment: CrossAxisAlignment.start,
+							children: [
+								Row(
+									mainAxisSize: MainAxisSize.min,
+									children: [
+										Icon(
+											Icons.directions_car_rounded,
+											size: 18,
+											color: colorScheme.onSurfaceVariant,
 										),
+										const SizedBox(width: 8),
+										Text(
+											item.sku,
+											style: textTheme.titleMedium?.copyWith(
+												fontWeight: FontWeight.w700,
+											),
+										),
+									],
+								),
+								const SizedBox(height: 8),
+								Text(
+									item.date,
+									style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+								),
+							],
+						),
+					),
+					VerticalDivider(width: 16, thickness: 1, color: colorScheme.outlineVariant),
+					Expanded(
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							mainAxisAlignment: MainAxisAlignment.center,
+							crossAxisAlignment: CrossAxisAlignment.start,
+							children: [
+								Text(
+									item.amount,
+									style: textTheme.titleLarge?.copyWith(
+										fontWeight: FontWeight.w700,
+										color: colorScheme.primary,
 									),
 								),
-								DataCell(
-									Text(
-										'KM IN: ${item.kmIn}',
-										style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-									),
-								),
-								DataCell(
-									Text(
-										'HODO2: ${item.hodo2}',
-										style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-									),
-								),
-								DataCell(
-									Text(
-										'KM OUT: ${item.kmOut}',
-										style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+								const SizedBox(height: 4),
+								Text(
+									'KM IN: ${item.kmIn}   OUT: ${item.kmOut}',
+									style: textTheme.bodyMedium?.copyWith(
+										color: colorScheme.onSurfaceVariant,
 									),
 								),
 							],
 						),
-					],
-				),
+					),
+					VerticalDivider(width: 16, thickness: 1, color: colorScheme.outlineVariant),
+					SizedBox(
+						width: 74,
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							mainAxisAlignment: MainAxisAlignment.center,
+							crossAxisAlignment: CrossAxisAlignment.end,
+							children: [
+								Text(
+									'Trip Stats',
+									style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+								),
+								const SizedBox(height: 4),
+								Text(
+									'HOD ${item.hodo2}',
+									style: textTheme.bodyMedium,
+									textAlign: TextAlign.end,
+								),
+							],
+						),
+					),
+				],
 			),
 		);
 	}
