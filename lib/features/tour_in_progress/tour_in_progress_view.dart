@@ -130,7 +130,14 @@ class _CurrentRideCard extends StatelessWidget {
 
 		return Container(
 			decoration: BoxDecoration(
-				color: colorScheme.surfaceContainerLow,
+				gradient: LinearGradient(
+					begin: Alignment.topLeft,
+					end: Alignment.bottomRight,
+					colors: [
+						colorScheme.secondaryContainer.withValues(alpha: 0.75),
+						colorScheme.tertiaryContainer.withValues(alpha: 0.55),
+					],
+				),
 				borderRadius: BorderRadius.circular(22),
 				border: Border.all(color: colorScheme.outlineVariant),
 				boxShadow: [
