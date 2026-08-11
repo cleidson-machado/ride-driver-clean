@@ -57,28 +57,30 @@ class _TourInProgressViewState extends State<TourInProgressView> {
 						children: [
 							SizedBox(
 								height: 48,
-								child: Center(
-									child: Row(
-										mainAxisSize: MainAxisSize.min,
-										children: [
-											IconButton(
+								child: Stack(
+									alignment: Alignment.center,
+									children: [
+										Align(
+											alignment: Alignment.centerLeft,
+											child: IconButton(
 												tooltip: 'Voltar',
 												onPressed: () => Navigator.of(context).maybePop(),
 												icon: const BackButtonIcon(),
 											),
-											Flexible(
-												child: Text(
-													_mockHeaderDate,
-													textAlign: TextAlign.center,
-													style: textTheme.titleSmall?.copyWith(
-														fontStyle: FontStyle.italic,
-														fontWeight: FontWeight.w500,
-														color: colorScheme.onSurfaceVariant,
-													),
+										),
+										Padding(
+											padding: const EdgeInsets.symmetric(horizontal: 48),
+											child: Text(
+												_mockHeaderDate,
+												textAlign: TextAlign.center,
+												style: textTheme.titleSmall?.copyWith(
+													fontStyle: FontStyle.italic,
+													fontWeight: FontWeight.w500,
+													color: colorScheme.onSurfaceVariant,
 												),
 											),
-										],
-									),
+										),
+									],
 								),
 							),
 							const SizedBox(height: 8),
