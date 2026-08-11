@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../financial_history/financial_history_view.dart';
 import '../history/presentation/history_view.dart';
 import '../search/presentation/search_view.dart';
+import '../tour_in_progress/tour_in_progress_view.dart';
 import '../trash/presentation/trash_view.dart';
 import 'home_add_ride_view.dart';
 
@@ -32,13 +33,25 @@ class _HomeContentTabViewState extends State<HomeContentTabView> {
 		);
 	}
 
+	void _openTourInProgress() {
+		Navigator.push(
+			context,
+			MaterialPageRoute<void>(
+				builder: (_) => const TourInProgressView(),
+			),
+		);
+	}
+
 	@override
 	Widget build(BuildContext context) {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		final List<Widget> children = <Widget>[
-			HomeAddRideView(onAddRidePressed: _openFinancialHistory),
+			HomeAddRideView(
+				onAddRidePressed: _openFinancialHistory,
+				onViewInProgressRidePressed: _openTourInProgress,
+			),
 			const SearchView(),
 			const HistoryView(),
 			const TrashView(),

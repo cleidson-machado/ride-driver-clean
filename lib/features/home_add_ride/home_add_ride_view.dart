@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class HomeAddRideView extends StatefulWidget {
   const HomeAddRideView({
     required this.onAddRidePressed,
+    required this.onViewInProgressRidePressed,
     super.key,
   });
 
   final VoidCallback onAddRidePressed;
+  final VoidCallback onViewInProgressRidePressed;
 
   @override
   State<HomeAddRideView> createState() => _HomeAddRideViewState();
@@ -118,7 +120,6 @@ class _HomeAddRideViewState extends State<HomeAddRideView> {
                   value: _RideAction.viewInProgressRide,
                   icon: Icon(Icons.visibility_rounded),
                   label: Text('VER em CURSO'),
-                  enabled: false,
                 ),
               ],
               selected: _selectedRideAction,
@@ -128,6 +129,10 @@ class _HomeAddRideViewState extends State<HomeAddRideView> {
               onSelectionChanged: (Set<_RideAction> newSelection) {
                 if (newSelection.contains(_RideAction.addRide)) {
                   widget.onAddRidePressed();
+                }
+
+                if (newSelection.contains(_RideAction.viewInProgressRide)) {
+                  widget.onViewInProgressRidePressed();
                 }
 
                 // Limpa a selecao para permitir novo toque e reabrir a tela de adicionar.
