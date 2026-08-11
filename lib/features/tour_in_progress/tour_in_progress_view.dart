@@ -157,31 +157,46 @@ class _CurrentRideCard extends StatelessWidget {
 				children: [
 					Row(
 						children: [
-							Text(
-								'PASSEIO:',
-								style: textTheme.titleMedium?.copyWith(
-									fontWeight: FontWeight.w700,
-									fontStyle: FontStyle.italic,
+							Expanded(
+								child: Row(
+									mainAxisAlignment: MainAxisAlignment.center,
+									mainAxisSize: MainAxisSize.min,
+									children: [
+										Text(
+											'PASSEIO:',
+											style: textTheme.titleMedium?.copyWith(
+												fontWeight: FontWeight.w700,
+												fontStyle: FontStyle.italic,
+											),
+										),
+										const SizedBox(width: 12),
+										Text(
+											rideSku,
+											style: textTheme.titleMedium?.copyWith(
+												fontWeight: FontWeight.w700,
+												color: colorScheme.error,
+												fontStyle: FontStyle.italic,
+											),
+										),
+									],
 								),
 							),
-							const SizedBox(width: 12),
-							Text(
-								rideSku,
-								style: textTheme.titleMedium?.copyWith(
-									fontWeight: FontWeight.w700,
-									color: colorScheme.error,
-									fontStyle: FontStyle.italic,
+							Expanded(
+								child: Row(
+									mainAxisAlignment: MainAxisAlignment.center,
+									mainAxisSize: MainAxisSize.min,
+									children: [
+										Text(
+											isInProgress ? 'EM CURSO' : 'CONCLUIDO',
+											style: textTheme.titleSmall?.copyWith(
+												fontWeight: FontWeight.w700,
+											),
+										),
+										const SizedBox(width: 8),
+										_StatusIndicator(isInProgress: isInProgress),
+									],
 								),
 							),
-							const Spacer(),
-							Text(
-								isInProgress ? 'EM CURSO' : 'CONCLUIDO',
-								style: textTheme.titleSmall?.copyWith(
-									fontWeight: FontWeight.w700,
-								),
-							),
-							const SizedBox(width: 8),
-							_StatusIndicator(isInProgress: isInProgress),
 						],
 					),
 					const SizedBox(height: 14),
@@ -189,14 +204,14 @@ class _CurrentRideCard extends StatelessWidget {
 						children: [
 							Expanded(
 								child: _MetricPanel(
-									alignment: Alignment.centerLeft,
+									alignment: Alignment.center,
 									child: _TopMetric(label: 'COMBUSTIVEL', value: fuelValue),
 								),
 							),
 							const SizedBox(width: 12),
 							Expanded(
 								child: _MetricPanel(
-									alignment: Alignment.centerRight,
+									alignment: Alignment.center,
 									child: _TopMetric(label: 'FATURAMENTO', value: revenueValue),
 								),
 							),
