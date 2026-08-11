@@ -65,6 +65,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										const SizedBox(height: 20),
 										// 10. Legenda de termos abreviados/ingles
 										const _TermsLegendSection(),
+										const SizedBox(height: 20),
+										// 11. Footer — botao de exclusao do report/passeio
+										const _DeleteRideReportButton(),
 									],
 								),
 							),
@@ -713,6 +716,12 @@ class _SaveButton extends StatelessWidget {
 				style: FilledButton.styleFrom(
 					backgroundColor: colorScheme.primaryContainer,
 					foregroundColor: colorScheme.onPrimaryContainer,
+					elevation: 4,
+					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					shape: RoundedRectangleBorder(
+						borderRadius: BorderRadius.circular(14),
+						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+					),
 				),
 				onPressed: () {
 					// TODO: salvar/atualizar passeio
@@ -739,6 +748,12 @@ class _FuelPaymentButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.secondaryContainer,
 					foregroundColor: colorScheme.onSecondaryContainer,
+					elevation: 4,
+					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					shape: RoundedRectangleBorder(
+						borderRadius: BorderRadius.circular(14),
+						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+					),
 				),
 				onPressed: () {
 					// TODO: adicionar forma de pagamento do combustivel
@@ -768,6 +783,12 @@ class _AddImagesButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.tertiaryContainer,
 					foregroundColor: colorScheme.onTertiaryContainer,
+					elevation: 4,
+					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					shape: RoundedRectangleBorder(
+						borderRadius: BorderRadius.circular(14),
+						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+					),
 				),
 				onPressed: () {
 					// TODO: adicionar imagens e anexos da jornada
@@ -797,6 +818,12 @@ class _ExtraExpensesButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.surfaceContainerHigh,
 					foregroundColor: colorScheme.onSurface,
+					elevation: 4,
+					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					shape: RoundedRectangleBorder(
+						borderRadius: BorderRadius.circular(14),
+						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+					),
 				),
 				onPressed: () {
 					// TODO: adicionar gastos extras e alimentacao
@@ -804,6 +831,41 @@ class _ExtraExpensesButton extends StatelessWidget {
 				icon: const Icon(Icons.receipt_long_outlined),
 				label: const Text(
 					'ADD GASTOS EXTRAS / ALIMENTACAO?',
+					textAlign: TextAlign.center,
+				),
+			),
+		);
+	}
+}
+
+class _DeleteRideReportButton extends StatelessWidget {
+	const _DeleteRideReportButton();
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return SizedBox(
+			width: double.infinity,
+			height: 52,
+			child: FilledButton.icon(
+				style: FilledButton.styleFrom(
+					alignment: Alignment.center,
+					backgroundColor: colorScheme.errorContainer,
+					foregroundColor: colorScheme.onErrorContainer,
+					elevation: 4,
+					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					shape: RoundedRectangleBorder(
+						borderRadius: BorderRadius.circular(14),
+						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+					),
+				),
+				onPressed: () {
+					// TODO: excluir report/passeio
+				},
+				icon: const Icon(Icons.delete_forever_rounded),
+				label: const Text(
+					'EXCLUIR REPORT / PASSEIO?',
 					textAlign: TextAlign.center,
 				),
 			),
