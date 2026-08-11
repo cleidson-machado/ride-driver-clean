@@ -55,6 +55,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										const SizedBox(height: 12),
 										// 7. Footer — botão combustível (forma de pagamento)
 										const _FuelPaymentButton(),
+										const SizedBox(height: 16),
+										// 8. Legenda de termos abreviados/ingles
+										const _TermsLegendSection(),
 									],
 								),
 							),
@@ -683,6 +686,82 @@ class _FuelPaymentButton extends StatelessWidget {
 					'ADD FORMA PAGAMENTO - Gas / Energia?',
 					textAlign: TextAlign.center,
 				),
+			),
+		);
+	}
+}
+
+class _TermsLegendSection extends StatelessWidget {
+	const _TermsLegendSection();
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.stretch,
+			children: [
+				Text(
+					'Legenda dos termos',
+					textAlign: TextAlign.center,
+					style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+				),
+				const SizedBox(height: 8),
+				Container(
+					decoration: BoxDecoration(
+						color: colorScheme.tertiaryContainer,
+						borderRadius: BorderRadius.circular(6),
+						border: Border.all(color: colorScheme.outline),
+					),
+					padding: const EdgeInsets.all(12),
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: [
+							_DictionaryRow(
+								term: 'L1',
+								description:
+									'LUCRO simples, sem VALOR Gas/Energia do DIA!',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'KM - IN',
+								description: 'Quilometragem inicial no comeco da jornada.',
+							),
+							const SizedBox(height: 6),
+							_DictionaryRow(
+								term: 'KM - OUT',
+								description: 'Quilometragem final ao encerrar o dia.',
+							),
+						],
+					),
+				),
+			],
+		);
+	}
+}
+
+class _DictionaryRow extends StatelessWidget {
+	const _DictionaryRow({required this.term, required this.description});
+
+	final String term;
+	final String description;
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return RichText(
+			text: TextSpan(
+				style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
+				children: [
+					TextSpan(
+						text: '$term: ',
+						style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w800, color: colorScheme.onSurface),
+					),
+					TextSpan(text: description),
+				],
 			),
 		);
 	}
