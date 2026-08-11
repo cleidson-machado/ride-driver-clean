@@ -408,10 +408,11 @@ class _RecentRideDataTableCard extends StatelessWidget {
 						child: Column(
 							mainAxisSize: MainAxisSize.min,
 							mainAxisAlignment: MainAxisAlignment.center,
-							crossAxisAlignment: CrossAxisAlignment.start,
+							crossAxisAlignment: CrossAxisAlignment.center,
 							children: [
 								Row(
 									mainAxisSize: MainAxisSize.min,
+									mainAxisAlignment: MainAxisAlignment.center,
 									children: [
 										Icon(
 											Icons.directions_car_rounded,
@@ -429,7 +430,8 @@ class _RecentRideDataTableCard extends StatelessWidget {
 								),
 								const SizedBox(height: 8),
 								Text(
-									item.date,
+									'${item.date}/26',
+									textAlign: TextAlign.center,
 									style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
 								),
 							],
