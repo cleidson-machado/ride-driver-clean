@@ -27,7 +27,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					children: [
 						// 1. Header
 						_Header(rideSku: _mockRideSku, isRideInProgress: _mockIsRideInProgress),
-						Divider(color: colorScheme.outline, height: 1),
+						Divider(color: colorScheme.outlineVariant, height: 1),
 						// Scrollable body
 						Expanded(
 							child: SingleChildScrollView(
@@ -149,7 +149,7 @@ class _RideStatusPill extends StatelessWidget {
 			decoration: BoxDecoration(
 				color: backgroundColor,
 				borderRadius: BorderRadius.circular(999),
-				border: Border.all(color: colorScheme.outline),
+				border: Border.all(color: colorScheme.outlineVariant),
 			),
 			child: Text(
 				label,
@@ -276,8 +276,8 @@ class _ProfitColumn extends StatelessWidget {
 				Expanded(
 					child: Container(
 						decoration: BoxDecoration(
-							borderRadius: BorderRadius.circular(2),
-							border: Border.all(color: colorScheme.outline),
+							borderRadius: BorderRadius.circular(12),
+							border: Border.all(color: colorScheme.outlineVariant),
 						),
 						child: Column(
 							children: [
@@ -289,8 +289,8 @@ class _ProfitColumn extends StatelessWidget {
 									decoration: BoxDecoration(
 										color: colorScheme.onSurface,
 										borderRadius: const BorderRadius.only(
-											bottomLeft: Radius.circular(2),
-											bottomRight: Radius.circular(2),
+											bottomLeft: Radius.circular(11),
+											bottomRight: Radius.circular(11),
 										),
 									),
 								),
@@ -315,13 +315,18 @@ class _FieldSlot extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
 		return Column(
 			crossAxisAlignment: CrossAxisAlignment.start,
 			children: [
 				Text(
 					label,
-					style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800),
+					style: textTheme.labelSmall?.copyWith(
+						fontWeight: FontWeight.w700,
+						letterSpacing: 1.0,
+						color: colorScheme.onSurfaceVariant,
+					),
 					overflow: TextOverflow.ellipsis,
 				),
 				const SizedBox(height: 4),
@@ -346,8 +351,9 @@ class _DateRowMock extends StatelessWidget {
 		return Container(
 			height: 44,
 			decoration: BoxDecoration(
-				borderRadius: BorderRadius.circular(2),
-				border: Border.all(color: colorScheme.outline),
+				color: colorScheme.surface,
+				borderRadius: BorderRadius.circular(12),
+				border: Border.all(color: colorScheme.outlineVariant),
 			),
 			child: Row(
 				children: [
@@ -361,15 +367,25 @@ class _DateRowMock extends StatelessWidget {
 							),
 						),
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					SizedBox(
 						width: 38,
 						child: Tooltip(
 							message: 'Selecionar data',
-							child: Icon(
-								Icons.calendar_month_outlined,
-								size: 18,
-								color: colorScheme.onSurfaceVariant,
+							child: Center(
+								child: Container(
+									width: 28,
+									height: 28,
+									decoration: BoxDecoration(
+										color: colorScheme.primaryContainer,
+										borderRadius: BorderRadius.circular(10),
+									),
+									child: Icon(
+										Icons.calendar_month_outlined,
+										size: 16,
+										color: colorScheme.onPrimaryContainer,
+									),
+								),
 							),
 						),
 					),
@@ -394,15 +410,16 @@ class _StepperRowMock extends StatelessWidget {
 		return Container(
 			height: 44,
 			decoration: BoxDecoration(
-				borderRadius: BorderRadius.circular(2),
-				border: Border.all(color: colorScheme.outline),
+				color: colorScheme.surface,
+				borderRadius: BorderRadius.circular(12),
+				border: Border.all(color: colorScheme.outlineVariant),
 			),
 			child: Row(
 				children: [
 					Expanded(
 						child: Center(child: Text('-', style: textTheme.titleSmall)),
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					Expanded(
 						flex: 3,
 						child: Center(
@@ -413,7 +430,7 @@ class _StepperRowMock extends StatelessWidget {
 							),
 						),
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					Expanded(
 						child: Center(child: Text('+', style: textTheme.titleSmall)),
 					),
@@ -436,8 +453,9 @@ class _BinaryRowMock extends StatelessWidget {
 		return Container(
 			height: 44,
 			decoration: BoxDecoration(
-				borderRadius: BorderRadius.circular(2),
-				border: Border.all(color: colorScheme.outline),
+				color: colorScheme.surface,
+				borderRadius: BorderRadius.circular(12),
+				border: Border.all(color: colorScheme.outlineVariant),
 			),
 			child: Row(
 				children: [
@@ -447,7 +465,7 @@ class _BinaryRowMock extends StatelessWidget {
 							child: Icon(Icons.circle_outlined, size: 18, color: colorScheme.onSurfaceVariant),
 						),
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					Expanded(
 						flex: 3,
 						child: Center(
@@ -457,7 +475,7 @@ class _BinaryRowMock extends StatelessWidget {
 							),
 						),
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outline),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					Expanded(
 						child: Tooltip(
 							message: 'Status alternativo',
@@ -485,17 +503,21 @@ class _PlatformsSection extends StatelessWidget {
 			children: [
 				Text(
 					'PLATAFORMAS - UTILIZADAS',
-					textAlign: TextAlign.center,
-					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900),
+					textAlign: TextAlign.left,
+					style: textTheme.labelSmall?.copyWith(
+						fontWeight: FontWeight.w700,
+						letterSpacing: 1.2,
+						color: colorScheme.onSurfaceVariant,
+					),
 				),
 				const SizedBox(height: 6),
 				Container(
 					decoration: BoxDecoration(
 						color: colorScheme.surfaceContainerHighest,
-						borderRadius: BorderRadius.circular(4),
-						border: Border.all(color: colorScheme.outline),
+						borderRadius: BorderRadius.circular(16),
+						border: Border.all(color: colorScheme.outlineVariant),
 					),
-					padding: const EdgeInsets.all(8),
+					padding: const EdgeInsets.all(10),
 					child: Row(
 						crossAxisAlignment: CrossAxisAlignment.start,
 						children: [
@@ -530,11 +552,11 @@ class _PlatformCard extends StatelessWidget {
 
 		return Container(
 			decoration: BoxDecoration(
-				borderRadius: BorderRadius.circular(4),
-				border: Border.all(color: colorScheme.outline),
+				borderRadius: BorderRadius.circular(14),
+				border: Border.all(color: colorScheme.outlineVariant),
 				color: colorScheme.surface,
 			),
-			padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+			padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
 			child: Column(
 				crossAxisAlignment: CrossAxisAlignment.stretch,
 				children: [
@@ -552,8 +574,8 @@ class _PlatformCard extends StatelessWidget {
 					Container(
 						padding: const EdgeInsets.symmetric(vertical: 6),
 						decoration: BoxDecoration(
-							border: Border.all(color: colorScheme.outline),
-							borderRadius: BorderRadius.circular(2),
+							border: Border.all(color: colorScheme.outlineVariant),
+							borderRadius: BorderRadius.circular(10),
 						),
 						child: Text(
 							totalValue,
@@ -568,8 +590,8 @@ class _PlatformCard extends StatelessWidget {
 					Container(
 						padding: const EdgeInsets.symmetric(vertical: 6),
 						decoration: BoxDecoration(
-							border: Border.all(color: colorScheme.outline),
-							borderRadius: BorderRadius.circular(2),
+							border: Border.all(color: colorScheme.outlineVariant),
+							borderRadius: BorderRadius.circular(10),
 						),
 						child: Text(
 							totalRides,
@@ -630,10 +652,10 @@ class _QuickOptionsRow extends StatelessWidget {
 								width: 44,
 								height: 44,
 								decoration: BoxDecoration(
-									shape: BoxShape.circle,
-									border: Border.all(color: colorScheme.outline, width: 4),
+									color: colorScheme.primaryContainer,
+									borderRadius: BorderRadius.circular(12),
 								),
-								child: Icon(Icons.add, color: colorScheme.onSurface),
+								child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
 							),
 						),
 					],
@@ -678,15 +700,20 @@ class _NotesField extends StatelessWidget {
 			children: [
 				Text(
 					'Anotações / Observações',
-					style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+					style: textTheme.labelMedium?.copyWith(
+						fontWeight: FontWeight.w700,
+						letterSpacing: 1.0,
+						color: colorScheme.onSurfaceVariant,
+					),
 				),
 				const SizedBox(height: 6),
 				Container(
 					height: 90,
 					width: double.infinity,
 					decoration: BoxDecoration(
-						borderRadius: BorderRadius.circular(4),
-						border: Border.all(color: colorScheme.outline),
+						color: colorScheme.surface,
+						borderRadius: BorderRadius.circular(14),
+						border: Border.all(color: colorScheme.outlineVariant),
 					),
 					padding: const EdgeInsets.all(10),
 					// placeholder: área de texto livre
@@ -716,11 +743,10 @@ class _SaveButton extends StatelessWidget {
 				style: FilledButton.styleFrom(
 					backgroundColor: colorScheme.primaryContainer,
 					foregroundColor: colorScheme.onPrimaryContainer,
-					elevation: 4,
-					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					elevation: 0,
 					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(14),
-						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+						borderRadius: BorderRadius.circular(16),
+						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
 				onPressed: () {
@@ -748,11 +774,10 @@ class _FuelPaymentButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.secondaryContainer,
 					foregroundColor: colorScheme.onSecondaryContainer,
-					elevation: 4,
-					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					elevation: 0,
 					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(14),
-						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+						borderRadius: BorderRadius.circular(16),
+						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
 				onPressed: () {
@@ -783,11 +808,10 @@ class _AddImagesButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.tertiaryContainer,
 					foregroundColor: colorScheme.onTertiaryContainer,
-					elevation: 4,
-					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					elevation: 0,
 					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(14),
-						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+						borderRadius: BorderRadius.circular(16),
+						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
 				onPressed: () {
@@ -818,11 +842,10 @@ class _ExtraExpensesButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.surfaceContainerHigh,
 					foregroundColor: colorScheme.onSurface,
-					elevation: 4,
-					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					elevation: 0,
 					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(14),
-						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+						borderRadius: BorderRadius.circular(16),
+						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
 				onPressed: () {
@@ -853,11 +876,10 @@ class _DeleteRideReportButton extends StatelessWidget {
 					alignment: Alignment.center,
 					backgroundColor: colorScheme.errorContainer,
 					foregroundColor: colorScheme.onErrorContainer,
-					elevation: 4,
-					shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+					elevation: 0,
 					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(14),
-						side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+						borderRadius: BorderRadius.circular(16),
+						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
 				onPressed: () {
@@ -886,15 +908,19 @@ class _TermsLegendSection extends StatelessWidget {
 			children: [
 				Text(
 					'Legenda dos termos',
-					textAlign: TextAlign.center,
-					style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+					textAlign: TextAlign.left,
+					style: textTheme.labelSmall?.copyWith(
+						fontWeight: FontWeight.w700,
+						letterSpacing: 1.2,
+						color: colorScheme.onSurfaceVariant,
+					),
 				),
 				const SizedBox(height: 8),
 				Container(
 					decoration: BoxDecoration(
 						color: colorScheme.surfaceContainerHighest,
-						borderRadius: BorderRadius.circular(6),
-						border: Border.all(color: colorScheme.outline),
+						borderRadius: BorderRadius.circular(16),
+						border: Border.all(color: colorScheme.outlineVariant),
 					),
 					padding: const EdgeInsets.all(12),
 					child: Column(
