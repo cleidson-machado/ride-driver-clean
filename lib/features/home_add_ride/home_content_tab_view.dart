@@ -4,7 +4,7 @@ import '../financial_history/financial_history_view.dart';
 import '../history/presentation/history_view.dart';
 import '../search/presentation/search_view.dart';
 import '../tour_in_progress/tour_in_progress_view.dart';
-import '../trash/presentation/trash_view.dart';
+import '../trash/trash_view.dart';
 import 'home_add_ride_view.dart';
 
 /// Hub principal com abas compartilhando a mesma NavigationBar.
