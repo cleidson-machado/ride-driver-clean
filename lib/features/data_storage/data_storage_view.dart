@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 /// Painel de gerenciamento de dados: armazenamento, reset seletivo e exportação.
-class TrashView extends StatefulWidget {
-  const TrashView({super.key});
+class DataStorageView extends StatefulWidget {
+  const DataStorageView({super.key});
 
   @override
-  State<TrashView> createState() => _TrashViewState();
+  State<DataStorageView> createState() => _DataStorageViewState();
 }
 
-class _TrashViewState extends State<TrashView> {
+class _DataStorageViewState extends State<DataStorageView> {
   // Mock de uso do banco local.
   static const String _mockDbSize = '804 KB';
   static const String _mockTotalRecords = '1.064 registros';
