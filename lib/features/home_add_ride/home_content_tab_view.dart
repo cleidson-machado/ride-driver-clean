@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../financial_history/financial_history_view.dart';
 import '../history/history_view.dart';
-import '../search/presentation/search_view.dart';
+import '../search/search_view.dart';
 import '../tour_in_progress/tour_in_progress_view.dart';
 import '../data_storage/data_storage_view.dart';
 import 'home_add_ride_view.dart';
