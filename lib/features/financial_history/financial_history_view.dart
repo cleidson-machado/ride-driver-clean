@@ -10,10 +10,235 @@ class FinancialHistoryView extends StatefulWidget {
 
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	static const String _mockRideSku = 'PASSEIO 011';
-	static const bool _mockIsRideInProgress = true;
-	static const String _mockRideDate = '16 Julho 2016';
-	static const String _mockStartMileage = '44.762';
-	static const String _mockEmptyValue = 'NONE';
+	static const List<String> _monthNames = [
+		'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+		'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+	];
+
+	DateTime _rideDate = DateTime(2016, 7, 16);
+	int _kmIn = 44762;
+	int? _kmOut;
+	double? _cashSpent;
+	bool _hodo2IsZero = true;
+	int? _hodo2Number;
+	bool _hasImages = true;
+	bool _isFinished = false;
+	final TextEditingController _notesController = TextEditingController(
+		text: 'USANDO ABASTECIMENTO DO DIA / PASSEIO ANTERIOR NESSE MOMENTO',
+	);
+
+	@override
+	void dispose() {
+		_notesController.dispose();
+		super.dispose();
+	}
+
+	String get _rideDateLabel =>
+			'${_rideDate.day} ${_monthNames[_rideDate.month - 1]} ${_rideDate.year}';
+
+	String _formatKm(int? value) {
+		if (value == null) return 'NONE';
+		final String digits = value.toString();
+		final StringBuffer buffer = StringBuffer();
+		for (int i = 0; i < digits.length; i++) {
+			buffer.write(digits[i]);
+			final int remaining = digits.length - i - 1;
+			if (remaining > 0 && remaining % 3 == 0) buffer.write('.');
+		}
+		return buffer.toString();
+	}
+
+	String get _cashLabel => _cashSpent == null
+			? 'NONE'
+			: '€ ${_cashSpent!.toStringAsFixed(2).replaceAll('.', ',')}';
+
+	int _nonNegative(int value) => value < 0 ? 0 : value;
+
+	void _showSnack(String message) {
+		ScaffoldMessenger.of(context)
+			..hideCurrentSnackBar()
+			..showSnackBar(SnackBar(content: Text(message)));
+	}
+
+	Future<void> _pickRideDate() async {
+		final DateTime? picked = await showDatePicker(
+			context: context,
+			initialDate: _rideDate,
+			firstDate: DateTime(2000),
+			lastDate: DateTime(2100),
+		);
+		if (picked != null && mounted) setState(() => _rideDate = picked);
+	}
+
+	Future<double?> _promptNumber(String title, double? current) {
+		final TextEditingController controller = TextEditingController(
+			text: current == null
+					? ''
+					: current == current.roundToDouble()
+							? current.round().toString()
+							: current.toStringAsFixed(2),
+		);
+		return showDialog<double>(
+			context: context,
+			builder: (BuildContext dialogContext) => AlertDialog(
+				title: Text(title),
+				content: TextField(
+					controller: controller,
+					autofocus: true,
+					keyboardType: const TextInputType.numberWithOptions(decimal: true),
+					decoration: const InputDecoration(hintText: 'Digite o valor'),
+					onSubmitted: (String text) => Navigator.of(dialogContext)
+							.pop(double.tryParse(text.trim().replaceAll(',', '.'))),
+				),
+				actions: [
+					TextButton(
+						onPressed: () => Navigator.of(dialogContext).pop(),
+						child: const Text('CANCELAR'),
+					),
+					FilledButton(
+						style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
+						onPressed: () => Navigator.of(dialogContext).pop(
+							double.tryParse(controller.text.trim().replaceAll(',', '.')),
+						),
+						child: const Text('CONFIRMAR'),
+					),
+				],
+			),
+		);
+	}
+
+	Future<void> _editKmIn() async {
+		final double? typed = await _promptNumber('KM - IN', _kmIn.toDouble());
+		if (typed != null && mounted) setState(() => _kmIn = _nonNegative(typed.round()));
+	}
+
+	Future<void> _editKmOut() async {
+		final double? typed = await _promptNumber('KM - OUT', _kmOut?.toDouble());
+		if (typed != null && mounted) setState(() => _kmOut = _nonNegative(typed.round()));
+	}
+
+	Future<void> _editCash() async {
+		final double? typed = await _promptNumber('CASH - Gas / Energia', _cashSpent);
+		if (typed != null && mounted) setState(() => _cashSpent = typed < 0 ? 0 : typed);
+	}
+
+	Future<void> _editHodo2() async {
+		final double? typed =
+				await _promptNumber('Hodo-2 - NUMBER', _hodo2Number?.toDouble());
+		if (typed != null && mounted) {
+			setState(() => _hodo2Number = _nonNegative(typed.round()));
+		}
+	}
+
+	void _saveRide() {
+		FocusScope.of(context).unfocus();
+		_showSnack('Passeio salvo (mock) — pronto para conectar à persistência.');
+	}
+
+	Future<void> _confirmDeleteReport() async {
+		final bool? confirmed = await showDialog<bool>(
+			context: context,
+			builder: (BuildContext dialogContext) => AlertDialog(
+				title: const Text('Excluir report?'),
+				content: const Text(
+					'Essa ação remove o report/passeio atual. Deseja continuar?',
+				),
+				actions: [
+					TextButton(
+						onPressed: () => Navigator.of(dialogContext).pop(false),
+						child: const Text('CANCELAR'),
+					),
+					FilledButton(
+						style: FilledButton.styleFrom(
+							minimumSize: const Size(64, 40),
+							backgroundColor: Theme.of(dialogContext).colorScheme.error,
+							foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+						),
+						onPressed: () => Navigator.of(dialogContext).pop(true),
+						child: const Text('EXCLUIR'),
+					),
+				],
+			),
+		);
+		if (confirmed == true && mounted) _showSnack('Report excluído (mock).');
+	}
+
+	Widget _buildLeftColumn() {
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.stretch,
+			children: [
+				_FieldSlot(
+					label: 'DIA do PASSEIO',
+					child: _DateField(value: _rideDateLabel, onPick: _pickRideDate),
+				),
+				const SizedBox(height: 12),
+				_FieldSlot(
+					label: 'KM - IN',
+					child: _StepperField(
+						value: _formatKm(_kmIn),
+						semanticLabel: 'quilometragem inicial',
+						onDecrement: () => setState(() => _kmIn = _nonNegative(_kmIn - 1)),
+						onIncrement: () => setState(() => _kmIn = _kmIn + 1),
+						onEdit: _editKmIn,
+					),
+				),
+				const SizedBox(height: 12),
+				_FieldSlot(
+					label: 'Hodo-2 - is ZERO?',
+					child: _BinaryField(
+						value: _hodo2IsZero,
+						onChanged: (bool value) => setState(() => _hodo2IsZero = value),
+					),
+				),
+			],
+		);
+	}
+
+	Widget _buildRightColumn() {
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.stretch,
+			children: [
+				_FieldSlot(
+					label: 'CASH - Gas / Energia',
+					child: _StepperField(
+						value: _cashLabel,
+						semanticLabel: 'valor de combustível/energia',
+						onDecrement: () => setState(() {
+							final double next = (_cashSpent ?? 0) - 1;
+							_cashSpent = next < 0 ? 0 : next;
+						}),
+						onIncrement: () => setState(() => _cashSpent = (_cashSpent ?? 0) + 1),
+						onEdit: _editCash,
+					),
+				),
+				const SizedBox(height: 12),
+				_FieldSlot(
+					label: 'KM - OUT',
+					child: _StepperField(
+						value: _formatKm(_kmOut),
+						semanticLabel: 'quilometragem final',
+						onDecrement: () =>
+								setState(() => _kmOut = _nonNegative((_kmOut ?? _kmIn) - 1)),
+						onIncrement: () => setState(() => _kmOut = (_kmOut ?? _kmIn) + 1),
+						onEdit: _editKmOut,
+					),
+				),
+				const SizedBox(height: 12),
+				_FieldSlot(
+					label: 'Hodo-2 - NUMBER',
+					child: _StepperField(
+						value: _formatKm(_hodo2Number),
+						semanticLabel: 'hodômetro 2',
+						onDecrement: () =>
+								setState(() => _hodo2Number = _nonNegative((_hodo2Number ?? 0) - 1)),
+						onIncrement: () =>
+								setState(() => _hodo2Number = (_hodo2Number ?? 0) + 1),
+						onEdit: _editHodo2,
+					),
+				),
+			],
+		);
+	}
 
 	@override
 	Widget build(BuildContext context) {
@@ -26,7 +251,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					crossAxisAlignment: CrossAxisAlignment.stretch,
 					children: [
 						// 1. Header
-						_Header(rideSku: _mockRideSku, isRideInProgress: _mockIsRideInProgress),
+						_Header(rideSku: _mockRideSku, isRideInProgress: !_isFinished),
 						Divider(color: colorScheme.outlineVariant, height: 1),
 						// Scrollable body
 						Expanded(
@@ -37,37 +262,54 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 									children: [
 										// 2. Grelha de 3 colunas superiores
 										_TopDataGrid(
-											rideDate: _mockRideDate,
-											startMileage: _mockStartMileage,
-											emptyValue: _mockEmptyValue,
+											leftColumn: _buildLeftColumn(),
+											rightColumn: _buildRightColumn(),
 										),
 										const SizedBox(height: 26),
 										// 3. Secção plataformas base
 										const _PlatformsSection(),
 										const SizedBox(height: 26),
 										// 4. Linha de opções rápidas
-										const _QuickOptionsRow(),
+										_QuickOptionsRow(
+											hasImages: _hasImages,
+											isFinished: _isFinished,
+											onHasImagesChanged: (bool value) =>
+													setState(() => _hasImages = value),
+											onIsFinishedChanged: (bool value) =>
+													setState(() => _isFinished = value),
+											onAddPlatform: () =>
+													_showSnack('Adicionar plataforma — em breve (mock).'),
+										),
 										const SizedBox(height: 26),
 										// 5. Campo de notas
-										const _NotesField(),
+										_NotesField(controller: _notesController),
 										const SizedBox(height: 26 ),
 										// 6. Footer — botão salvar
-										const _SaveButton(),
+										_SaveButton(onPressed: _saveRide),
 										const SizedBox(height: 20),
 										// 7. Footer — botão combustível (forma de pagamento)
-										const _FuelPaymentButton(),
+										_FuelPaymentButton(
+											onPressed: () =>
+													_showSnack('Forma de pagamento — em breve (mock).'),
+										),
 										const SizedBox(height: 20),
 										// 8. Footer — botão para adicionar imagens
-										const _AddImagesButton(),
+										_AddImagesButton(
+											onPressed: () =>
+													_showSnack('Imagens/anexos — em breve (mock).'),
+										),
 										const SizedBox(height: 20),
 										// 9. Footer — botão para gastos extras/alimentacao
-										const _ExtraExpensesButton(),
+										_ExtraExpensesButton(
+											onPressed: () =>
+													_showSnack('Gastos extras — em breve (mock).'),
+										),
 										const SizedBox(height: 20),
 										// 10. Legenda de termos abreviados/ingles
 										const _TermsLegendSection(),
 										const SizedBox(height: 20),
 										// 11. Footer — botao de exclusao do report/passeio
-										const _DeleteRideReportButton(),
+										_DeleteRideReportButton(onPressed: _confirmDeleteReport),
 									],
 								),
 							),
@@ -165,15 +407,10 @@ class _RideStatusPill extends StatelessWidget {
 // ─── Bloco superior — grelha 3 colunas ───────────────────────────────────────
 
 class _TopDataGrid extends StatelessWidget {
-	const _TopDataGrid({
-		required this.rideDate,
-		required this.startMileage,
-		required this.emptyValue,
-	});
+	const _TopDataGrid({required this.leftColumn, required this.rightColumn});
 
-	final String rideDate;
-	final String startMileage;
-	final String emptyValue;
+	final Widget leftColumn;
+	final Widget rightColumn;
 
 	@override
 	Widget build(BuildContext context) {
@@ -183,10 +420,7 @@ class _TopDataGrid extends StatelessWidget {
 				children: [
 
 					// Coluna esquerda (flex 4)
-					Expanded(
-						flex: 4,
-						child: _LeftColumn(rideDate: rideDate, startMileage: startMileage),
-					),
+					Expanded(flex: 4, child: leftColumn),
 
 					const SizedBox(width: 8),
 					// Coluna central (flex 1) — LUCRO
@@ -196,10 +430,7 @@ class _TopDataGrid extends StatelessWidget {
 					const SizedBox(width: 8),
 					// Coluna direita (flex 4)
           
-					Expanded(
-						flex: 4,
-						child: _RightColumn(emptyValue: emptyValue),
-					),
+					Expanded(flex: 4, child: rightColumn),
 				],
 			),
 		);
@@ -208,48 +439,11 @@ class _TopDataGrid extends StatelessWidget {
 
 // ─── Coluna esquerda ──────────────────────────────────────────────────────────
 
-class _LeftColumn extends StatelessWidget {
-	const _LeftColumn({required this.rideDate, required this.startMileage});
-
-	final String rideDate;
-	final String startMileage;
-
-	@override
-	Widget build(BuildContext context) {
-		return Column(
-			crossAxisAlignment: CrossAxisAlignment.stretch,
-			children: [
-				_FieldSlot(label: 'DIA do PASSEIO', child: _DateRowMock(value: rideDate)),
-				const SizedBox(height: 12),
-				_FieldSlot(label: 'KM - IN', child: _StepperRowMock(value: startMileage)),
-				const SizedBox(height:12),
-				const _FieldSlot(label: 'Hodo-2 - is ZERO?', child: _BinaryRowMock()),
-			],
-		);
-	}
-}
+// (coluna esquerda agora é montada em _buildLeftColumn na própria view)
 
 // ─── Coluna direita ───────────────────────────────────────────────────────────
 
-class _RightColumn extends StatelessWidget {
-	const _RightColumn({required this.emptyValue});
-
-	final String emptyValue;
-
-	@override
-	Widget build(BuildContext context) {
-		return Column(
-			crossAxisAlignment: CrossAxisAlignment.stretch,
-			children: [
-				_FieldSlot(label: 'CASH - Gas / Energia', child: _StepperRowMock(value: emptyValue)),
-				const SizedBox(height: 12),
-				_FieldSlot(label: 'KM - OUT', child: _StepperRowMock(value: emptyValue)),
-				const SizedBox(height: 12),
-				_FieldSlot(label: 'Hodo-2 - NUMBER', child: _StepperRowMock(value: emptyValue)),
-			],
-		);
-	}
-}
+// (coluna direita agora é montada em _buildRightColumn na própria view)
 
 // ─── Coluna central — indicador LUCRO ────────────────────────────────────────
 
@@ -338,10 +532,11 @@ class _FieldSlot extends StatelessWidget {
 
 // ─── Date row ─────────────────────────────────────────────────────────────────
 
-class _DateRowMock extends StatelessWidget {
-	const _DateRowMock({required this.value});
+class _DateField extends StatelessWidget {
+	const _DateField({required this.value, required this.onPick});
 
 	final String value;
+	final VoidCallback onPick;
 
 	@override
 	Widget build(BuildContext context) {
@@ -349,7 +544,7 @@ class _DateRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 44,
+			height: 48,
 			decoration: BoxDecoration(
 				color: colorScheme.surface,
 				borderRadius: BorderRadius.circular(12),
@@ -358,34 +553,38 @@ class _DateRowMock extends StatelessWidget {
 			child: Row(
 				children: [
 					Expanded(
-						child: Padding(
-							padding: const EdgeInsets.symmetric(horizontal: 6),
-							child: Text(
-								value,
-								style: textTheme.bodySmall,
-								overflow: TextOverflow.ellipsis,
+						child: InkWell(
+							onTap: onPick,
+							borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+							child: Padding(
+								padding: const EdgeInsets.symmetric(horizontal: 6),
+								child: Align(
+									alignment: Alignment.centerLeft,
+									child: Text(
+										value,
+										style: textTheme.bodySmall,
+										overflow: TextOverflow.ellipsis,
+									),
+								),
 							),
 						),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					SizedBox(
-						width: 38,
-						child: Tooltip(
-							message: 'Selecionar data',
-							child: Center(
-								child: Container(
-									width: 28,
-									height: 28,
-									decoration: BoxDecoration(
-										color: colorScheme.primaryContainer,
+						width: 46,
+						child: Center(
+							child: IconButton(
+								tooltip: 'Selecionar data',
+								onPressed: onPick,
+								visualDensity: VisualDensity.compact,
+								style: IconButton.styleFrom(
+									backgroundColor: colorScheme.primaryContainer,
+									foregroundColor: colorScheme.onPrimaryContainer,
+									shape: RoundedRectangleBorder(
 										borderRadius: BorderRadius.circular(10),
 									),
-									child: Icon(
-										Icons.calendar_month_outlined,
-										size: 16,
-										color: colorScheme.onPrimaryContainer,
-									),
 								),
+								icon: const Icon(Icons.calendar_month_outlined, size: 16),
 							),
 						),
 					),
@@ -397,10 +596,20 @@ class _DateRowMock extends StatelessWidget {
 
 // ─── Stepper row ──────────────────────────────────────────────────────────────
 
-class _StepperRowMock extends StatelessWidget {
-	const _StepperRowMock({required this.value});
+class _StepperField extends StatelessWidget {
+	const _StepperField({
+		required this.value,
+		required this.semanticLabel,
+		required this.onDecrement,
+		required this.onIncrement,
+		required this.onEdit,
+	});
 
 	final String value;
+	final String semanticLabel;
+	final VoidCallback onDecrement;
+	final VoidCallback onIncrement;
+	final VoidCallback onEdit;
 
 	@override
 	Widget build(BuildContext context) {
@@ -408,7 +617,7 @@ class _StepperRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 44,
+			height: 48,
 			decoration: BoxDecoration(
 				color: colorScheme.surface,
 				borderRadius: BorderRadius.circular(12),
@@ -417,22 +626,45 @@ class _StepperRowMock extends StatelessWidget {
 			child: Row(
 				children: [
 					Expanded(
-						child: Center(child: Text('-', style: textTheme.titleSmall)),
-					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
-					Expanded(
-						flex: 3,
-						child: Center(
-							child: Text(
-								value,
-								style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
-								overflow: TextOverflow.ellipsis,
+						child: Semantics(
+							button: true,
+							label: 'Diminuir $semanticLabel',
+							child: InkWell(
+								onTap: onDecrement,
+								borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+								child: Center(child: Text('-', style: textTheme.titleSmall)),
 							),
 						),
 					),
 					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
 					Expanded(
-						child: Center(child: Text('+', style: textTheme.titleSmall)),
+						flex: 3,
+						child: Semantics(
+							button: true,
+							label: 'Editar $semanticLabel',
+							child: InkWell(
+								onTap: onEdit,
+								child: Center(
+									child: Text(
+										value,
+										style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+										overflow: TextOverflow.ellipsis,
+									),
+								),
+							),
+						),
+					),
+					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
+					Expanded(
+						child: Semantics(
+							button: true,
+							label: 'Aumentar $semanticLabel',
+							child: InkWell(
+								onTap: onIncrement,
+								borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+								child: Center(child: Text('+', style: textTheme.titleSmall)),
+							),
+						),
 					),
 				],
 			),
@@ -442,8 +674,11 @@ class _StepperRowMock extends StatelessWidget {
 
 // ─── Binary row ───────────────────────────────────────────────────────────────
 
-class _BinaryRowMock extends StatelessWidget {
-	const _BinaryRowMock();
+class _BinaryField extends StatelessWidget {
+	const _BinaryField({required this.value, required this.onChanged});
+
+	final bool value;
+	final ValueChanged<bool> onChanged;
 
 	@override
 	Widget build(BuildContext context) {
@@ -451,38 +686,54 @@ class _BinaryRowMock extends StatelessWidget {
 		final TextTheme textTheme = Theme.of(context).textTheme;
 
 		return Container(
-			height: 44,
+			height: 48,
 			decoration: BoxDecoration(
 				color: colorScheme.surface,
 				borderRadius: BorderRadius.circular(12),
 				border: Border.all(color: colorScheme.outlineVariant),
 			),
-			child: Row(
-				children: [
-					Expanded(
-						child: Tooltip(
-							message: 'Alternar status zerado',
-							child: Icon(Icons.circle_outlined, size: 18, color: colorScheme.onSurfaceVariant),
-						),
-					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
-					Expanded(
-						flex: 3,
-						child: Center(
-							child: Text(
-								'YES',
-								style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+			child: Semantics(
+				toggled: value,
+				label: 'Hodômetro 2 zerado',
+				child: InkWell(
+					onTap: () => onChanged(!value),
+					borderRadius: BorderRadius.circular(12),
+					child: Row(
+						children: [
+							Expanded(
+								child: Tooltip(
+									message: 'Alternar status zerado',
+									child: Icon(
+										value ? Icons.radio_button_checked : Icons.circle_outlined,
+										size: 18,
+										color: value ? colorScheme.primary : colorScheme.onSurfaceVariant,
+									),
+								),
 							),
-						),
+							VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
+							Expanded(
+								flex: 3,
+								child: Center(
+									child: Text(
+										value ? 'YES' : 'NO',
+										style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+									),
+								),
+							),
+							VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
+							Expanded(
+								child: Tooltip(
+									message: 'Status alternativo',
+									child: Icon(
+										value ? Icons.square : Icons.square_outlined,
+										size: 18,
+										color: colorScheme.onSurface,
+									),
+								),
+							),
+						],
 					),
-					VerticalDivider(width: 1, thickness: 1, color: colorScheme.outlineVariant),
-					Expanded(
-						child: Tooltip(
-							message: 'Status alternativo',
-							child: Icon(Icons.square, size: 18, color: colorScheme.onSurface),
-						),
-					),
-				],
+				),
 			),
 		);
 	}
@@ -608,7 +859,19 @@ class _PlatformCard extends StatelessWidget {
 // ─── Linha de opções rápidas ──────────────────────────────────────────────────
 
 class _QuickOptionsRow extends StatelessWidget {
-	const _QuickOptionsRow();
+	const _QuickOptionsRow({
+		required this.hasImages,
+		required this.isFinished,
+		required this.onHasImagesChanged,
+		required this.onIsFinishedChanged,
+		required this.onAddPlatform,
+	});
+
+	final bool hasImages;
+	final bool isFinished;
+	final ValueChanged<bool> onHasImagesChanged;
+	final ValueChanged<bool> onIsFinishedChanged;
+	final VoidCallback onAddPlatform;
 
 	@override
 	Widget build(BuildContext context) {
@@ -620,22 +883,33 @@ class _QuickOptionsRow extends StatelessWidget {
 			children: [
 				// COM IMAGENS?
 				Expanded(
-					child: Row(
-						mainAxisAlignment: MainAxisAlignment.start,
-						children: [
-							Tooltip(
-								message: 'Com imagens',
-								child: Icon(Icons.check_circle, color: colorScheme.primary, size: 22),
+					child: InkWell(
+						onTap: () => onHasImagesChanged(!hasImages),
+						borderRadius: BorderRadius.circular(12),
+						child: Padding(
+							padding: const EdgeInsets.symmetric(vertical: 12),
+							child: Row(
+								mainAxisAlignment: MainAxisAlignment.start,
+								children: [
+									Tooltip(
+										message: 'Com imagens',
+										child: Icon(
+											hasImages ? Icons.check_circle : Icons.radio_button_unchecked,
+											color: hasImages ? colorScheme.primary : colorScheme.outline,
+											size: 22,
+										),
+									),
+									const SizedBox(width: 4),
+									Flexible(
+										child: Text(
+											'HAS IMAGES?',
+											style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+											overflow: TextOverflow.ellipsis,
+										),
+									),
+								],
 							),
-							const SizedBox(width: 4),
-							Flexible(
-								child: Text(
-									'HAS IMAGES?',
-									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
-									overflow: TextOverflow.ellipsis,
-								),
-							),
-						],
+						),
 					),
 				),
 				// Botão + PLATAFORMA (central)
@@ -646,38 +920,50 @@ class _QuickOptionsRow extends StatelessWidget {
 							style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
 						),
 						const SizedBox(height: 4),
-						Tooltip(
-							message: 'Adicionar plataforma',
-							child: Container(
-								width: 44,
-								height: 44,
-								decoration: BoxDecoration(
-									color: colorScheme.primaryContainer,
+						IconButton.filled(
+							tooltip: 'Adicionar plataforma',
+							onPressed: onAddPlatform,
+							style: IconButton.styleFrom(
+								backgroundColor: colorScheme.primaryContainer,
+								foregroundColor: colorScheme.onPrimaryContainer,
+								minimumSize: const Size(48, 48),
+								shape: RoundedRectangleBorder(
 									borderRadius: BorderRadius.circular(12),
 								),
-								child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
 							),
+							icon: const Icon(Icons.add),
 						),
 					],
 				),
 				// CONCLUÍDO?
 				Expanded(
-					child: Row(
-						mainAxisAlignment: MainAxisAlignment.end,
-						children: [
-							Flexible(
-								child: Text(
-									'IS FINISHED?',
-									style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
-									overflow: TextOverflow.ellipsis,
-								),
+					child: InkWell(
+						onTap: () => onIsFinishedChanged(!isFinished),
+						borderRadius: BorderRadius.circular(12),
+						child: Padding(
+							padding: const EdgeInsets.symmetric(vertical: 12),
+							child: Row(
+								mainAxisAlignment: MainAxisAlignment.end,
+								children: [
+									Flexible(
+										child: Text(
+											'IS FINISHED?',
+											style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+											overflow: TextOverflow.ellipsis,
+										),
+									),
+									const SizedBox(width: 4),
+									Tooltip(
+										message: 'Concluído',
+										child: Icon(
+											isFinished ? Icons.check_circle : Icons.radio_button_unchecked,
+											color: isFinished ? colorScheme.primary : colorScheme.outline,
+											size: 22,
+										),
+									),
+								],
 							),
-							const SizedBox(width: 4),
-							Tooltip(
-								message: 'Concluído',
-								child: Icon(Icons.check_circle, color: colorScheme.primary, size: 22),
-							),
-						],
+						),
 					),
 				),
 			],
@@ -688,7 +974,9 @@ class _QuickOptionsRow extends StatelessWidget {
 // ─── Campo de notas ───────────────────────────────────────────────────────────
 
 class _NotesField extends StatelessWidget {
-	const _NotesField();
+	const _NotesField({required this.controller});
+
+	final TextEditingController controller;
 
 	@override
 	Widget build(BuildContext context) {
@@ -707,19 +995,24 @@ class _NotesField extends StatelessWidget {
 					),
 				),
 				const SizedBox(height: 6),
-				Container(
-					height: 90,
-					width: double.infinity,
-					decoration: BoxDecoration(
-						color: colorScheme.surface,
-						borderRadius: BorderRadius.circular(14),
-						border: Border.all(color: colorScheme.outlineVariant),
-					),
-					padding: const EdgeInsets.all(10),
-					// placeholder: área de texto livre
-					child: Text(
-						'USANDO ABASTECIMENTO DO DIA / PASSEIO ANTERIOR NESSE MOMENTO',
-						style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+				TextField(
+					controller: controller,
+					minLines: 3,
+					maxLines: 5,
+					textCapitalization: TextCapitalization.sentences,
+					style: textTheme.bodySmall,
+					decoration: InputDecoration(
+						hintText: 'Escreva observações do passeio…',
+						fillColor: colorScheme.surface,
+						contentPadding: const EdgeInsets.all(10),
+						border: OutlineInputBorder(
+							borderRadius: BorderRadius.circular(14),
+							borderSide: BorderSide(color: colorScheme.outlineVariant),
+						),
+						enabledBorder: OutlineInputBorder(
+							borderRadius: BorderRadius.circular(14),
+							borderSide: BorderSide(color: colorScheme.outlineVariant),
+						),
 					),
 				),
 			],
@@ -730,7 +1023,9 @@ class _NotesField extends StatelessWidget {
 // ─── Footer — botão salvar ────────────────────────────────────────────────────
 
 class _SaveButton extends StatelessWidget {
-	const _SaveButton();
+	const _SaveButton({required this.onPressed});
+
+	final VoidCallback onPressed;
 
 	@override
 	Widget build(BuildContext context) {
@@ -749,9 +1044,7 @@ class _SaveButton extends StatelessWidget {
 						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
-				onPressed: () {
-					// TODO: salvar/atualizar passeio
-				},
+				onPressed: onPressed,
 				icon: const Icon(Icons.save_rounded),
 				label: const Text('SALVAR / ATUALIZAR esse PASSEIO?'),
 			),
@@ -760,7 +1053,9 @@ class _SaveButton extends StatelessWidget {
 }
 
 class _FuelPaymentButton extends StatelessWidget {
-	const _FuelPaymentButton();
+	const _FuelPaymentButton({required this.onPressed});
+
+	final VoidCallback onPressed;
 
 	@override
 	Widget build(BuildContext context) {
@@ -780,9 +1075,7 @@ class _FuelPaymentButton extends StatelessWidget {
 						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
-				onPressed: () {
-					// TODO: adicionar forma de pagamento do combustivel
-				},
+				onPressed: onPressed,
 				icon: const Icon(Icons.credit_card_rounded),
 				label: const Text(
 					'ADD FORMA PAGAMENTO - Gas / Energia?',
@@ -794,7 +1087,9 @@ class _FuelPaymentButton extends StatelessWidget {
 }
 
 class _AddImagesButton extends StatelessWidget {
-	const _AddImagesButton();
+	const _AddImagesButton({required this.onPressed});
+
+	final VoidCallback onPressed;
 
 	@override
 	Widget build(BuildContext context) {
@@ -814,9 +1109,7 @@ class _AddImagesButton extends StatelessWidget {
 						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
-				onPressed: () {
-					// TODO: adicionar imagens e anexos da jornada
-				},
+				onPressed: onPressed,
 				icon: const Icon(Icons.image_outlined),
 				label: const Text(
 					'ADD IMAGENS / ANEXOS? ',
@@ -828,7 +1121,9 @@ class _AddImagesButton extends StatelessWidget {
 }
 
 class _ExtraExpensesButton extends StatelessWidget {
-	const _ExtraExpensesButton();
+	const _ExtraExpensesButton({required this.onPressed});
+
+	final VoidCallback onPressed;
 
 	@override
 	Widget build(BuildContext context) {
@@ -848,9 +1143,7 @@ class _ExtraExpensesButton extends StatelessWidget {
 						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
-				onPressed: () {
-					// TODO: adicionar gastos extras e alimentacao
-				},
+				onPressed: onPressed,
 				icon: const Icon(Icons.receipt_long_outlined),
 				label: const Text(
 					'ADD GASTOS EXTRAS / ALIMENTACAO?',
@@ -862,7 +1155,9 @@ class _ExtraExpensesButton extends StatelessWidget {
 }
 
 class _DeleteRideReportButton extends StatelessWidget {
-	const _DeleteRideReportButton();
+	const _DeleteRideReportButton({required this.onPressed});
+
+	final VoidCallback onPressed;
 
 	@override
 	Widget build(BuildContext context) {
@@ -882,9 +1177,7 @@ class _DeleteRideReportButton extends StatelessWidget {
 						side: BorderSide(color: colorScheme.outlineVariant),
 					),
 				),
-				onPressed: () {
-					// TODO: excluir report/passeio
-				},
+				onPressed: onPressed,
 				icon: const Icon(Icons.delete_forever_rounded),
 				label: const Text(
 					'EXCLUIR REPORT / PASSEIO?',
