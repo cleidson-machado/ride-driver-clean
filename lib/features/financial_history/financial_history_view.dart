@@ -741,8 +741,30 @@ class _BinaryField extends StatelessWidget {
 
 // ─── Secção plataformas base ──────────────────────────────────────────────────
 
-class _PlatformsSection extends StatelessWidget {
+class _PlatformsSection extends StatefulWidget {
 	const _PlatformsSection();
+
+	@override
+	State<_PlatformsSection> createState() => _PlatformsSectionState();
+}
+
+class _PlatformsSectionState extends State<_PlatformsSection> {
+	// Dados mock — uma plataforma por página do carrossel (máx. 3).
+	static const List<({String name, String totalValue, String totalRides})>
+			_platforms = [
+		(name: 'UBER', totalValue: '€ 55,89', totalRides: '06'),
+		(name: 'BOLT', totalValue: '€ 10,09', totalRides: '06'),
+		(name: 'FREENOW', totalValue: '€ 0,00', totalRides: '00'),
+	];
+
+	final PageController _pageController = PageController();
+	int _currentPage = 0;
+
+	@override
+	void dispose() {
+		_pageController.dispose();
+		super.dispose();
+	}
 
 	@override
 	Widget build(BuildContext context) {
@@ -768,19 +790,98 @@ class _PlatformsSection extends StatelessWidget {
 						borderRadius: BorderRadius.circular(16),
 						border: Border.all(color: colorScheme.outlineVariant),
 					),
-					padding: const EdgeInsets.all(10),
-					child: Row(
-						crossAxisAlignment: CrossAxisAlignment.start,
+					padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+					child: Column(
 						children: [
-							// Card UBER
-							const Expanded(child: _PlatformCard(name: 'UBER', totalValue: '€ 55,89', totalRides: '06')),
-							const SizedBox(width: 8),
-							// Card BOLT
-							const Expanded(child: _PlatformCard(name: 'BOLT', totalValue: '€ 10,09', totalRides: '06')),
+							SizedBox(
+								height: 190,
+								child: Semantics(
+									label:
+											'Carrossel de plataformas, página ${_currentPage + 1} de ${_platforms.length}',
+									child: PageView.builder(
+										controller: _pageController,
+										itemCount: _platforms.length,
+										onPageChanged: (int index) =>
+												setState(() => _currentPage = index),
+										itemBuilder: (BuildContext context, int index) {
+											final platform = _platforms[index];
+											return Padding(
+												padding: const EdgeInsets.symmetric(horizontal: 4),
+												child: _PlatformCard(
+													name: platform.name,
+													totalValue: platform.totalValue,
+													totalRides: platform.totalRides,
+												),
+											);
+										},
+									),
+								),
+							),
+							const SizedBox(height: 10),
+							_PageDotsIndicator(
+								count: _platforms.length,
+								currentIndex: _currentPage,
+								onDotTap: (int index) => _pageController.animateToPage(
+									index,
+									duration: const Duration(milliseconds: 300),
+									curve: Curves.easeOutCubic,
+								),
+							),
 						],
 					),
 				),
 			],
+		);
+	}
+}
+
+// ─── Indicador de páginas (dots) ─────────────────────────────────────────────
+
+class _PageDotsIndicator extends StatelessWidget {
+	const _PageDotsIndicator({
+		required this.count,
+		required this.currentIndex,
+		required this.onDotTap,
+	});
+
+	final int count;
+	final int currentIndex;
+	final ValueChanged<int> onDotTap;
+
+	@override
+	Widget build(BuildContext context) {
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Row(
+			mainAxisAlignment: MainAxisAlignment.center,
+			children: List<Widget>.generate(count, (int index) {
+				final bool isActive = index == currentIndex;
+				return Semantics(
+					button: true,
+					selected: isActive,
+					label: 'Ir para página ${index + 1}',
+					child: InkWell(
+						onTap: () => onDotTap(index),
+						customBorder: const StadiumBorder(),
+						child: Padding(
+							// Área de toque confortável mantendo o dot pequeno.
+							padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+							child: AnimatedContainer(
+								duration: const Duration(milliseconds: 250),
+								curve: Curves.easeOut,
+								width: isActive ? 22 : 8,
+								height: 8,
+								decoration: BoxDecoration(
+									color: isActive
+											? colorScheme.primary
+											: colorScheme.outlineVariant,
+									borderRadius: BorderRadius.circular(999),
+								),
+							),
+						),
+					),
+				);
+			}),
 		);
 	}
 }
@@ -916,7 +1017,7 @@ class _QuickOptionsRow extends StatelessWidget {
 				Column(
 					children: [
 						Text(
-							'PLUS - PL',
+							'ADD - PLAT',
 							style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
 						),
 						const SizedBox(height: 4),
