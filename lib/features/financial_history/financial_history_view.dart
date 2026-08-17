@@ -267,7 +267,10 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										),
 										const SizedBox(height: 26),
 										// 3. Secção plataformas base
-										const _PlatformsSection(),
+										_PlatformsSection(
+											onAddPlatform: () =>
+													_showSnack('Adicionar plataforma — em breve (mock).'),
+										),
 										const SizedBox(height: 26),
 										// 4. Linha de opções rápidas
 										_QuickOptionsRow(
@@ -742,7 +745,9 @@ class _BinaryField extends StatelessWidget {
 // ─── Secção plataformas base ──────────────────────────────────────────────────
 
 class _PlatformsSection extends StatefulWidget {
-	const _PlatformsSection();
+	const _PlatformsSection({required this.onAddPlatform});
+
+	final VoidCallback onAddPlatform;
 
 	@override
 	State<_PlatformsSection> createState() => _PlatformsSectionState();
@@ -760,10 +765,25 @@ class _PlatformsSectionState extends State<_PlatformsSection> {
 	final PageController _pageController = PageController();
 	int _currentPage = 0;
 
+	// 2 plataformas por página do carrossel.
+	int get _pageCount => (_platforms.length + 1) ~/ 2;
+
 	@override
 	void dispose() {
 		_pageController.dispose();
 		super.dispose();
+	}
+
+	Widget _buildCardSlot(int platformIndex) {
+		if (platformIndex >= _platforms.length) {
+			return _AddPlatformCard(onTap: widget.onAddPlatform);
+		}
+		final platform = _platforms[platformIndex];
+		return _PlatformCard(
+			name: platform.name,
+			totalValue: platform.totalValue,
+			totalRides: platform.totalRides,
+		);
 	}
 
 	@override
@@ -797,20 +817,23 @@ class _PlatformsSectionState extends State<_PlatformsSection> {
 								height: 190,
 								child: Semantics(
 									label:
-											'Carrossel de plataformas, página ${_currentPage + 1} de ${_platforms.length}',
+											'Carrossel de plataformas, página ${_currentPage + 1} de $_pageCount',
 									child: PageView.builder(
 										controller: _pageController,
-										itemCount: _platforms.length,
+										itemCount: _pageCount,
 										onPageChanged: (int index) =>
 												setState(() => _currentPage = index),
-										itemBuilder: (BuildContext context, int index) {
-											final platform = _platforms[index];
+										itemBuilder: (BuildContext context, int pageIndex) {
+											final int firstIndex = pageIndex * 2;
 											return Padding(
-												padding: const EdgeInsets.symmetric(horizontal: 4),
-												child: _PlatformCard(
-													name: platform.name,
-													totalValue: platform.totalValue,
-													totalRides: platform.totalRides,
+												padding: const EdgeInsets.symmetric(horizontal: 2),
+												child: Row(
+													crossAxisAlignment: CrossAxisAlignment.stretch,
+													children: [
+														Expanded(child: _buildCardSlot(firstIndex)),
+														const SizedBox(width: 8),
+														Expanded(child: _buildCardSlot(firstIndex + 1)),
+													],
 												),
 											);
 										},
@@ -819,7 +842,7 @@ class _PlatformsSectionState extends State<_PlatformsSection> {
 							),
 							const SizedBox(height: 10),
 							_PageDotsIndicator(
-								count: _platforms.length,
+								count: _pageCount,
 								currentIndex: _currentPage,
 								onDotTap: (int index) => _pageController.animateToPage(
 									index,
@@ -831,6 +854,64 @@ class _PlatformsSectionState extends State<_PlatformsSection> {
 					),
 				),
 			],
+		);
+	}
+}
+
+// ─── Card filler — adicionar plataforma (slot vazio em página ímpar) ────────
+
+class _AddPlatformCard extends StatelessWidget {
+	const _AddPlatformCard({required this.onTap});
+
+	final VoidCallback onTap;
+
+	@override
+	Widget build(BuildContext context) {
+		final TextTheme textTheme = Theme.of(context).textTheme;
+		final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+		return Material(
+			color: colorScheme.surface,
+			borderRadius: BorderRadius.circular(14),
+			child: InkWell(
+				onTap: onTap,
+				borderRadius: BorderRadius.circular(14),
+				child: Container(
+					decoration: BoxDecoration(
+						borderRadius: BorderRadius.circular(14),
+						border: Border.all(color: colorScheme.outlineVariant),
+					),
+					padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+					child: Column(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: [
+							Icon(
+								Icons.add_circle_outline,
+								size: 32,
+								color: colorScheme.primary,
+								semanticLabel: 'Adicionar plataforma',
+							),
+							const SizedBox(height: 8),
+							Text(
+								'Sem plataforma\nneste slot',
+								textAlign: TextAlign.center,
+								style: textTheme.labelSmall?.copyWith(
+									color: colorScheme.onSurfaceVariant,
+								),
+							),
+							const SizedBox(height: 8),
+							Text(
+								'ADD - PLAT',
+								textAlign: TextAlign.center,
+								style: textTheme.labelMedium?.copyWith(
+									fontWeight: FontWeight.w800,
+									color: colorScheme.primary,
+								),
+							),
+						],
+					),
+				),
+			),
 		);
 	}
 }
