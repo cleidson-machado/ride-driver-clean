@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'controller/financial_history_controller.dart';
+import 'data/local_ride_report_repository.dart';
+
 /// Tela de cadastro/edicao de passeio — skeleton M3 responsivo.
 class FinancialHistoryView extends StatefulWidget {
 	const FinancialHistoryView({super.key});
@@ -9,11 +12,13 @@ class FinancialHistoryView extends StatefulWidget {
 }
 
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-	static const String _mockRideSku = 'PASSEIO 011';
 	static const List<String> _monthNames = [
 		'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
 		'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 	];
+
+	// Controller (application layer): dono do RideReport e da persistência.
+	late final FinancialHistoryController _controller;
 
 	DateTime _rideDate = DateTime(2016, 7, 16);
 	int _kmIn = 44762;
@@ -28,8 +33,17 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	);
 
 	@override
+	void initState() {
+		super.initState();
+		_controller = FinancialHistoryController(
+			repository: LocalRideReportRepository(),
+		);
+	}
+
+	@override
 	void dispose() {
 		_notesController.dispose();
+		_controller.dispose();
 		super.dispose();
 	}
 
@@ -132,7 +146,39 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
 	void _saveRide() {
 		FocusScope.of(context).unfocus();
-		_showSnack('Passeio salvo (mock) — pronto para conectar à persistência.');
+		if (_controller.busy) return;
+		_syncControllerFromState();
+		_controller.save().then((_) {
+			if (!mounted) return;
+			// Reflete o SKU gerado para reports novos no header.
+			setState(() {});
+			_showSnack('Passeio salvo com sucesso (${_controller.report.sku}).');
+		}).catchError((Object error) {
+			if (!mounted) return;
+			final String message = error is RideReportValidationException
+					? error.message
+					: _controller.lastError ?? 'Erro ao salvar o passeio.';
+			_showSnack(message);
+		});
+	}
+
+	/// Copia o estado atual do formulário para o RideReport do controller.
+	///
+	/// Ponte temporária: nas próximas etapas a view passará a observar o
+	/// controller diretamente e este sync deixa de existir.
+	void _syncControllerFromState() {
+		_controller
+			..setDate(_rideDate)
+			..setKmIn(_kmIn)
+			..setCashSpent(_cashSpent ?? 0)
+			..setHodo2IsZero(_hodo2IsZero)
+			..setHasImages(_hasImages)
+			..setIsFinished(_isFinished)
+			..setNotes(_notesController.text);
+		final int? kmOut = _kmOut;
+		if (kmOut != null) _controller.setKmOut(kmOut);
+		final int? hodo2Number = _hodo2Number;
+		if (hodo2Number != null) _controller.setHodo2Number(hodo2Number);
 	}
 
 	Future<void> _confirmDeleteReport() async {
@@ -251,7 +297,10 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					crossAxisAlignment: CrossAxisAlignment.stretch,
 					children: [
 						// 1. Header
-						_Header(rideSku: _mockRideSku, isRideInProgress: !_isFinished),
+						_Header(
+							rideSku: _controller.report.sku,
+							isRideInProgress: !_isFinished,
+						),
 						Divider(color: colorScheme.outlineVariant, height: 1),
 						// Scrollable body
 						Expanded(

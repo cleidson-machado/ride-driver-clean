@@ -47,6 +47,18 @@ class FinancialHistoryModel implements BaseModel {
   /// Anotação livre sobre o dia.
   final String notes;
 
+  /// Hodômetro 2 zerado antes das corridas? (0/1 no SQLite).
+  @ColumnInfo(name: 'hodo2_is_zero')
+  final bool hodo2IsZero;
+
+  /// Há imagens anexadas ao dia? (0/1 no SQLite).
+  @ColumnInfo(name: 'has_images')
+  final bool hasImages;
+
+  /// Dia de trabalho concluído/fechado? (0/1 no SQLite).
+  @ColumnInfo(name: 'is_finished')
+  final bool isFinished;
+
   const FinancialHistoryModel({
     required this.id,
     required this.dateMillis,
@@ -56,6 +68,9 @@ class FinancialHistoryModel implements BaseModel {
     required this.kmEnd,
     required this.kmOdometer,
     required this.notes,
+    this.hodo2IsZero = true,
+    this.hasImages = false,
+    this.isFinished = false,
   });
 
   /// Getter de conveniência: retorna a data como [DateTime].
@@ -71,6 +86,9 @@ class FinancialHistoryModel implements BaseModel {
       kmEnd: map['km_end'] as int,
       kmOdometer: map['km_odometer'] as int,
       notes: map['notes'] as String,
+      hodo2IsZero: ((map['hodo2_is_zero'] as int?) ?? 1) == 1,
+      hasImages: ((map['has_images'] as int?) ?? 0) == 1,
+      isFinished: ((map['is_finished'] as int?) ?? 0) == 1,
     );
   }
 
@@ -85,7 +103,9 @@ class FinancialHistoryModel implements BaseModel {
       'km_end': kmEnd,
       'km_odometer': kmOdometer,
       'notes': notes,
+      'hodo2_is_zero': hodo2IsZero ? 1 : 0,
+      'has_images': hasImages ? 1 : 0,
+      'is_finished': isFinished ? 1 : 0,
     };
   }
 }
-

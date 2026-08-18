@@ -1,10 +1,22 @@
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/app/database/daos_impl.dart';
+import 'package:ride_driver_app_1/app/database/migrations.dart';
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_dao.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_dao.dart';
 import 'package:ride_driver_app_1/features/platform/platform_dao.dart';
+
+/// Singleton lazy do banco: abre uma única vez com todas as migrações
+/// registradas. Ponto de acesso único das camadas de dados (repositórios).
+Future<AppDatabase> openAppDatabase() {
+  return _appDatabaseFuture ??= AppDatabaseBuilder().addMigrations([
+    migration1to2,
+    migration2to3,
+  ]).build();
+}
+
+Future<AppDatabase>? _appDatabaseFuture;
 
 /// Interface abstrata do banco de dados.
 ///
@@ -49,7 +61,7 @@ class AppDatabaseBuilder {
     final database = await sqfliteDatabaseFactory.openDatabase(
       path,
       options: sqflite.OpenDatabaseOptions(
-        version: 2,
+        version: 3,
         onConfigure: (db) async {
           await db.execute('PRAGMA foreign_keys = ON');
           await _callback?.onConfigure?.call(db);
@@ -59,7 +71,11 @@ class AppDatabaseBuilder {
         },
         onUpgrade: (db, startVersion, endVersion) async {
           await MigrationAdapter.runMigrations(
-              db, startVersion, endVersion, _migrations);
+            db,
+            startVersion,
+            endVersion,
+            _migrations,
+          );
           await _callback?.onUpgrade?.call(db, startVersion, endVersion);
         },
         onCreate: (db, version) async {
@@ -78,6 +94,9 @@ class AppDatabaseBuilder {
         `trip_number` TEXT NOT NULL, `fuel_cost` REAL NOT NULL,
         `km_start` INTEGER NOT NULL, `km_end` INTEGER NOT NULL,
         `km_odometer` INTEGER NOT NULL, `notes` TEXT NOT NULL,
+        `hodo2_is_zero` INTEGER NOT NULL DEFAULT 1,
+        `has_images` INTEGER NOT NULL DEFAULT 0,
+        `is_finished` INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (`id`)
       )
     ''');
@@ -135,8 +154,9 @@ class _AppDatabase implements AppDatabase {
   _AppDatabase(this._db);
 
   @override
-  late final FinancialHistoryDao financialHistoryDao =
-      FinancialHistoryDaoImpl(_db);
+  late final FinancialHistoryDao financialHistoryDao = FinancialHistoryDaoImpl(
+    _db,
+  );
 
   @override
   late final FinancialHistoryPlatformDao financialHistoryPlatformDao =
@@ -151,4 +171,3 @@ class _AppDatabase implements AppDatabase {
   @override
   Future<void> close() => _db.close();
 }
-
