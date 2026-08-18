@@ -22,8 +22,8 @@ class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
     required RideReportRepository repository,
     RideReport? initialReport,
-  })  : _repository = repository,
-        _report = initialReport ?? _buildBlankReport();
+  }) : _repository = repository,
+       _report = initialReport ?? _buildBlankReport();
 
   final RideReportRepository _repository;
   RideReport _report;
@@ -45,10 +45,7 @@ class FinancialHistoryController extends ChangeNotifier {
   // ── Factory ───────────────────────────────────────────────────────────────
 
   static RideReport _buildBlankReport() {
-    return RideReport.blank(
-      id: _newId(),
-      date: DateTime.now(),
-    );
+    return RideReport.blank(id: _newId(), date: DateTime.now());
   }
 
   /// Gera um id único simples (timestamp + contador) sem dependências.
@@ -147,21 +144,25 @@ class FinancialHistoryController extends ChangeNotifier {
     required double totalValue,
     required int totalRides,
   }) {
-    final List<RideReportPlatform> updated = List<RideReportPlatform>.of(
-      _report.platforms,
-    )..add(
-        RideReportPlatform(
-          name: name,
-          totalValue: totalValue < 0 ? 0 : totalValue,
-          totalRides: totalRides < 0 ? 0 : totalRides,
-        ),
-      );
+    final List<RideReportPlatform> updated =
+        List<RideReportPlatform>.of(_report.platforms)..add(
+          RideReportPlatform(
+            name: name,
+            totalValue: totalValue < 0 ? 0 : totalValue,
+            totalRides: totalRides < 0 ? 0 : totalRides,
+          ),
+        );
     _report = _report.copyWith(platforms: updated);
     notifyListeners();
   }
 
   /// Atualiza a plataforma no índice [index] com novos valores.
-  void updatePlatform(int index, {String? name, double? totalValue, int? totalRides}) {
+  void updatePlatform(
+    int index, {
+    String? name,
+    double? totalValue,
+    int? totalRides,
+  }) {
     final List<RideReportPlatform> updated = List<RideReportPlatform>.of(
       _report.platforms,
     );
@@ -214,11 +215,17 @@ class FinancialHistoryController extends ChangeNotifier {
   Future<void> save() async {
     _validate();
     _setBusy(true);
+    debugPrint(
+      '[SAVE][controller] validado; enviando ao repositório '
+      '(id=${_report.id}, sku=${_report.sku}, isNew=$isNew)',
+    );
     try {
       _report = await _repository.save(_report);
       _lastError = null;
+      debugPrint('[SAVE][controller] concluído → sku=${_report.sku}');
     } catch (error) {
       _lastError = 'Erro ao salvar o passeio: $error';
+      debugPrint('[SAVE][controller] FALHOU → $error');
       rethrow;
     } finally {
       _setBusy(false);
@@ -254,10 +261,14 @@ class FinancialHistoryController extends ChangeNotifier {
   ///  - valores não negativos em km e valores monetários.
   void _validate() {
     if (_report.kmIn < 0) {
-      throw const RideReportValidationException('KM - IN não pode ser negativo.');
+      throw const RideReportValidationException(
+        'KM - IN não pode ser negativo.',
+      );
     }
     if (_report.kmOut != null && _report.kmOut! < 0) {
-      throw const RideReportValidationException('KM - OUT não pode ser negativo.');
+      throw const RideReportValidationException(
+        'KM - OUT não pode ser negativo.',
+      );
     }
     if (_report.kmOut != null && _report.kmOut! < _report.kmIn) {
       throw const RideReportValidationException(
@@ -270,7 +281,6 @@ class FinancialHistoryController extends ChangeNotifier {
       );
     }
   }
-
 }
 
 /// Erro de validação de um [RideReport] antes da persistência.

@@ -148,6 +148,11 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 		FocusScope.of(context).unfocus();
 		if (_controller.busy) return;
 		_syncControllerFromState();
+		debugPrint(
+			'[SAVE][view] formulário → data=$_rideDate, kmIn=$_kmIn, '
+			'kmOut=$_kmOut, cash=$_cashSpent, hodo2IsZero=$_hodo2IsZero, '
+			'hodo2=$_hodo2Number, hasImages=$_hasImages, isFinished=$_isFinished',
+		);
 		_controller.save().then((_) {
 			if (!mounted) return;
 			// Reflete o SKU gerado para reports novos no header.

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_model.dart';
@@ -90,8 +91,17 @@ class LocalRideReportRepository implements RideReportRepository {
     } else {
       await db.financialHistoryDao.insertFinancialHistory(entity);
     }
+    debugPrint(
+      '[SAVE][repo] ${exists ? 'UPDATE' : 'INSERT'} financial_history → '
+      '${entity.toMap()}',
+    );
 
     await _replacePlatformLinks(db, toSave);
+
+    // Releitura do SQLite: comprova que o registro foi de fato persistido.
+    final FinancialHistoryModel? persisted = await db.financialHistoryDao
+        .getFinancialHistoryById(toSave.id);
+    debugPrint('[SAVE][repo] releitura do banco → ${persisted?.toMap()}');
 
     return toSave;
   }
@@ -128,6 +138,10 @@ class LocalRideReportRepository implements RideReportRepository {
           dailyEarnings: platform.totalValue,
           dailyTripCount: platform.totalRides,
         ),
+      );
+      debugPrint(
+        '[SAVE][repo] vínculo plataforma → ${platform.name}: '
+        '€${platform.totalValue} / ${platform.totalRides} corridas',
       );
     }
   }
