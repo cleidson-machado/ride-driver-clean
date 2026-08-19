@@ -12,7 +12,8 @@ class FinancialHistoryView extends StatefulWidget {
 }
 
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-	static const List<String> _monthNames = [
+	
+  static const List<String> _monthNames = [
 		'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
 		'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 	];
@@ -20,14 +21,19 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	// Controller (application layer): dono do RideReport e da persistência.
 	late final FinancialHistoryController _controller;
 
-	DateTime _rideDate = DateTime(2016, 7, 16);
-	int _kmIn = 44762;
-	int? _kmOut;
-	double? _cashSpent;
-	bool _hodo2IsZero = true;
-	int? _hodo2Number;
-	bool _hasImages = true;
-	bool _isFinished = false;
+  // INÍCIO das variáveis de estado local da view. #######################################
+  // Aqui começa o estado local da view (formulário) — será sincronizado com o controller.
+  // Essas variáveis representam os campos do formulário e são atualizadas pelo usuário.
+    DateTime _rideDate = DateTime(2016, 7, 16);
+    int? _kmIn;
+    int? _kmOut;
+    double? _cashSpent;
+    bool _hodo2IsZero = true;
+    int? _hodo2Number;
+    bool _hasImages = true;
+    bool _isFinished = false;
+  // FIM das variáveis de estado local da view. ##########################################
+
 	final TextEditingController _notesController = TextEditingController(
 		text: 'USANDO ABASTECIMENTO DO DIA / PASSEIO ANTERIOR NESSE MOMENTO',
 	);
@@ -122,7 +128,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	}
 
 	Future<void> _editKmIn() async {
-		final double? typed = await _promptNumber('KM - IN', _kmIn.toDouble());
+		final double? typed = await _promptNumber('KM - IN', _kmIn?.toDouble());
 		if (typed != null && mounted) setState(() => _kmIn = _nonNegative(typed.round()));
 	}
 
@@ -174,12 +180,13 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	void _syncControllerFromState() {
 		_controller
 			..setDate(_rideDate)
-			..setKmIn(_kmIn)
 			..setCashSpent(_cashSpent ?? 0)
 			..setHodo2IsZero(_hodo2IsZero)
 			..setHasImages(_hasImages)
 			..setIsFinished(_isFinished)
 			..setNotes(_notesController.text);
+		final int? kmIn = _kmIn;
+		if (kmIn != null) _controller.setKmIn(kmIn);
 		final int? kmOut = _kmOut;
 		if (kmOut != null) _controller.setKmOut(kmOut);
 		final int? hodo2Number = _hodo2Number;
@@ -228,8 +235,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					child: _StepperField(
 						value: _formatKm(_kmIn),
 						semanticLabel: 'quilometragem inicial',
-						onDecrement: () => setState(() => _kmIn = _nonNegative(_kmIn - 1)),
-						onIncrement: () => setState(() => _kmIn = _kmIn + 1),
+						onDecrement: () =>
+								setState(() => _kmIn = _nonNegative((_kmIn ?? 0) - 1)),
+						onIncrement: () => setState(() => _kmIn = (_kmIn ?? 0) + 1),
 						onEdit: _editKmIn,
 					),
 				),
@@ -269,8 +277,8 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 						value: _formatKm(_kmOut),
 						semanticLabel: 'quilometragem final',
 						onDecrement: () =>
-								setState(() => _kmOut = _nonNegative((_kmOut ?? _kmIn) - 1)),
-						onIncrement: () => setState(() => _kmOut = (_kmOut ?? _kmIn) + 1),
+								setState(() => _kmOut = _nonNegative((_kmOut ?? _kmIn ?? 0) - 1)),
+						onIncrement: () => setState(() => _kmOut = (_kmOut ?? _kmIn ?? 0) + 1),
 						onEdit: _editKmOut,
 					),
 				),
