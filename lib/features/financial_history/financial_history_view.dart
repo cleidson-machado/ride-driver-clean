@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'controller/financial_history_controller.dart';
-import 'data/financial_history_local_repository.dart';
+import 'data/financial_history_repository.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';
 import 'widgets/notes_field.dart';
@@ -72,7 +72,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   void initState() {
     super.initState();
     _financialHistoryController = FinancialHistoryController(
-      repository: FinancialHistoryLocalRepository(),
+      repository: FinancialHistoryRepository(),
     );
   }
 

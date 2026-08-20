@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/financial_history_repository.dart';
+import '../data/financial_history_repository_interface.dart';
 import '../domain/financial_history.dart';
 import '../domain/financial_history_platform.dart';
 
@@ -15,17 +15,17 @@ import '../domain/financial_history_platform.dart';
 /// alinhado ao restante do projeto (que não usa packages de estado/DI).
 ///
 /// To-do central desta etapa:
-///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryRepository];
+///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryRepositoryInterface];
 ///  - todos os setters atualizam [_report] e notificam listeners;
 ///  - as validações antes de salvar ficam em [_validate].
 class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
-    required FinancialHistoryRepository repository,
+    required FinancialHistoryRepositoryInterface repository,
     FinancialHistory? initialReport,
   }) : _repository = repository,
        _report = initialReport ?? _buildBlankReport();
 
-  final FinancialHistoryRepository _repository;
+  final FinancialHistoryRepositoryInterface _repository;
   FinancialHistory _report;
 
   // ── Estado exposto à view ────────────────────────────────────────────────
