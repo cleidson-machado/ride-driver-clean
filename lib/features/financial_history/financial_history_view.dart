@@ -11,6 +11,13 @@ class FinancialHistoryView extends StatefulWidget {
 	State<FinancialHistoryView> createState() => _FinancialHistoryViewState();
 }
 
+// Inicio da classe _FinancialHistoryViewState ########################################
+// Essa é a view principal da tela de histórico financeiro. 
+// Ela é um StatefulWidget que mantém o estado do formulário e interage 
+// com o FinancialHistoryController para gerenciar os dados do passeio. 
+// A view é composta por várias seções, incluindo campos de entrada para data, 
+// quilometragem, gastos em dinheiro, hodômetro, imagens e notas, 
+// além de botões para salvar, adicionar plataformas e excluir o passeio.
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	
   static const List<String> _monthNames = [
@@ -385,9 +392,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 		);
 	}
 }
+// Fim da classe _FinancialHistoryViewState ###########################################
 
 // ─── Header ───────────────────────────────────────────────────────────────────
-
 class _Header extends StatelessWidget {
 	const _Header({required this.rideSku, required this.isRideInProgress});
 
@@ -436,6 +443,7 @@ class _Header extends StatelessWidget {
 	}
 }
 
+// --- Ride status pill (EM CURSO / CONCLUIDO) ─────────────────────────────────
 class _RideStatusPill extends StatelessWidget {
 	const _RideStatusPill({required this.isInProgress});
 
@@ -470,7 +478,6 @@ class _RideStatusPill extends StatelessWidget {
 }
 
 // ─── Bloco superior — grelha 3 colunas ───────────────────────────────────────
-
 class _TopDataGrid extends StatelessWidget {
 	const _TopDataGrid({required this.leftColumn, required this.rightColumn});
 
@@ -487,14 +494,17 @@ class _TopDataGrid extends StatelessWidget {
 					// Coluna esquerda (flex 4)
 					Expanded(flex: 4, child: leftColumn),
 
+          // Coluna central (flex 1) — LUCRO
 					const SizedBox(width: 8),
-					// Coluna central (flex 1) — LUCRO
 
+          // Local no qual o widget _ProfitColumn é renderizado. 
+          // Ele exibe um indicador visual de lucro, com uma barra de progresso e um rótulo "L1".
 					const Expanded(flex: 1, child: _ProfitColumn()),
 
+          // Coluna direita (flex 4)
 					const SizedBox(width: 8),
-					// Coluna direita (flex 4)
-          
+
+          // Exanded criado para a coluna direita, para criar espaço entre a coluna central e a coluna direita.
 					Expanded(flex: 4, child: rightColumn),
 				],
 			),
@@ -511,7 +521,6 @@ class _TopDataGrid extends StatelessWidget {
 // (coluna direita agora é montada em _buildRightColumn na própria view)
 
 // ─── Coluna central — indicador LUCRO ────────────────────────────────────────
-
 class _ProfitColumn extends StatelessWidget {
 	const _ProfitColumn();
 
@@ -805,7 +814,6 @@ class _BinaryField extends StatelessWidget {
 }
 
 // ─── Secção plataformas base ──────────────────────────────────────────────────
-
 class _PlatformsSection extends StatefulWidget {
 	const _PlatformsSection({required this.onAddPlatform});
 
@@ -815,6 +823,7 @@ class _PlatformsSection extends StatefulWidget {
 	State<_PlatformsSection> createState() => _PlatformsSectionState();
 }
 
+// ─── Secção plataformas base — estado ─────────────────────────────────────────
 class _PlatformsSectionState extends State<_PlatformsSection> {
 	// Dados mock — uma plataforma por página do carrossel (máx. 3).
 	static const List<({String name, String totalValue, String totalRides})>
@@ -921,7 +930,6 @@ class _PlatformsSectionState extends State<_PlatformsSection> {
 }
 
 // ─── Card filler — adicionar plataforma (slot vazio em página ímpar) ────────
-
 class _AddPlatformCard extends StatelessWidget {
 	const _AddPlatformCard({required this.onTap});
 
@@ -979,7 +987,6 @@ class _AddPlatformCard extends StatelessWidget {
 }
 
 // ─── Indicador de páginas (dots) ─────────────────────────────────────────────
-
 class _PageDotsIndicator extends StatelessWidget {
 	const _PageDotsIndicator({
 		required this.count,
@@ -1101,7 +1108,6 @@ class _PlatformCard extends StatelessWidget {
 }
 
 // ─── Linha de opções rápidas ──────────────────────────────────────────────────
-
 class _QuickOptionsRow extends StatelessWidget {
 	const _QuickOptionsRow({
 		required this.hasImages,
@@ -1216,7 +1222,6 @@ class _QuickOptionsRow extends StatelessWidget {
 }
 
 // ─── Campo de notas ───────────────────────────────────────────────────────────
-
 class _NotesField extends StatelessWidget {
 	const _NotesField({required this.controller});
 
@@ -1265,7 +1270,6 @@ class _NotesField extends StatelessWidget {
 }
 
 // ─── Footer — botão salvar ────────────────────────────────────────────────────
-
 class _SaveButton extends StatelessWidget {
 	const _SaveButton({required this.onPressed});
 
