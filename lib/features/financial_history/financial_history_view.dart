@@ -138,7 +138,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	void _actionSaveRide() {
 		FocusScope.of(context).unfocus();
 		if (_financialHistoryController.busy) return;
-		_syncControllerFromState();
+		_syncTempControllerFromState();
 		debugPrint(
 			'[SAVE][view] formulário → data=$_rideDate, kmIn=$_kmIn, '
 			'kmOut=$_kmOut, cash=$_cashSpent, hodo2IsZero=$_hodo2IsZero, '
@@ -161,7 +161,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	/// Copia o estado atual do formulário para o RideReport do controller.
 	/// Ponte temporária: nas próximas etapas a view passará a observar o
 	/// controller diretamente e este sync deixa de existir.
-	void _syncControllerFromState() {
+	void _syncTempControllerFromState() {
 		_financialHistoryController
 			..setDate(_rideDate)
 			..setCashSpent(_cashSpent ?? 0)
