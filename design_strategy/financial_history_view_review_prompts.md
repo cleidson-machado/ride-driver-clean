@@ -20,3 +20,36 @@ Diretrizes:
 6. Não introduzir dependências novas, gerência de estado nova ou abstrações especulativas. Sem quebra de imports no restante do projeto.
 
 Entrega: nova estrutura de pastas/arquivos, código compilando, comportamento idêntico, e um breve resumo das decisões de extração tomadas (o que extraiu, o que manteve junto e por quê).
+
+### OUTRO ITEM A MÃO PROMPT MANUAL
+Vou enviar em anexo um print e dois .dart e preciso que me ajude a excrever um prompt para agente de IA Identificar e refatorar o código, segundo as seguintes premissas: 1 - As classes e os .dart dentro da pasta da feature "financial_history" devem: se for .dart começar com: "financial_history_{ALGUMA_COISA}" se nos códigos afins as classes começam com: "FinancialHistory{ALGUMA_COISA}". Portando o código em anexo relativo a "RideReport" está com a nomenclatura errada, nesse sentido. a Unica exceção atual é para os .dart e afins que estão na pasta: "lib/features/financial_history/widgets/*.*"... os aquivos .dart enviados em anexo aqui estão na pasta: "lib/features/financial_history/*.*". 2 - A feature "financial_history" deve possuir somente uma classe de entidade. e atualmente temos duas delas (vide .dart em anexo). 3 - O projeto é uma POC que ainda salva em banco local do SQLite e afins, nesse sentido é necessário remover código desnecessário e duplicado e manter o padrão de nomenclatura de que preciso. Me envia esse prompt de forma resumida, sem código e em texto puro dentro de uma caixa de exibição de código, logo abaixo. No texto do prompt não precisa detalhar tudo, explique no prompt em linhas gerais os pontos do código onde o agente deve atuar e ou analizar, ou seja, deixa o agente no projeto tomar as desiões afins a partir das suas obsevações.
+
+#### CRIADO DERIVADO DO PROMPT ACIMA EM: 20-08-2026 B
+Refatore a feature financial_history conforme as regras abaixo:
+
+1. Nomeação de arquivos e classes:
+   - Todos os arquivos .dart localizados diretamente em lib/features/financial_history/ (excluindo a subpasta widgets) devem ter o prefixo "financial_history_".
+   - Todas as classes definidas nesses arquivos devem ter o prefixo "FinancialHistory".
+   - Exceção: a pasta widgets/ pode manter sua própria nomenclatura (não exige o prefixo).
+
+2. Unificação das entidades:
+   - Atualmente existem duas classes que representam o mesmo conceito: FinancialHistoryModel (entidade de banco) e RideReport (modelo de domínio).
+   - Mantenha uma única classe de entidade (classe principal) que será usada tanto para persistência quanto para a lógica de domínio. Decida qual classe permanece (ou crie uma nova) e remova a outra.
+   - Ao unificar, absorva todos os campos necessários de ambas as classes (ex.: kmIn/kmStart, kmOut/kmEnd, cashSpent/fuelCost, hodo2Number/kmOdometer, etc.) e preserve os getters e métodos úteis (como totalEarnings e profit, se aplicáveis).
+   - A classe resultante deve ser anotada com @Entity (se for a versão de banco) e conter toda a lógica de mapeamento (toMap/fromMap). Se optar por manter um modelo de domínio separado, a instrução é "somente uma classe de entidade", portanto evite duplicidade.
+
+3. Renomeação e adaptação:
+   - Renomeie o arquivo ride_report.dart para financial_history.dart (ou outro nome consistente) e a classe RideReport para FinancialHistory (ou FinancialHistoryEntity, mas prefira sem sufixo desnecessário).
+   - Renomeie o arquivo ride_report_platform.dart para financial_history_platform.dart e a classe RideReportPlatform para FinancialHistoryPlatform.
+   - Atualize todas as referências em controllers, repositórios, views e demais camadas para refletir os novos nomes.
+
+4. Limpeza:
+   - Remova código morto, comentários obsoletos e duplicações que surgirem após a unificação.
+   - Verifique se os DAOs, repositórios e demais serviços estão ajustados para trabalhar com a entidade unificada.
+
+5. Mantenha a arquitetura atual (controller, repository, domain, widgets) e preserve o comportamento da POC (persistência local com SQLite via Floor).
+
+Analise o código existente (incluindo os arquivos da pasta widgets, se necessário) e realize as alterações de forma coesa, garantindo que a aplicação continue compilando e funcionando.
+
+#### Parte A REPETIR SEMPRE NOS FINAIS DOS PROMPTS AFINS
+Me envia esse prompt de forma resumida, sem código e em texto puro dentro de uma caixa de exibição de código, logo abaixo. No texto do prompt não precisa detalhar tudo, explique no prompt em linhas gerais os pontos do código onde o agente deve atuar e ou analizar, ou seja, deixa o agente no projeto tomar as desiões afins a partir das suas obsevações. 

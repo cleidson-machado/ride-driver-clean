@@ -11,135 +11,137 @@ import 'package:flutter/material.dart';
 
 // ─── Base com layout comum (privada) ─────────────────────────────────────────
 class _FooterActionButton extends StatelessWidget {
-	const _FooterActionButton({
-		required this.backgroundColor,
-		required this.foregroundColor,
-		required this.icon,
-		required this.label,
-		required this.onPressed,
-	});
+  const _FooterActionButton({
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
 
-	final Color backgroundColor;
-	final Color foregroundColor;
-	final Widget icon;
-	final String label;
-	final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Widget icon;
+  final String label;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		return SizedBox(
-			width: double.infinity,
-			height: 52,
-			child: FilledButton.icon(
-				style: FilledButton.styleFrom(
-					alignment: Alignment.center,
-					backgroundColor: backgroundColor,
-					foregroundColor: foregroundColor,
-					elevation: 0,
-					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(16),
-						side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-					),
-				),
-				onPressed: onPressed,
-				icon: icon,
-				label: Text(label, textAlign: TextAlign.center),
-			),
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton.icon(
+        style: FilledButton.styleFrom(
+          alignment: Alignment.center,
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+        ),
+        onPressed: onPressed,
+        icon: icon,
+        label: Text(label, textAlign: TextAlign.center),
+      ),
+    );
+  }
 }
 
 // ─── Footer — botão salvar ────────────────────────────────────────────────────
 class SaveButton extends StatelessWidget {
-	const SaveButton({super.key, required this.onPressed});
+  const SaveButton({super.key, required this.onPressed});
 
-	final VoidCallback onPressed;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-		return _FooterActionButton(
-			backgroundColor: colorScheme.primaryContainer,
-			foregroundColor: colorScheme.onPrimaryContainer,
-			icon: const Icon(Icons.save_rounded),
-			label: 'SALVAR / ATUALIZAR esse PASSEIO?',
-			onPressed: onPressed,
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _FooterActionButton(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+      icon: const Icon(Icons.save_rounded),
+      label: 'SALVAR / ATUALIZAR esse PASSEIO?',
+      onPressed: onPressed,
+    );
+  }
 }
 
 // ─── Footer — botão combustível (forma de pagamento) ─────────────────────────
 class FuelPaymentButton extends StatelessWidget {
-	const FuelPaymentButton({super.key, required this.onPressed});
+  const FuelPaymentButton({super.key, required this.onPressed});
 
-	final VoidCallback onPressed;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-		return _FooterActionButton(
-			backgroundColor: colorScheme.secondaryContainer,
-			foregroundColor: colorScheme.onSecondaryContainer,
-			icon: const Icon(Icons.credit_card_rounded),
-			label: 'ADD FORMA PAGAMENTO - Gas / Energia?',
-			onPressed: onPressed,
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _FooterActionButton(
+      backgroundColor: colorScheme.secondaryContainer,
+      foregroundColor: colorScheme.onSecondaryContainer,
+      icon: const Icon(Icons.credit_card_rounded),
+      label: 'ADD FORMA PAGAMENTO - Gas / Energia?',
+      onPressed: onPressed,
+    );
+  }
 }
 
 // ─── Footer — botão para adicionar imagens ───────────────────────────────────
 class AddImagesButton extends StatelessWidget {
-	const AddImagesButton({super.key, required this.onPressed});
+  const AddImagesButton({super.key, required this.onPressed});
 
-	final VoidCallback onPressed;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-		return _FooterActionButton(
-			backgroundColor: colorScheme.tertiaryContainer,
-			foregroundColor: colorScheme.onTertiaryContainer,
-			icon: const Icon(Icons.image_outlined),
-			label: 'ADD IMAGENS / ANEXOS? ',
-			onPressed: onPressed,
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _FooterActionButton(
+      backgroundColor: colorScheme.tertiaryContainer,
+      foregroundColor: colorScheme.onTertiaryContainer,
+      icon: const Icon(Icons.image_outlined),
+      label: 'ADD IMAGENS / ANEXOS? ',
+      onPressed: onPressed,
+    );
+  }
 }
 
 // ─── Footer — botão para gastos extras/alimentação ───────────────────────────
 class ExtraExpensesButton extends StatelessWidget {
-	const ExtraExpensesButton({super.key, required this.onPressed});
+  const ExtraExpensesButton({super.key, required this.onPressed});
 
-	final VoidCallback onPressed;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-		return _FooterActionButton(
-			backgroundColor: colorScheme.surfaceContainerHigh,
-			foregroundColor: colorScheme.onSurface,
-			icon: const Icon(Icons.receipt_long_outlined),
-			label: 'ADD GASTOS EXTRAS / ALIMENTACAO?',
-			onPressed: onPressed,
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _FooterActionButton(
+      backgroundColor: colorScheme.surfaceContainerHigh,
+      foregroundColor: colorScheme.onSurface,
+      icon: const Icon(Icons.receipt_long_outlined),
+      label: 'ADD GASTOS EXTRAS / ALIMENTACAO?',
+      onPressed: onPressed,
+    );
+  }
 }
 
 // ─── Footer — botão de exclusão do report/passeio ────────────────────────────
 class DeleteRideReportButton extends StatelessWidget {
-	const DeleteRideReportButton({super.key, required this.onPressed});
+  const DeleteRideReportButton({super.key, required this.onPressed});
 
-	final VoidCallback onPressed;
+  final VoidCallback onPressed;
 
-	@override
-	Widget build(BuildContext context) {
-		final ColorScheme colorScheme = Theme.of(context).colorScheme;
-		return _FooterActionButton(
-			backgroundColor: colorScheme.errorContainer,
-			foregroundColor: colorScheme.onErrorContainer,
-			icon: const Icon(Icons.delete_forever_rounded),
-			label: 'EXCLUIR REPORT / PASSEIO?',
-			onPressed: onPressed,
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _FooterActionButton(
+      backgroundColor: colorScheme.errorContainer,
+      foregroundColor: colorScheme.onErrorContainer,
+      icon: const Icon(Icons.delete_forever_rounded),
+      label: 'EXCLUIR REPORT / PASSEIO?',
+      onPressed: onPressed,
+    );
+  }
 }

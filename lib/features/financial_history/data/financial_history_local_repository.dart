@@ -1,28 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:ride_driver_app_1/app/database/app_database.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-import '../domain/ride_report.dart';
-import '../domain/ride_report_platform.dart';
-import 'ride_report_repository.dart';
+import '../domain/financial_history.dart';
+import '../domain/financial_history_platform.dart';
+import 'financial_history_repository.dart';
 
-/// Implementação local (SQLite/sqflite) de [RideReportRepository].
+/// Implementação local (SQLite/sqflite) de [FinancialHistoryRepository].
 ///
-/// Faz o mapeamento entre o modelo de domínio [RideReport] e as entidades
-/// de persistência (`financial_history`, `platform` e
-/// `financial_history_platform`). A view e o controller nunca enxergam
-/// DAOs nem SQL — apenas esta camada.
-///
-/// Convenções de mapeamento (colunas NOT NULL no schema atual):
-///  - `km_end == 0` e `km_odometer == 0` representam "não informado"
-///    (kmOut/hodo2Number nulos no domínio).
-class LocalRideReportRepository implements RideReportRepository {
+/// A entidade [FinancialHistory] já sabe se mapear para a tabela
+/// `financial_history`; este repositório cuida do que é relacional:
+/// resolver os vínculos de plataforma (`financial_history_platform` +
+/// catálogo `platform`) e gerar o SKU sequencial. A view e o controller
+/// nunca enxergam DAOs nem SQL — apenas esta camada.
+class FinancialHistoryLocalRepository implements FinancialHistoryRepository {
   @override
-  Future<RideReport?> getById(String id) async {
+  Future<FinancialHistory?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
-    final FinancialHistoryModel? entity = await db.financialHistoryDao
+    final FinancialHistory? entity = await db.financialHistoryDao
         .getFinancialHistoryById(id);
     if (entity == null) return null;
 
@@ -30,13 +26,14 @@ class LocalRideReportRepository implements RideReportRepository {
         .financialHistoryPlatformDao
         .getPlatformsByFinancialHistoryId(id);
 
-    final List<RideReportPlatform> platforms = <RideReportPlatform>[];
+    final List<FinancialHistoryPlatform> platforms =
+        <FinancialHistoryPlatform>[];
     for (final FinancialHistoryPlatformModel link in links) {
       final PlatformModel? platform = await db.platformDao.getPlatformById(
         link.platformId,
       );
       platforms.add(
-        RideReportPlatform(
+        FinancialHistoryPlatform(
           name: platform?.name ?? 'DESCONHECIDA',
           totalValue: link.dailyEarnings,
           totalRides: link.dailyTripCount,
@@ -44,62 +41,35 @@ class LocalRideReportRepository implements RideReportRepository {
       );
     }
 
-    return RideReport(
-      id: entity.id,
-      sku: entity.tripNumber,
-      date: entity.date,
-      kmIn: entity.kmStart,
-      kmOut: entity.kmEnd == 0 ? null : entity.kmEnd,
-      cashSpent: entity.fuelCost,
-      hodo2IsZero: entity.hodo2IsZero,
-      hodo2Number: entity.kmOdometer == 0 ? null : entity.kmOdometer,
-      hasImages: entity.hasImages,
-      isFinished: entity.isFinished,
-      notes: entity.notes,
-      platforms: platforms,
-    );
+    return entity.copyWith(platforms: platforms);
   }
 
   @override
-  Future<RideReport> save(RideReport report) async {
+  Future<FinancialHistory> save(FinancialHistory report) async {
     final AppDatabase db = await openAppDatabase();
 
     final bool exists =
         await db.financialHistoryDao.getFinancialHistoryById(report.id) != null;
 
-    RideReport toSave = report;
+    FinancialHistory toSave = report;
     if (!exists && _isPlaceholderSku(report.sku)) {
       toSave = report.copyWith(sku: await _nextSku(db));
     }
 
-    final FinancialHistoryModel entity = FinancialHistoryModel(
-      id: toSave.id,
-      dateMillis: toSave.date.millisecondsSinceEpoch,
-      tripNumber: toSave.sku,
-      fuelCost: toSave.cashSpent,
-      kmStart: toSave.kmIn,
-      kmEnd: toSave.kmOut ?? 0,
-      kmOdometer: toSave.hodo2Number ?? 0,
-      notes: toSave.notes,
-      hodo2IsZero: toSave.hodo2IsZero,
-      hasImages: toSave.hasImages,
-      isFinished: toSave.isFinished,
-    );
-
     if (exists) {
-      await db.financialHistoryDao.updateFinancialHistory(entity);
+      await db.financialHistoryDao.updateFinancialHistory(toSave);
     } else {
-      await db.financialHistoryDao.insertFinancialHistory(entity);
+      await db.financialHistoryDao.insertFinancialHistory(toSave);
     }
     debugPrint(
       '[SAVE][repo] ${exists ? 'UPDATE' : 'INSERT'} financial_history → '
-      '${entity.toMap()}',
+      '${toSave.toMap()}',
     );
 
     await _replacePlatformLinks(db, toSave);
 
     // Releitura do SQLite: comprova que o registro foi de fato persistido.
-    final FinancialHistoryModel? persisted = await db.financialHistoryDao
+    final FinancialHistory? persisted = await db.financialHistoryDao
         .getFinancialHistoryById(toSave.id);
     debugPrint('[SAVE][repo] releitura do banco → ${persisted?.toMap()}');
 
@@ -109,7 +79,7 @@ class LocalRideReportRepository implements RideReportRepository {
   @override
   Future<void> delete(String id) async {
     final AppDatabase db = await openAppDatabase();
-    final FinancialHistoryModel? entity = await db.financialHistoryDao
+    final FinancialHistory? entity = await db.financialHistoryDao
         .getFinancialHistoryById(id);
     if (entity == null) return;
     // FKs com ON DELETE CASCADE removem os vínculos de plataforma.
@@ -120,7 +90,10 @@ class LocalRideReportRepository implements RideReportRepository {
 
   /// Substitui os vínculos `financial_history_platform` do report pelos
   /// atuais, garantindo cada plataforma no catálogo (upsert por nome).
-  Future<void> _replacePlatformLinks(AppDatabase db, RideReport report) async {
+  Future<void> _replacePlatformLinks(
+    AppDatabase db,
+    FinancialHistory report,
+  ) async {
     final List<FinancialHistoryPlatformModel> existing = await db
         .financialHistoryPlatformDao
         .getPlatformsByFinancialHistoryId(report.id);
@@ -128,7 +101,7 @@ class LocalRideReportRepository implements RideReportRepository {
       await db.financialHistoryPlatformDao.deleteFinancialHistoryPlatform(link);
     }
 
-    for (final RideReportPlatform platform in report.platforms) {
+    for (final FinancialHistoryPlatform platform in report.platforms) {
       final String platformId = await _ensurePlatform(db, platform.name);
       await db.financialHistoryPlatformDao.insertFinancialHistoryPlatform(
         FinancialHistoryPlatformModel(

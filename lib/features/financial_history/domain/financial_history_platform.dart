@@ -1,11 +1,11 @@
-/// Platforma usada em um [RideReport] — o faturamento e o número de corridas
+/// Platforma usada em um [FinancialHistory] — o faturamento e o número de corridas
 /// de UMA plataforma em UM dia de trabalho.
 ///
 /// Corresponde à tabela associativa `financial_history_platform` (lado da
 /// entidade `FinancialHistoryPlatformModel`), mas aqui como modelo de domínio
 /// puro, sem vínculo com a camada de persistência.
-class RideReportPlatform {
-  const RideReportPlatform({
+class FinancialHistoryPlatform {
+  const FinancialHistoryPlatform({
     required this.name,
     required this.totalValue,
     required this.totalRides,
@@ -21,12 +21,12 @@ class RideReportPlatform {
   final int totalRides;
 
   /// Cópia com novos valores (imutável). Campos omitidos mantêm o atual.
-  RideReportPlatform copyWith({
+  FinancialHistoryPlatform copyWith({
     String? name,
     double? totalValue,
     int? totalRides,
   }) {
-    return RideReportPlatform(
+    return FinancialHistoryPlatform(
       name: name ?? this.name,
       totalValue: totalValue ?? this.totalValue,
       totalRides: totalRides ?? this.totalRides,

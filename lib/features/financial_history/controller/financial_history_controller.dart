@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/ride_report_repository.dart';
-import '../domain/ride_report.dart';
-import '../domain/ride_report_platform.dart';
+import '../data/financial_history_repository.dart';
+import '../domain/financial_history.dart';
+import '../domain/financial_history_platform.dart';
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
@@ -15,22 +15,22 @@ import '../domain/ride_report_platform.dart';
 /// alinhado ao restante do projeto (que não usa packages de estado/DI).
 ///
 /// To-do central desta etapa:
-///  - `load()`, `save()` e `delete()` delegam para [RideReportRepository];
+///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryRepository];
 ///  - todos os setters atualizam [_report] e notificam listeners;
 ///  - as validações antes de salvar ficam em [_validate].
 class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
-    required RideReportRepository repository,
-    RideReport? initialReport,
+    required FinancialHistoryRepository repository,
+    FinancialHistory? initialReport,
   }) : _repository = repository,
        _report = initialReport ?? _buildBlankReport();
 
-  final RideReportRepository _repository;
-  RideReport _report;
+  final FinancialHistoryRepository _repository;
+  FinancialHistory _report;
 
   // ── Estado exposto à view ────────────────────────────────────────────────
 
-  RideReport get report => _report;
+  FinancialHistory get report => _report;
 
   /// Indica se há uma operação assíncrona (load/save/delete) em andamento.
   bool _busy = false;
@@ -44,8 +44,8 @@ class FinancialHistoryController extends ChangeNotifier {
 
   // ── Factory ───────────────────────────────────────────────────────────────
 
-  static RideReport _buildBlankReport() {
-    return RideReport.blank(id: _newId(), date: DateTime.now());
+  static FinancialHistory _buildBlankReport() {
+    return FinancialHistory.blank(id: _newId(), date: DateTime.now());
   }
 
   /// Gera um id único simples (timestamp + contador) sem dependências.
@@ -144,9 +144,9 @@ class FinancialHistoryController extends ChangeNotifier {
     required double totalValue,
     required int totalRides,
   }) {
-    final List<RideReportPlatform> updated =
-        List<RideReportPlatform>.of(_report.platforms)..add(
-          RideReportPlatform(
+    final List<FinancialHistoryPlatform> updated =
+        List<FinancialHistoryPlatform>.of(_report.platforms)..add(
+          FinancialHistoryPlatform(
             name: name,
             totalValue: totalValue < 0 ? 0 : totalValue,
             totalRides: totalRides < 0 ? 0 : totalRides,
@@ -163,9 +163,8 @@ class FinancialHistoryController extends ChangeNotifier {
     double? totalValue,
     int? totalRides,
   }) {
-    final List<RideReportPlatform> updated = List<RideReportPlatform>.of(
-      _report.platforms,
-    );
+    final List<FinancialHistoryPlatform> updated =
+        List<FinancialHistoryPlatform>.of(_report.platforms);
     updated[index] = updated[index].copyWith(
       name: name,
       totalValue: totalValue,
@@ -178,9 +177,8 @@ class FinancialHistoryController extends ChangeNotifier {
   /// Remove a plataforma no índice [index], se existir.
   void removePlatform(int index) {
     if (index < 0 || index >= _report.platforms.length) return;
-    final List<RideReportPlatform> updated = List<RideReportPlatform>.of(
-      _report.platforms,
-    )..removeAt(index);
+    final List<FinancialHistoryPlatform> updated =
+        List<FinancialHistoryPlatform>.of(_report.platforms)..removeAt(index);
     _report = _report.copyWith(platforms: updated);
     notifyListeners();
   }
@@ -193,7 +191,7 @@ class FinancialHistoryController extends ChangeNotifier {
   Future<bool> load(String id) async {
     _setBusy(true);
     try {
-      final RideReport? loaded = await _repository.getById(id);
+      final FinancialHistory? loaded = await _repository.getById(id);
       if (loaded == null) {
         _lastError = 'Passeio não encontrado.';
         return false;
@@ -211,7 +209,7 @@ class FinancialHistoryController extends ChangeNotifier {
 
   /// Persiste o report atual via repositório.
   ///
-  /// Lança [RideReportValidationException] caso as validações mínimas falhem.
+  /// Lança [FinancialHistoryValidationException] caso as validações mínimas falhem.
   Future<void> save() async {
     _validate();
     _setBusy(true);
@@ -261,31 +259,31 @@ class FinancialHistoryController extends ChangeNotifier {
   ///  - valores não negativos em km e valores monetários.
   void _validate() {
     if (_report.kmIn < 0) {
-      throw const RideReportValidationException(
+      throw const FinancialHistoryValidationException(
         'KM - IN não pode ser negativo.',
       );
     }
     if (_report.kmOut != null && _report.kmOut! < 0) {
-      throw const RideReportValidationException(
+      throw const FinancialHistoryValidationException(
         'KM - OUT não pode ser negativo.',
       );
     }
     if (_report.kmOut != null && _report.kmOut! < _report.kmIn) {
-      throw const RideReportValidationException(
+      throw const FinancialHistoryValidationException(
         'KM - OUT deve ser maior ou igual a KM - IN.',
       );
     }
     if (_report.cashSpent < 0) {
-      throw const RideReportValidationException(
+      throw const FinancialHistoryValidationException(
         'CASH (Gas/Energia) não pode ser negativo.',
       );
     }
   }
 }
 
-/// Erro de validação de um [RideReport] antes da persistência.
-class RideReportValidationException implements Exception {
-  const RideReportValidationException(this.message);
+/// Erro de validação de um [FinancialHistory] antes da persistência.
+class FinancialHistoryValidationException implements Exception {
+  const FinancialHistoryValidationException(this.message);
 
   final String message;
 

@@ -1,11 +1,11 @@
 import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history.dart';
 
 /// Entidade que representa uma despesa extra avulsa (alimentação, bebidas,
 /// medicamentos, etc.) decorrente do dia de trabalho como motorista.
 ///
-/// É facultativa: ao encerrar um registro em [FinancialHistoryModel], o
+/// É facultativa: ao encerrar um registro em [FinancialHistory], o
 /// usuário pode ou não adicionar despesas extras. Um mesmo registro diário
 /// pode ter 0 ou N despesas extras associadas.
 @Entity(
@@ -14,7 +14,7 @@ import 'package:ride_driver_app_1/features/financial_history/financial_history_m
     ForeignKey(
       childColumns: ['financial_history_id'],
       parentColumns: ['id'],
-      entity: FinancialHistoryModel,
+      entity: FinancialHistory,
       onDelete: ForeignKeyAction.cascade,
     ),
   ],

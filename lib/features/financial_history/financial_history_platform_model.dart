@@ -1,21 +1,26 @@
 import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-/// Entidade associativa (tabela de detalhe) entre o registro diário
-/// [FinancialHistoryModel] e uma [PlatformModel].
+/// ENTIDADE-DETALHE (associativa) — tabela `financial_history_platform`
+/// (N linhas por dia).
 ///
-/// Cada linha representa o faturamento e a quantidade de corridas de
-/// UMA plataforma em UM dia — permitindo N plataformas por registro
-/// diário (Uber, Bolt, particulares avulsas, etc.).
+/// Liga o registro-pai [FinancialHistory] a uma [PlatformModel] do catálogo:
+/// cada linha guarda o faturamento e o nº de corridas de UMA plataforma em
+/// UM dia (Uber, Bolt, particulares avulsas, etc.). Diferente da entidade-pai,
+/// não tem lógica de domínio — só FKs e valores persistidos.
+///
+/// Não confundir com `FinancialHistoryPlatform` (domain/): aquela NÃO é
+/// entidade — é a visão resolvida (nome + totais) usada pela UI/controller.
+/// O repositório converte entre as duas ao carregar/salvar.
 @Entity(
   tableName: 'financial_history_platform',
   foreignKeys: [
     ForeignKey(
       childColumns: ['financial_history_id'],
       parentColumns: ['id'],
-      entity: FinancialHistoryModel,
+      entity: FinancialHistory,
       onDelete: ForeignKeyAction.cascade,
     ),
     ForeignKey(
@@ -80,5 +85,3 @@ class FinancialHistoryPlatformModel implements BaseModel {
     };
   }
 }
-
-
