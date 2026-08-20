@@ -39,7 +39,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	];
 
 	// Controller (application layer): dono do RideReport e da persistência.
-	late final FinancialHistoryController _controller;
+	late final FinancialHistoryController _financialHistoryController;
 
 	// INÍCIO das variáveis de estado local da view. #######################################
 	// Aqui começa o estado local da view (formulário) — será sincronizado com o controller.
@@ -62,7 +62,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	@override
 	void initState() {
 		super.initState();
-		_controller = FinancialHistoryController(
+		_financialHistoryController = FinancialHistoryController(
 			repository: LocalRideReportRepository(),
 		);
 	}
@@ -70,7 +70,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	@override
 	void dispose() {
 		_notesController.dispose();
-		_controller.dispose();
+		_financialHistoryController.dispose();
 		super.dispose();
 	}
 
@@ -135,25 +135,25 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 		}
 	}
 
-	void _saveRide() {
+	void _actionSaveRide() {
 		FocusScope.of(context).unfocus();
-		if (_controller.busy) return;
+		if (_financialHistoryController.busy) return;
 		_syncControllerFromState();
 		debugPrint(
 			'[SAVE][view] formulário → data=$_rideDate, kmIn=$_kmIn, '
 			'kmOut=$_kmOut, cash=$_cashSpent, hodo2IsZero=$_hodo2IsZero, '
 			'hodo2=$_hodo2Number, hasImages=$_hasImages, isFinished=$_isFinished',
 		);
-		_controller.save().then((_) {
+		_financialHistoryController.save().then((_) {
 			if (!mounted) return;
 			// Reflete o SKU gerado para reports novos no header.
 			setState(() {});
-			_showSnack('Passeio salvo com sucesso (${_controller.report.sku}).');
+			_showSnack('Passeio salvo com sucesso (${_financialHistoryController.report.sku}).');
 		}).catchError((Object error) {
 			if (!mounted) return;
 			final String message = error is RideReportValidationException
 					? error.message
-					: _controller.lastError ?? 'Erro ao salvar o passeio.';
+					: _financialHistoryController.lastError ?? 'Erro ao salvar o passeio.';
 			_showSnack(message);
 		});
 	}
@@ -162,7 +162,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 	/// Ponte temporária: nas próximas etapas a view passará a observar o
 	/// controller diretamente e este sync deixa de existir.
 	void _syncControllerFromState() {
-		_controller
+		_financialHistoryController
 			..setDate(_rideDate)
 			..setCashSpent(_cashSpent ?? 0)
 			..setHodo2IsZero(_hodo2IsZero)
@@ -170,11 +170,11 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 			..setIsFinished(_isFinished)
 			..setNotes(_notesController.text);
 		final int? kmIn = _kmIn;
-		if (kmIn != null) _controller.setKmIn(kmIn);
+		if (kmIn != null) _financialHistoryController.setKmIn(kmIn);
 		final int? kmOut = _kmOut;
-		if (kmOut != null) _controller.setKmOut(kmOut);
+		if (kmOut != null) _financialHistoryController.setKmOut(kmOut);
 		final int? hodo2Number = _hodo2Number;
-		if (hodo2Number != null) _controller.setHodo2Number(hodo2Number);
+		if (hodo2Number != null) _financialHistoryController.setHodo2Number(hodo2Number);
 	}
 
 	Future<void> _confirmDeleteReport() async {
@@ -276,7 +276,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 					children: [
 						// 1. Header
 						RideHeader(
-							rideSku: _controller.report.sku,
+							rideSku: _financialHistoryController.report.sku,
 							isRideInProgress: !_isFinished,
 						),
 						Divider(color: colorScheme.outlineVariant, height: 1),
@@ -315,7 +315,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 										NotesField(controller: _notesController),
 										const SizedBox(height: 26),
 										// 6. Footer — botão salvar
-										SaveButton(onPressed: _saveRide),
+										SaveButton(onPressed: _actionSaveRide),
 										const SizedBox(height: 20),
 										// 7. Footer — botão combustível (forma de pagamento)
 										FuelPaymentButton(
