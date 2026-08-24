@@ -46,7 +46,13 @@ class FinancialHistoryService {
   // FIM getById ##################################################################
 
   // INICIO ORQUESTRAÇÃO DE GRAVAÇÃO #############################################
+
+  /// Persiste [report], aplicando as regras de negócio mínimas antes de
+  /// gravar. Lança [FinancialHistoryValidationException] se o report não
+  /// atender às regras.
   Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
+    _validate(report);
+
     final bool exists = await _repository.getById(report.id) != null;
 
     FinancialHistoryModel toSave = report;
@@ -130,5 +136,41 @@ class FinancialHistoryService {
   }
 
   String _newId() => '${DateTime.now().microsecondsSinceEpoch}';
+
+  /// Regras mínimas exigidas antes de persistir um report:
+  ///  - `kmOut >= kmIn` quando `kmOut` estiver informado;
+  ///  - valores não negativos em km e valores monetários.
+  void _validate(FinancialHistoryModel report) {
+    if (report.kmIn < 0) {
+      throw const FinancialHistoryValidationException(
+        'KM - IN não pode ser negativo.',
+      );
+    }
+    if (report.kmOut != null && report.kmOut! < 0) {
+      throw const FinancialHistoryValidationException(
+        'KM - OUT não pode ser negativo.',
+      );
+    }
+    if (report.kmOut != null && report.kmOut! < report.kmIn) {
+      throw const FinancialHistoryValidationException(
+        'KM - OUT deve ser maior ou igual a KM - IN.',
+      );
+    }
+    if (report.cashSpent < 0) {
+      throw const FinancialHistoryValidationException(
+        'CASH (Gas/Energia) não pode ser negativo.',
+      );
+    }
+  }
+}
+
+/// Erro de validação de um [FinancialHistoryModel] antes da persistência.
+class FinancialHistoryValidationException implements Exception {
+  const FinancialHistoryValidationException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
 }
 

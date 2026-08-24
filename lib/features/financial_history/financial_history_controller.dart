@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
 
+import 'data/financial_history_repository_sqlite_impl.dart';
 import 'domain/financial_history_model.dart';
 import 'domain/financial_history_platform_summary_model.dart';
 import 'financial_history_service.dart';
+
+export 'financial_history_service.dart' show FinancialHistoryValidationException;
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
 /// Centraliza o estado da `FinancialHistoryView` que hoje vive solto no
 /// `State` do widget. A view observa este notifier (via `AnimatedBuilder` /
 /// `ListenableBuilder`) e chama os métodos de ação — ela nunca decide por si
-/// qual é a "fonte da verdade".
+/// qual é a "fonte da verdade". A view só conhece esta controller: nunca a
+/// service, a interface de persistência ou a implementação concreta.
 ///
 /// Padrão adotado: **ChangeNotifier puro da Flutter**, injetado na view,
 /// alinhado ao restante do projeto (que não usa packages de estado/DI).
@@ -17,13 +21,26 @@ import 'financial_history_service.dart';
 /// To-do central desta etapa:
 ///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryService];
 ///  - todos os setters atualizam [_report] e notificam listeners;
-///  - as validações antes de salvar ficam em [_validate].
+///  - as validações de negócio antes de salvar ficam na [FinancialHistoryService].
 class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
     required FinancialHistoryService service,
     FinancialHistoryModel? initialReport,
   }) : _service = service,
        _report = initialReport ?? _buildBlankReport();
+
+  // INICIO Factory de conveniência para SQLite ####################################
+  factory FinancialHistoryController.locaDb({
+    FinancialHistoryModel? initialReport,
+  }) {
+    return FinancialHistoryController(
+      service: FinancialHistoryService(
+        repository: FinancialHistoryRepositorySqliteImpl(),
+      ),
+      initialReport: initialReport,
+    );
+  }
+  // FIM Factory de conveniência para SQLite ####################################
 
   final FinancialHistoryService _service;
   FinancialHistoryModel _report;
@@ -210,9 +227,9 @@ class FinancialHistoryController extends ChangeNotifier {
 
   /// Persiste o report atual via repositório.
   ///
-  /// Lança [FinancialHistoryValidationException] caso as validações mínimas falhem.
+  /// Lança [FinancialHistoryValidationException] (validações de negócio na
+  /// service) caso o report não atenda às regras mínimas.
   Future<void> save() async {
-    _validate();
     _setBusy(true);
     debugPrint(
       '[SAVE][controller] validado; enviando ao repositório '
@@ -254,40 +271,4 @@ class FinancialHistoryController extends ChangeNotifier {
   }
 
   int _nonNegative(int value) => value < 0 ? 0 : value;
-
-  /// Validações mínimas exigidas antes de persistir:
-  ///  - `kmOut >= kmIn` quando `kmOut` estiver informado;
-  ///  - valores não negativos em km e valores monetários.
-  void _validate() {
-    if (_report.kmIn < 0) {
-      throw const FinancialHistoryValidationException(
-        'KM - IN não pode ser negativo.',
-      );
-    }
-    if (_report.kmOut != null && _report.kmOut! < 0) {
-      throw const FinancialHistoryValidationException(
-        'KM - OUT não pode ser negativo.',
-      );
-    }
-    if (_report.kmOut != null && _report.kmOut! < _report.kmIn) {
-      throw const FinancialHistoryValidationException(
-        'KM - OUT deve ser maior ou igual a KM - IN.',
-      );
-    }
-    if (_report.cashSpent < 0) {
-      throw const FinancialHistoryValidationException(
-        'CASH (Gas/Energia) não pode ser negativo.',
-      );
-    }
-  }
-}
-
-/// Erro de validação de um [FinancialHistoryModel] antes da persistência.
-class FinancialHistoryValidationException implements Exception {
-  const FinancialHistoryValidationException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'financial_history_controller.dart';
-import 'data/financial_history_repository_sqlite_impl.dart';
-import 'financial_history_service.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';
 import 'widgets/notes_field.dart';
@@ -49,7 +47,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   ];
 
   // Controller (application layer): dono do FinancialHistoryModel e da persistência.
-  late final FinancialHistoryController _financialHistoryController;
+  late final FinancialHistoryController _controller;
 
   // INÍCIO das variáveis de estado local da view. #######################################
   // Aqui começa o estado local da view (formulário) — será sincronizado com o controller.
@@ -72,17 +70,13 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   @override
   void initState() {
     super.initState();
-    _financialHistoryController = FinancialHistoryController(
-      service: FinancialHistoryService(
-        repository: FinancialHistoryRepositorySqliteImpl(),
-      ),
-    );
+    _controller = FinancialHistoryController.locaDb();
   }
 
   @override
   void dispose() {
     _notesController.dispose();
-    _financialHistoryController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -169,28 +163,28 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
   void _actionSaveRide() {
     FocusScope.of(context).unfocus();
-    if (_financialHistoryController.busy) return;
+    if (_controller.busy) return;
     _syncTempControllerFromState();
     debugPrint(
       '[SAVE][view] formulário → data=$_rideDate, kmIn=$_kmIn, '
       'kmOut=$_kmOut, cash=$_cashSpent, hodo2IsZero=$_hodo2IsZero, '
       'hodo2=$_hodo2Number, hasImages=$_hasImages, isFinished=$_isFinished',
     );
-    _financialHistoryController
+    _controller
         .save()
         .then((_) {
           if (!mounted) return;
           // Reflete o SKU gerado para reports novos no header.
           setState(() {});
           _showSnack(
-            'Passeio salvo com sucesso (${_financialHistoryController.report.sku}).',
+            'Passeio salvo com sucesso (${_controller.report.sku}).',
           );
         })
         .catchError((Object error) {
           if (!mounted) return;
           final String message = error is FinancialHistoryValidationException
               ? error.message
-              : _financialHistoryController.lastError ??
+              : _controller.lastError ??
                     'Erro ao salvar o passeio.';
           _showSnack(message);
         });
@@ -200,7 +194,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   /// Ponte temporária: nas próximas etapas a view passará a observar o
   /// controller diretamente e este sync deixa de existir.
   void _syncTempControllerFromState() {
-    _financialHistoryController
+    _controller
       ..setDate(_rideDate)
       ..setCashSpent(_cashSpent ?? 0)
       ..setHodo2IsZero(_hodo2IsZero)
@@ -208,12 +202,12 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
       ..setIsFinished(_isFinished)
       ..setNotes(_notesController.text);
     final int? kmIn = _kmIn;
-    if (kmIn != null) _financialHistoryController.setKmIn(kmIn);
+    if (kmIn != null) _controller.setKmIn(kmIn);
     final int? kmOut = _kmOut;
-    if (kmOut != null) _financialHistoryController.setKmOut(kmOut);
+    if (kmOut != null) _controller.setKmOut(kmOut);
     final int? hodo2Number = _hodo2Number;
     if (hodo2Number != null) {
-      _financialHistoryController.setHodo2Number(hodo2Number);
+      _controller.setHodo2Number(hodo2Number);
     }
   }
 
@@ -320,7 +314,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
           children: [
             // 1. Header
             RideHeader(
-              rideSku: _financialHistoryController.report.sku,
+              rideSku: _controller.report.sku,
               isRideInProgress: !_isFinished,
             ),
             Divider(color: colorScheme.outlineVariant, height: 1),
