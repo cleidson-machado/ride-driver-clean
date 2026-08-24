@@ -29,7 +29,6 @@ class FinancialHistoryPlatformModel implements BaseModel {
   @override
   @primaryKey
   final String id;
-
   
   @ColumnInfo(name: 'financial_history_id') /// ################# FK para o registro diário (financial_history.id).
   final String financialHistoryId;
