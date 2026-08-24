@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 // Linha com três controles atalho do report: "HAS IMAGES?", botão central de
 // adicionar plataforma e "IS FINISHED?". Os extremos atuam como checkboxes
 // visuais (tocar alterna o valor); o botão central abre o fluxo de plataforma.
-class QuickOptionsRow extends StatelessWidget {
-  const QuickOptionsRow({
+class QuickOptionsRowWidget extends StatelessWidget {
+  const QuickOptionsRowWidget({
     super.key,
     required this.hasImages,
     required this.isFinished,

@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 // ─── Field slot (label + input) ───────────────────────────────────────────────
 // This widget is used to wrap each field with a label and the corresponding
 // input widget. Mantém a label acima do input com espaçamento e tipografia fixos.
-class FieldSlot extends StatelessWidget {
-  const FieldSlot({super.key, required this.label, required this.child});
+class FieldSlotWidget extends StatelessWidget {
+  const FieldSlotWidget({super.key, required this.label, required this.child});
 
   final String label;
   final Widget child;
@@ -41,8 +41,8 @@ class FieldSlot extends StatelessWidget {
 // Campo de data exibido como container de 48px: painel clicável com o valor e
 // um botão de calendário à direita. Ao tocar em qualquer parte o `onPick` é
 // acionado (a view abre o seletor de data).
-class DateField extends StatelessWidget {
-  const DateField({super.key, required this.value, required this.onPick});
+class DateFieldWidget extends StatelessWidget {
+  const DateFieldWidget({super.key, required this.value, required this.onPick});
 
   final String value;
   final VoidCallback onPick;
@@ -113,8 +113,8 @@ class DateField extends StatelessWidget {
 // Campo numérico trissegmentado (48px): botões − / + nas pontas e o valor
 // central (flex 3) que é editável via `onEdit`. Cada segmento expõe rótulo
 // semântico para acessibilidade.
-class StepperField extends StatelessWidget {
-  const StepperField({
+class StepperFieldWidget extends StatelessWidget {
+  const StepperFieldWidget({
     super.key,
     required this.value,
     required this.semanticLabel,
@@ -208,8 +208,8 @@ class StepperField extends StatelessWidget {
 // Campo de resposta binária (YES/NO) usado pelo "Hodo-2 - is ZERO?" — tocar
 // alterna o valor e os dois indicadores visuais (radio + quadrado) refletem o
 // estado atual.
-class BinaryField extends StatelessWidget {
-  const BinaryField({super.key, required this.value, required this.onChanged});
+class BinaryFieldWidget extends StatelessWidget {
+  const BinaryFieldWidget({super.key, required this.value, required this.onChanged});
 
   final bool value;
   final ValueChanged<bool> onChanged;

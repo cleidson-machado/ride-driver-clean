@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 // já montadas pela view (campos do formulário) e insere, ao centro, o indicador
 // de lucro (_ProfitColumn). O `IntrinsicHeight` faz todas as colunas terem a
 // altura da maior delas.
-class TopDataGrid extends StatelessWidget {
-  const TopDataGrid({
+class TopDataGridWidget extends StatelessWidget {
+  const TopDataGridWidget({
     super.key,
     required this.leftColumn,
     required this.rightColumn,
@@ -27,10 +27,10 @@ class TopDataGrid extends StatelessWidget {
           // Coluna central (flex 1) — LUCRO
           const SizedBox(width: 8),
 
-          // Local no qual o widget ProfitColumn é renderizado.
+          // Local no qual o widget ProfitColumnWidget é renderizado.
           // Ele exibe um indicador visual de lucro, com uma barra de progresso
           // preenchida inferiormente e um rótulo "L1".
-          const Expanded(flex: 1, child: ProfitColumn()),
+          const Expanded(flex: 1, child: ProfitColumnWidget()),
 
           // Coluna direita (flex 4)
           const SizedBox(width: 8),
@@ -48,8 +48,8 @@ class TopDataGrid extends StatelessWidget {
 // Indicador visual de lucro ("L1") com um recipiente cuja parte inferior é
 // preenchida por uma barra (placeholder de progresso). A altura acompanha a
 // grelha via flex da coluna central.
-class ProfitColumn extends StatelessWidget {
-  const ProfitColumn({super.key});
+class ProfitColumnWidget extends StatelessWidget {
+  const ProfitColumnWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

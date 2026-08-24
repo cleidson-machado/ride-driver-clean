@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 // extras e excluir) eram quase idênticos — mesmo container de 52px com ícone,
 // borda e raio iguais — diferenciando-se apenas por cores, ícone e rótulo.
 //
-// Para evitar duplicação, todos delegam para o widget privado _FooterActionButton,
+// Para evitar duplicação, todos delegam para o widget privado _FooterActionButtonWidget,
 // que concentra o layout comum. Cada classe pública mantém um nome descritivo no
 // call-site (leitura clara) e apenas parametriza as cores/ícone/rótulo do caso.
 
 // ─── Base com layout comum (privada) ─────────────────────────────────────────
-class _FooterActionButton extends StatelessWidget {
-  const _FooterActionButton({
+class _FooterActionButtonWidget extends StatelessWidget {
+
+  const _FooterActionButtonWidget({
     required this.backgroundColor,
     required this.foregroundColor,
     required this.icon,
@@ -52,15 +53,16 @@ class _FooterActionButton extends StatelessWidget {
 }
 
 // ─── Footer — botão salvar ────────────────────────────────────────────────────
-class SaveButton extends StatelessWidget {
-  const SaveButton({super.key, required this.onPressed});
+class SaveButtonWidget extends StatelessWidget {
+
+  const SaveButtonWidget({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return _FooterActionButton(
+    return _FooterActionButtonWidget(
       backgroundColor: colorScheme.primaryContainer,
       foregroundColor: colorScheme.onPrimaryContainer,
       icon: const Icon(Icons.save_rounded),
@@ -71,15 +73,16 @@ class SaveButton extends StatelessWidget {
 }
 
 // ─── Footer — botão combustível (forma de pagamento) ─────────────────────────
-class FuelPaymentButton extends StatelessWidget {
-  const FuelPaymentButton({super.key, required this.onPressed});
+class FuelPaymentButtonWidget extends StatelessWidget {
+
+  const FuelPaymentButtonWidget({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return _FooterActionButton(
+    return _FooterActionButtonWidget(
       backgroundColor: colorScheme.secondaryContainer,
       foregroundColor: colorScheme.onSecondaryContainer,
       icon: const Icon(Icons.credit_card_rounded),
@@ -90,15 +93,16 @@ class FuelPaymentButton extends StatelessWidget {
 }
 
 // ─── Footer — botão para adicionar imagens ───────────────────────────────────
-class AddImagesButton extends StatelessWidget {
-  const AddImagesButton({super.key, required this.onPressed});
+class AddImagesButtonWidget extends StatelessWidget {
+
+  const AddImagesButtonWidget({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return _FooterActionButton(
+    return _FooterActionButtonWidget(
       backgroundColor: colorScheme.tertiaryContainer,
       foregroundColor: colorScheme.onTertiaryContainer,
       icon: const Icon(Icons.image_outlined),
@@ -109,15 +113,16 @@ class AddImagesButton extends StatelessWidget {
 }
 
 // ─── Footer — botão para gastos extras/alimentação ───────────────────────────
-class ExtraExpensesButton extends StatelessWidget {
-  const ExtraExpensesButton({super.key, required this.onPressed});
+class ExtraExpensesButtonWidget extends StatelessWidget {
+
+  const ExtraExpensesButtonWidget({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return _FooterActionButton(
+    return _FooterActionButtonWidget(
       backgroundColor: colorScheme.surfaceContainerHigh,
       foregroundColor: colorScheme.onSurface,
       icon: const Icon(Icons.receipt_long_outlined),
@@ -128,15 +133,16 @@ class ExtraExpensesButton extends StatelessWidget {
 }
 
 // ─── Footer — botão de exclusão do report/passeio ────────────────────────────
-class DeleteRideReportButton extends StatelessWidget {
-  const DeleteRideReportButton({super.key, required this.onPressed});
+class DeleteRideReportButtonWidget extends StatelessWidget {
+  
+  const DeleteRideReportButtonWidget({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return _FooterActionButton(
+    return _FooterActionButtonWidget(
       backgroundColor: colorScheme.errorContainer,
       foregroundColor: colorScheme.onErrorContainer,
       icon: const Icon(Icons.delete_forever_rounded),

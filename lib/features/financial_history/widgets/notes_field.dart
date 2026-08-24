@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 // Field multilinear de anotações/observações do passeio. Recebe o controller
 // de texto da view (que o mantém/vive), cuidando apenas da apresentação e do
 // decimal de entrada.
-class NotesField extends StatelessWidget {
-  const NotesField({super.key, required this.controller});
+class NotesFieldWidget extends StatelessWidget {
+  const NotesFieldWidget({super.key, required this.controller});
 
   final TextEditingController controller;
 

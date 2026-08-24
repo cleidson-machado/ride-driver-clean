@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 // ─── Header ───────────────────────────────────────────────────────────────────
 // Barra superior da tela: botão de voltar à esquerda e, ao centro, o SKU do
 // report atual seguido do pill de status do passeio (EM CURSO / CONCLUÍDO).
-class RideHeader extends StatelessWidget {
-  const RideHeader({
+class RideHeaderWidget extends StatelessWidget {
+  const RideHeaderWidget({
     super.key,
     required this.rideSku,
     required this.isRideInProgress,
@@ -45,7 +45,7 @@ class RideHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _RideStatusPill(isInProgress: isRideInProgress),
+                _RideStatusPillWidget(isInProgress: isRideInProgress),
               ],
             ),
           ),
@@ -58,8 +58,8 @@ class RideHeader extends StatelessWidget {
 // ─── Ride status pill (EM CURSO / CONCLUIDO) ─────────────────────────────────
 // Pequeno chip colorido que sinaliza o estado do report: verde/tertiary para
 // passeio em andamento e primary quando já concluído.
-class _RideStatusPill extends StatelessWidget {
-  const _RideStatusPill({required this.isInProgress});
+class _RideStatusPillWidget extends StatelessWidget {
+  const _RideStatusPillWidget({required this.isInProgress});
 
   final bool isInProgress;
 

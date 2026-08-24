@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 // Bloco que lista as plataformas usadas no dia em um carrossel paginado. Cada
 // página exibe 2 cartões (plataforma OU slot de "adicionar", quando sobra
 // posição) e um indicador de dots para navegar entre as páginas.
-class PlatformsSection extends StatefulWidget {
-  const PlatformsSection({super.key, required this.onAddPlatform});
+class PlatformsSectionWidget extends StatefulWidget {
+  const PlatformsSectionWidget({super.key, required this.onAddPlatform});
 
   final VoidCallback onAddPlatform;
 
   @override
-  State<PlatformsSection> createState() => _PlatformsSectionState();
+  State<PlatformsSectionWidget> createState() => _PlatformsSectionWidgetState();
 }
 
 // ─── Secção plataformas base — estado ─────────────────────────────────────────
-class _PlatformsSectionState extends State<PlatformsSection> {
+class _PlatformsSectionWidgetState extends State<PlatformsSectionWidget> {
   // Dados mock — uma plataforma por página do carrossel (máx. 3).
   static const List<({String name, String totalValue, String totalRides})>
   _platforms = [
@@ -37,10 +37,10 @@ class _PlatformsSectionState extends State<PlatformsSection> {
 
   Widget _buildCardSlot(int platformIndex) {
     if (platformIndex >= _platforms.length) {
-      return AddPlatformCard(onTap: widget.onAddPlatform);
+      return AddPlatformCardWidget(onTap: widget.onAddPlatform);
     }
     final platform = _platforms[platformIndex];
-    return PlatformCard(
+    return PlatformCardWidget(
       name: platform.name,
       totalValue: platform.totalValue,
       totalRides: platform.totalRides,
@@ -102,7 +102,7 @@ class _PlatformsSectionState extends State<PlatformsSection> {
                 ),
               ),
               const SizedBox(height: 10),
-              _PageDotsIndicator(
+              _PageDotsIndicatorWidget(
                 count: _pageCount,
                 currentIndex: _currentPage,
                 onDotTap: (int index) => _pageController.animateToPage(
@@ -122,8 +122,8 @@ class _PlatformsSectionState extends State<PlatformsSection> {
 // ─── Card filler — adicionar plataforma (slot vazio em página ímpar) ────────
 // Cartão exibido quando sobra uma posição no carrossel (última página ímpar).
 // Oferece o atalho visual "/ adicionar plataforma".
-class AddPlatformCard extends StatelessWidget {
-  const AddPlatformCard({super.key, required this.onTap});
+class AddPlatformCardWidget extends StatelessWidget {
+  const AddPlatformCardWidget({super.key, required this.onTap});
 
   final VoidCallback onTap;
 
@@ -181,8 +181,8 @@ class AddPlatformCard extends StatelessWidget {
 // ─── Indicador de páginas (dots) ─────────────────────────────────────────────
 // Dots de paginação do carrossel. O dot ativo se expande horizontalmente e os
 // demais permanecem compactos, mantendo área de toque confortável via padding.
-class _PageDotsIndicator extends StatelessWidget {
-  const _PageDotsIndicator({
+class _PageDotsIndicatorWidget extends StatelessWidget {
+  const _PageDotsIndicatorWidget({
     required this.count,
     required this.currentIndex,
     required this.onDotTap,
@@ -233,8 +233,8 @@ class _PageDotsIndicator extends StatelessWidget {
 // ─── Cartão de plataforma ─────────────────────────────────────────────────────
 // Apresenta o nome da plataforma, o valor total do dia e o total de corridas,
 // cada um dentro de um mini-container com borda arredondada.
-class PlatformCard extends StatelessWidget {
-  const PlatformCard({
+class PlatformCardWidget extends StatelessWidget {
+  const PlatformCardWidget({
     super.key,
     required this.name,
     required this.totalValue,
