@@ -2,9 +2,9 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_dao.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_platform_dao.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_dao.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 

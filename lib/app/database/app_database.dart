@@ -3,8 +3,8 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/app/database/daos_impl.dart';
 import 'package:ride_driver_app_1/app/database/migrations.dart';
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_dao.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_dao.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_platform_dao.dart';
 import 'package:ride_driver_app_1/features/platform/platform_dao.dart';
 
 /// Singleton lazy do banco: abre uma única vez com todas as migrações

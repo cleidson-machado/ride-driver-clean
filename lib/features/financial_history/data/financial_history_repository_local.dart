@@ -5,17 +5,17 @@ import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
 import '../domain/financial_history_model.dart';
 import '../domain/financial_history_platform.dart';
-import 'financial_history_repository_interface.dart';
+import 'financial_history_repository.dart';
 
-/// Implementação concreta (local, SQLite/sqflite) do contrato
-/// [FinancialHistoryRepositoryInterface].
+/// Implementação local (SQLite/sqflite) do contrato
+/// [FinancialHistoryRepository].
 ///
 /// A entidade [FinancialHistoryModel] já sabe se mapear para a tabela
 /// `financial_history`; este repositório cuida do que é relacional:
 /// resolver os vínculos de plataforma (`financial_history_platform` +
 /// catálogo `platform`) e gerar o SKU sequencial. A view e o controller
 /// nunca enxergam DAOs nem SQL — apenas esta camada.
-class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface {
+class FinancialHistoryRepositoryLocal implements FinancialHistoryRepository {
   @override
   Future<FinancialHistoryModel?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
@@ -70,6 +70,7 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
     await _replacePlatformLinks(db, toSave);
 
     // Releitura do SQLite: comprova que o registro foi de fato persistido.
+
     final FinancialHistoryModel? persisted = await db.financialHistoryDao
         .getFinancialHistoryById(toSave.id);
     debugPrint('[SAVE][repo] releitura do banco → ${persisted?.toMap()}');

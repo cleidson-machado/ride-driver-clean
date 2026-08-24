@@ -248,11 +248,11 @@ FinancialHistoryView / PlatformsSection
 | Artefato | Caminho |
 |---|---|
 | Classe de domínio | `lib/features/financial_history/domain/financial_history_platform.dart` |
-| Entidade persistida | `lib/features/financial_history/financial_history_platform_model.dart` |
+| Entidade persistida | `lib/features/financial_history/domain/financial_history_platform_model.dart` |
 | Entidade diária (pai) | `lib/features/financial_history/domain/financial_history_model.dart` |
 | Repositório (conversão) | `lib/features/financial_history/data/financial_history_repository.dart` |
 | Contrato do repositório | `lib/features/financial_history/data/financial_history_repository_interface.dart` |
 | Controller (estado da tela) | `lib/features/financial_history/controller/financial_history_controller.dart` |
-| DAO das plataformas | `lib/features/financial_history/financial_history_platform_dao.dart` |
+| DAO das plataformas | `lib/features/financial_history/data/financial_history_platform_dao.dart` |
 | Visual (carrossel de plataformas) | `lib/features/financial_history/widgets/platforms_section.dart` |
 | Análise de modelagem | `ANALISE_MODELAGEM_E_PERSISTENCIA.md` |
