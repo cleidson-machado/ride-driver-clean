@@ -11,7 +11,7 @@ import '../domain/financial_history_model.dart';
 /// Cuida exclusivamente da persistência. Para trocar a tecnologia de
 /// armazenamento (ex.: REST API), basta fornecer outra implementação do
 /// contrato — a [FinancialHistoryService] não é alterada.
-class SqliteFinancialHistoryRepositoryImpl implements FinancialHistoryInterface {
+class FinancialHistoryRepositorySqliteImpl implements FinancialHistoryInterface {
   // INICIO PERSISTÊNCIA DIRETA (financial_history + vínculos) ###############################
   @override
   Future<List<FinancialHistoryModel>> getAll() async {
