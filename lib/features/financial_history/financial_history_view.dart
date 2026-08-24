@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'controller/financial_history_controller.dart';
+import 'financial_history_controller.dart';
 import 'data/financial_history_repository.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';

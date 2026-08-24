@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/financial_history_repository_interface.dart';
-import '../domain/financial_history_model.dart';
-import '../domain/financial_history_platform.dart';
+import 'data/financial_history_repository_interface.dart';
+import 'domain/financial_history_model.dart';
+import 'domain/financial_history_platform.dart';
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
