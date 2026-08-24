@@ -2,16 +2,8 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-/// Contrato de persistência da feature de histórico financeiro.
-///
-/// Concentra todas as operações de leitura/escrita do histórico financeiro,
-/// seus vínculos com plataformas e o catálogo de plataformas. A
-/// [FinancialHistoryService] depende apenas desta abstração — nunca de uma
-/// implementação concreta (SQLite hoje, REST no futuro).
-///
-/// A localização nesta camada de domínio garante que nenhuma implementação
-/// traga dependências de infraestrutura (ex.: `sqflite`) para este contrato.
 abstract class FinancialHistoryInterface {
+
   // INICIO CRUD do histórico financeiro ######################################
   Future<List<FinancialHistoryModel>> getAll();
 
