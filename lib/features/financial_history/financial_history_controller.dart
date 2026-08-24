@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import 'data/financial_history_repository_sqlite_impl.dart';
 import 'domain/financial_history_model.dart';
 import 'domain/financial_history_platform_summary_model.dart';
 import 'financial_history_service.dart';
@@ -29,19 +28,9 @@ class FinancialHistoryController extends ChangeNotifier {
   }) : _service = service,
        _report = initialReport ?? _buildBlankReport();
 
-  // INICIO Factory de conveniência para SQLite ####################################
-  factory FinancialHistoryController.locaDb({
-    FinancialHistoryModel? initialReport,
-  }) {
-    return FinancialHistoryController(
-      service: FinancialHistoryService(
-        repository: FinancialHistoryRepositorySqliteImpl(),
-      ),
-      initialReport: initialReport,
-    );
-  }
-  // FIM Factory de conveniência para SQLite ####################################
-
+  /// A controller conhece apenas a [FinancialHistoryService] (injeção no
+  /// construtor). A implementação concreta de infraestrutura (SQLite etc.) é
+  /// montada num ponto de composição dedicado — nunca nesta camada.
   final FinancialHistoryService _service;
   FinancialHistoryModel _report;
 
