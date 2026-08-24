@@ -4,17 +4,6 @@ import 'package:ride_driver_app_1/app/generic/base_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-/// ENTIDADE-DETALHE (associativa) — tabela `financial_history_platform`
-/// (N linhas por dia).
-///
-/// Liga o registro-pai [FinancialHistoryModel] a uma [PlatformModel] do catálogo:
-/// cada linha guarda o faturamento e o nº de corridas de UMA plataforma em
-/// UM dia (Uber, Bolt, particulares avulsas, etc.). Diferente da entidade-pai,
-/// não tem lógica de domínio — só FKs e valores persistidos.
-///
-/// Não confundir com `FinancialHistoryPlatform` (domain/): aquela NÃO é
-/// entidade — é a visão resolvida (nome + totais) usada pela UI/controller.
-/// O repositório converte entre as duas ao carregar/salvar.
 @Entity(
   tableName: 'financial_history_platform',
   foreignKeys: [
@@ -41,20 +30,17 @@ class FinancialHistoryPlatformModel implements BaseModel {
   @primaryKey
   final String id;
 
-  /// FK para o registro diário (financial_history.id).
-  @ColumnInfo(name: 'financial_history_id')
+  
+  @ColumnInfo(name: 'financial_history_id') /// ################# FK para o registro diário (financial_history.id).
   final String financialHistoryId;
-
-  /// FK para a plataforma (platform.id).
-  @ColumnInfo(name: 'platform_id')
+  
+  @ColumnInfo(name: 'platform_id') /// ########################## FK para a plataforma (platform.id).
   final String platformId;
-
-  /// Faturamento total do dia nessa plataforma, em euros.
-  @ColumnInfo(name: 'daily_earnings')
+  
+  @ColumnInfo(name: 'daily_earnings') /// ####################### Faturamento total do dia nessa plataforma, em euros.
   final double dailyEarnings;
 
-  /// Quantidade total de corridas do dia nessa plataforma.
-  @ColumnInfo(name: 'daily_trip_count')
+  @ColumnInfo(name: 'daily_trip_count') /// #################### Quantidade total de corridas do dia nessa plataforma.
   final int dailyTripCount;
 
   const FinancialHistoryPlatformModel({
