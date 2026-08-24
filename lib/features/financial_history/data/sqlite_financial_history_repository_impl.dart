@@ -3,10 +3,17 @@ import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
+import '../domain/financial_history_interface.dart';
 import '../domain/financial_history_model.dart';
 
-class FinancialHistoryRepository {
+/// Implementação SQLite do [FinancialHistoryInterface].
+///
+/// Cuida exclusivamente da persistência. Para trocar a tecnologia de
+/// armazenamento (ex.: REST API), basta fornecer outra implementação do
+/// contrato — a [FinancialHistoryService] não é alterada.
+class SqliteFinancialHistoryRepositoryImpl implements FinancialHistoryInterface {
   // INICIO PERSISTÊNCIA DIRETA (financial_history + vínculos) ###############################
+  @override
   Future<List<FinancialHistoryModel>> getAll() async {
     final AppDatabase db = await openAppDatabase();
     final rows = await db.database.rawQuery(
@@ -15,6 +22,7 @@ class FinancialHistoryRepository {
     return rows.map((r) => FinancialHistoryModel.fromMap(r)).toList();
   }
 
+  @override
   Future<FinancialHistoryModel?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
     final rows = await db.database.rawQuery(
@@ -25,6 +33,7 @@ class FinancialHistoryRepository {
     return FinancialHistoryModel.fromMap(rows.first);
   }
 
+  @override
   Future<void> insert(FinancialHistoryModel model) async {
     final AppDatabase db = await openAppDatabase();
     await db.database.insert(
@@ -34,6 +43,7 @@ class FinancialHistoryRepository {
     );
   }
 
+  @override
   Future<void> update(FinancialHistoryModel model) async {
     final AppDatabase db = await openAppDatabase();
     await db.database.update(
@@ -45,6 +55,7 @@ class FinancialHistoryRepository {
     );
   }
 
+  @override
   Future<void> deleteById(String id) async {
     final AppDatabase db = await openAppDatabase();
     await db.database.delete(
@@ -54,6 +65,7 @@ class FinancialHistoryRepository {
     );
   }
 
+  @override
   Future<List<FinancialHistoryPlatformModel>>
   getPlatformLinksByFinancialHistoryId(String financialHistoryId) async {
     final AppDatabase db = await openAppDatabase();
@@ -65,6 +77,7 @@ class FinancialHistoryRepository {
     return rows.map((r) => FinancialHistoryPlatformModel.fromMap(r)).toList();
   }
 
+  @override
   Future<void> deletePlatformLinksByFinancialHistoryId(
     String financialHistoryId,
   ) async {
@@ -76,6 +89,7 @@ class FinancialHistoryRepository {
     );
   }
 
+  @override
   Future<void> insertPlatformLink(FinancialHistoryPlatformModel model) async {
     final AppDatabase db = await openAppDatabase();
     await db.database.insert(
@@ -85,16 +99,19 @@ class FinancialHistoryRepository {
     );
   }
 
+  @override
   Future<PlatformModel?> getPlatformById(String id) async {
     final AppDatabase db = await openAppDatabase();
     return db.platformDao.getPlatformById(id);
   }
 
+  @override
   Future<List<PlatformModel>> getAllPlatforms() async {
     final AppDatabase db = await openAppDatabase();
     return db.platformDao.getAllPlatforms();
   }
 
+  @override
   Future<void> insertPlatform(PlatformModel model) async {
     final AppDatabase db = await openAppDatabase();
     await db.platformDao.insertPlatform(model);

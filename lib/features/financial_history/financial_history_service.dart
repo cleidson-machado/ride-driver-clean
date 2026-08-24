@@ -1,16 +1,22 @@
 import 'package:flutter/foundation.dart';
-import 'package:ride_driver_app_1/features/financial_history/data/financial_history_repository.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_interface.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_summary_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
+/// Regras de negócio da feature de histórico financeiro.
+///
+/// Depende apenas do contrato [FinancialHistoryInterface] abstraído na camada
+/// de domínio — nunca de uma implementação concreta. Isso permite injetar
+/// hoje uma implementação SQLite e, futuramente, uma REST, sem alterar esta
+/// classe (princípio da inversão de dependência).
 class FinancialHistoryService {
   const FinancialHistoryService({
-    required FinancialHistoryRepository repository,
+    required FinancialHistoryInterface repository,
   }) : _repository = repository;
 
-  final FinancialHistoryRepository _repository;
+  final FinancialHistoryInterface _repository;
 
   // INICIO getById ###############################################################
   Future<FinancialHistoryModel?> getById(String id) async {
@@ -125,3 +131,4 @@ class FinancialHistoryService {
 
   String _newId() => '${DateTime.now().microsecondsSinceEpoch}';
 }
+
