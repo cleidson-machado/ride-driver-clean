@@ -1,10 +1,10 @@
-import '../domain/financial_history.dart';
+import '../domain/financial_history_model.dart';
 
 abstract class FinancialHistoryRepositoryInterface {
 
-  Future<FinancialHistory?> getById(String id);
+  Future<FinancialHistoryModel?> getById(String id);
 
-  Future<FinancialHistory> save(FinancialHistory report);
+  Future<FinancialHistoryModel> save(FinancialHistoryModel report);
 
   Future<void> delete(String id);
 }

@@ -47,7 +47,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     'Dezembro',
   ];
 
-  // Controller (application layer): dono do FinancialHistory e da persistência.
+  // Controller (application layer): dono do FinancialHistoryModel e da persistência.
   late final FinancialHistoryController _financialHistoryController;
 
   // INÍCIO das variáveis de estado local da view. #######################################
@@ -190,7 +190,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         });
   }
 
-  /// Copia o estado atual do formulário para o FinancialHistory do controller.
+  /// Copia o estado atual do formulário para o FinancialHistoryModel do controller.
   /// Ponte temporária: nas próximas etapas a view passará a observar o
   /// controller diretamente e este sync deixa de existir.
   void _syncTempControllerFromState() {

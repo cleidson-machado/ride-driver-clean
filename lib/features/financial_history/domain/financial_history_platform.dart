@@ -1,4 +1,4 @@
-/// Platforma usada em um [FinancialHistory] — o faturamento e o número de corridas
+/// Platforma usada em um [FinancialHistoryModel] — o faturamento e o número de corridas
 /// de UMA plataforma em UM dia de trabalho.
 ///
 /// Corresponde à tabela associativa `financial_history_platform` (lado da

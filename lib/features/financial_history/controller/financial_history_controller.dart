@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/financial_history_repository_interface.dart';
-import '../domain/financial_history.dart';
+import '../domain/financial_history_model.dart';
 import '../domain/financial_history_platform.dart';
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
@@ -21,16 +21,16 @@ import '../domain/financial_history_platform.dart';
 class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
     required FinancialHistoryRepositoryInterface repository,
-    FinancialHistory? initialReport,
+    FinancialHistoryModel? initialReport,
   }) : _repository = repository,
        _report = initialReport ?? _buildBlankReport();
 
   final FinancialHistoryRepositoryInterface _repository;
-  FinancialHistory _report;
+  FinancialHistoryModel _report;
 
   // ── Estado exposto à view ────────────────────────────────────────────────
 
-  FinancialHistory get report => _report;
+  FinancialHistoryModel get report => _report;
 
   /// Indica se há uma operação assíncrona (load/save/delete) em andamento.
   bool _busy = false;
@@ -44,8 +44,8 @@ class FinancialHistoryController extends ChangeNotifier {
 
   // ── Factory ───────────────────────────────────────────────────────────────
 
-  static FinancialHistory _buildBlankReport() {
-    return FinancialHistory.blank(id: _newId(), date: DateTime.now());
+  static FinancialHistoryModel _buildBlankReport() {
+    return FinancialHistoryModel.blank(id: _newId(), date: DateTime.now());
   }
 
   /// Gera um id único simples (timestamp + contador) sem dependências.
@@ -191,7 +191,7 @@ class FinancialHistoryController extends ChangeNotifier {
   Future<bool> load(String id) async {
     _setBusy(true);
     try {
-      final FinancialHistory? loaded = await _repository.getById(id);
+      final FinancialHistoryModel? loaded = await _repository.getById(id);
       if (loaded == null) {
         _lastError = 'Passeio não encontrado.';
         return false;
@@ -281,7 +281,7 @@ class FinancialHistoryController extends ChangeNotifier {
   }
 }
 
-/// Erro de validação de um [FinancialHistory] antes da persistência.
+/// Erro de validação de um [FinancialHistoryModel] antes da persistência.
 class FinancialHistoryValidationException implements Exception {
   const FinancialHistoryValidationException(this.message);
 

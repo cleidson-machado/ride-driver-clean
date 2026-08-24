@@ -52,4 +52,24 @@ Refatore a feature financial_history conforme as regras abaixo:
 Analise o código existente (incluindo os arquivos da pasta widgets, se necessário) e realize as alterações de forma coesa, garantindo que a aplicação continue compilando e funcionando.
 
 #### Parte A REPETIR SEMPRE NOS FINAIS DOS PROMPTS AFINS
-Me envia esse prompt de forma resumida, sem código e em texto puro dentro de uma caixa de exibição de código, logo abaixo. No texto do prompt não precisa detalhar tudo, explique no prompt em linhas gerais os pontos do código onde o agente deve atuar e ou analizar, ou seja, deixa o agente no projeto tomar as desiões afins a partir das suas obsevações. 
+Me envia esse prompt de forma resumida, sem código e em texto puro dentro de uma caixa de exibição de código, logo abaixo. No texto do prompt não precisa detalhar tudo, explique no prompt em linhas gerais os pontos do código onde o agente deve atuar e ou analizar, ou seja, deixa o agente no projeto tomar as desiões afins a partir das suas obsevações.
+
+#### Parte A REPETIR SEMPRE EM PROMPTS MAIS COMUNS DE REFINAMENTO DE DE PROMPTS HUMANOS MANUAIS
+Melhora a logica e afins de composição desse meu prompt para agente de IA abaixo, mantendo a referencia a arquivos ou pastas afins.
+
+#### QUANDO FOI NECESSÁRIO REFATORAR A MODEL FinancialHistory EM: 24-08-2026
+Preciso que analize o .dart em ( lib/features/financial_history/domain/financial_history.dart ) e me ajude na refatoração pois essa model é a única no projeto que não tem o sufixo "model" como as demais seja no nome da classe que hoje é somente "FinancialHistory", seja no nome do seu respectivo .dart que hoje é apenas: "financial_history.dart". Usa o padrão de nomes das outra models como exemplo, tanto no nome do .dart como também no nome da classe e faça as refatorações a ajustes afins. Obs: esse projeto continua sendo uma POC que persiste dados em SQLite Local. Depois dos ajustes da refatoração acima verifica se a persistencia está em tese funcionando adequadamente e afins.
+
+#### CRIADO DERIVADO DO PROMPT ACIMA EM: 24-08-2026
+Contexto: Projeto Flutter (POC) com persistência local em SQLite.
+
+Tarefa: Refatorar a model localizada em lib/features/financial_history/domain/financial_history.dart, que é a única do projeto fora do padrão de nomenclatura das demais models (falta o sufixo "Model").
+
+Passos:
+1. Analisar as outras models do projeto e identificar o padrão de nomenclatura usado (nome da classe e do arquivo).
+2. Renomear a classe FinancialHistory para FinancialHistoryModel (ou conforme o padrão identificado).
+3. Renomear o arquivo financial_history.dart para financial_history_model.dart (ou conforme o padrão).
+4. Atualizar todas as referências no projeto: imports, instâncias, tipos, repositórios, DAOs e demais usos da classe/arquivo.
+5. Após a refatoração, validar que a persistência em SQLite continua funcionando corretamente (mapeamentos toMap/fromMap, nome de tabela, queries e afins), reportando qualquer inconsistência encontrada.
+
+Restrição: Não alterar lógica de negócio — apenas refatoração de nomenclatura e ajustes decorrentes dela.

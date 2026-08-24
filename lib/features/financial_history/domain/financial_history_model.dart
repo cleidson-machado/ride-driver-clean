@@ -29,8 +29,8 @@ import 'financial_history_platform.dart';
 ///  - `km_end == 0` e `km_odometer == 0` representam "não informado"
 ///    ([kmOut]/[hodo2Number] nulos no domínio).
 @Entity(tableName: 'financial_history')
-class FinancialHistory implements BaseModel {
-  const FinancialHistory({
+class FinancialHistoryModel implements BaseModel {
+  const FinancialHistoryModel({
     required this.id,
     required this.sku,
     required this.date,
@@ -102,8 +102,11 @@ class FinancialHistory implements BaseModel {
 
   /// Cria um report em branco (modo cadastro) com um novo id e SKU ainda
   /// vazio ("PASSEIO —"), data de hoje e valores neutros.
-  factory FinancialHistory.blank({required String id, required DateTime date}) {
-    return FinancialHistory(
+  factory FinancialHistoryModel.blank({
+    required String id,
+    required DateTime date,
+  }) {
+    return FinancialHistoryModel(
       id: id,
       sku: 'PASSEIO —',
       date: date,
@@ -135,10 +138,10 @@ class FinancialHistory implements BaseModel {
   /// Reconstrói a entidade a partir de uma linha da tabela
   /// `financial_history`. [platforms] inicia vazia — o repositório a
   /// preenche via `copyWith` após resolver a tabela associativa.
-  factory FinancialHistory.fromMap(Map<String, dynamic> map) {
+  factory FinancialHistoryModel.fromMap(Map<String, dynamic> map) {
     final int kmEnd = map['km_end'] as int;
     final int kmOdometer = map['km_odometer'] as int;
-    return FinancialHistory(
+    return FinancialHistoryModel(
       id: map['id'] as String,
       sku: map['trip_number'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['work_date'] as int),
@@ -172,7 +175,7 @@ class FinancialHistory implements BaseModel {
   }
 
   /// Cópia imutável com novos valores. Campos omitidos mantêm o atual.
-  FinancialHistory copyWith({
+  FinancialHistoryModel copyWith({
     String? sku,
     DateTime? date,
     int? kmIn,
@@ -185,7 +188,7 @@ class FinancialHistory implements BaseModel {
     String? notes,
     List<FinancialHistoryPlatform>? platforms,
   }) {
-    return FinancialHistory(
+    return FinancialHistoryModel(
       id: id,
       sku: sku ?? this.sku,
       date: date ?? this.date,

@@ -3,23 +3,23 @@ import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-import '../domain/financial_history.dart';
+import '../domain/financial_history_model.dart';
 import '../domain/financial_history_platform.dart';
 import 'financial_history_repository_interface.dart';
 
 /// Implementação concreta (local, SQLite/sqflite) do contrato
 /// [FinancialHistoryRepositoryInterface].
 ///
-/// A entidade [FinancialHistory] já sabe se mapear para a tabela
+/// A entidade [FinancialHistoryModel] já sabe se mapear para a tabela
 /// `financial_history`; este repositório cuida do que é relacional:
 /// resolver os vínculos de plataforma (`financial_history_platform` +
 /// catálogo `platform`) e gerar o SKU sequencial. A view e o controller
 /// nunca enxergam DAOs nem SQL — apenas esta camada.
 class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface {
   @override
-  Future<FinancialHistory?> getById(String id) async {
+  Future<FinancialHistoryModel?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
-    final FinancialHistory? entity = await db.financialHistoryDao
+    final FinancialHistoryModel? entity = await db.financialHistoryDao
         .getFinancialHistoryById(id);
     if (entity == null) return null;
 
@@ -46,13 +46,13 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
   }
 
   @override
-  Future<FinancialHistory> save(FinancialHistory report) async {
+  Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
     final AppDatabase db = await openAppDatabase();
 
     final bool exists =
         await db.financialHistoryDao.getFinancialHistoryById(report.id) != null;
 
-    FinancialHistory toSave = report;
+    FinancialHistoryModel toSave = report;
     if (!exists && _isPlaceholderSku(report.sku)) {
       toSave = report.copyWith(sku: await _nextSku(db));
     }
@@ -70,7 +70,7 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
     await _replacePlatformLinks(db, toSave);
 
     // Releitura do SQLite: comprova que o registro foi de fato persistido.
-    final FinancialHistory? persisted = await db.financialHistoryDao
+    final FinancialHistoryModel? persisted = await db.financialHistoryDao
         .getFinancialHistoryById(toSave.id);
     debugPrint('[SAVE][repo] releitura do banco → ${persisted?.toMap()}');
 
@@ -80,7 +80,7 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
   @override
   Future<void> delete(String id) async {
     final AppDatabase db = await openAppDatabase();
-    final FinancialHistory? entity = await db.financialHistoryDao
+    final FinancialHistoryModel? entity = await db.financialHistoryDao
         .getFinancialHistoryById(id);
     if (entity == null) return;
     // FKs com ON DELETE CASCADE removem os vínculos de plataforma.
@@ -93,7 +93,7 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
   /// atuais, garantindo cada plataforma no catálogo (upsert por nome).
   Future<void> _replacePlatformLinks(
     AppDatabase db,
-    FinancialHistory report,
+    FinancialHistoryModel report,
   ) async {
     final List<FinancialHistoryPlatformModel> existing = await db
         .financialHistoryPlatformDao

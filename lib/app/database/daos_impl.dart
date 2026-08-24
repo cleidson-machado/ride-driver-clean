@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/domain/financial_history.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_dao.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_dao.dart';
 import 'package:ride_driver_app_1/features/financial_history/financial_history_platform_model.dart';
@@ -14,25 +14,25 @@ class FinancialHistoryDaoImpl extends FinancialHistoryDao {
   FinancialHistoryDaoImpl(this._db);
 
   @override
-  Future<List<FinancialHistory>> getAllFinancialHistories() async {
+  Future<List<FinancialHistoryModel>> getAllFinancialHistories() async {
     final rows = await _db.rawQuery(
       'SELECT * FROM financial_history ORDER BY work_date DESC',
     );
-    return rows.map((r) => FinancialHistory.fromMap(r)).toList();
+    return rows.map((r) => FinancialHistoryModel.fromMap(r)).toList();
   }
 
   @override
-  Future<FinancialHistory?> getFinancialHistoryById(String id) async {
+  Future<FinancialHistoryModel?> getFinancialHistoryById(String id) async {
     final rows = await _db.rawQuery(
       'SELECT * FROM financial_history WHERE id = ?',
       [id],
     );
     if (rows.isEmpty) return null;
-    return FinancialHistory.fromMap(rows.first);
+    return FinancialHistoryModel.fromMap(rows.first);
   }
 
   @override
-  Future<void> insertFinancialHistory(FinancialHistory model) async {
+  Future<void> insertFinancialHistory(FinancialHistoryModel model) async {
     await _db.insert(
       'financial_history',
       model.toMap(),
@@ -41,7 +41,7 @@ class FinancialHistoryDaoImpl extends FinancialHistoryDao {
   }
 
   @override
-  Future<void> updateFinancialHistory(FinancialHistory model) async {
+  Future<void> updateFinancialHistory(FinancialHistoryModel model) async {
     await _db.update(
       'financial_history',
       model.toMap(),
@@ -52,7 +52,7 @@ class FinancialHistoryDaoImpl extends FinancialHistoryDao {
   }
 
   @override
-  Future<void> deleteFinancialHistory(FinancialHistory model) async {
+  Future<void> deleteFinancialHistory(FinancialHistoryModel model) async {
     await _db.delete(
       'financial_history',
       where: 'id = ?',

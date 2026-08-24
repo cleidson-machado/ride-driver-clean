@@ -17,7 +17,7 @@ This project uses **Floor** ORM for local SQLite persistence. Running `build_run
 
 Entities defined in `lib/app/database/app_database.dart`:
 
-- `FinancialHistoryModel` → `financial_history` (registro diário) — **renomeada para `FinancialHistory`** (entidade unificada em `lib/features/financial_history/domain/financial_history.dart`)
+- `FinancialHistoryModel` → `financial_history` (registro diário) (entidade unificada em `lib/features/financial_history/domain/financial_history_model.dart`)
 - `PlatformModel` → `platform` (catálogo de plataformas: UBER, BOLT, …)
 - `FinancialHistoryPlatformModel` → `financial_history_platform` (tabela associativa com FKs)
 
