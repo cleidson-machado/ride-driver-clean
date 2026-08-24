@@ -3,8 +3,6 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/app/database/daos_impl.dart';
 import 'package:ride_driver_app_1/app/database/migrations.dart';
 import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/data/financial_history_dao.dart';
-import 'package:ride_driver_app_1/features/financial_history/data/financial_history_platform_dao.dart';
 import 'package:ride_driver_app_1/features/platform/platform_dao.dart';
 
 /// Singleton lazy do banco: abre uma única vez com todas as migrações
@@ -20,11 +18,13 @@ Future<AppDatabase>? _appDatabaseFuture;
 
 /// Interface abstrata do banco de dados.
 ///
-/// Cada DAO é acessado como getter. A implementação concreta é provida por
-/// [AppDatabaseBuilder.build].
+/// DAOs são acessados como getters e, quando o acesso é por SQL cru, o
+/// repositório pode usar [database] diretamente. A implementação concreta é
+/// provida por [AppDatabaseBuilder.build].
 abstract class AppDatabase {
-  FinancialHistoryDao get financialHistoryDao;
-  FinancialHistoryPlatformDao get financialHistoryPlatformDao;
+  /// Conexão **sqflite.Database** bruta usada pelas camadas de dados para
+  /// queries não cobertas por DAO (ex.: financial_history e seus vínculos).
+  sqflite.Database get database;
   PlatformDao get platformDao;
   ExtraExpensesDao get extraExpensesDao;
 
@@ -154,13 +154,7 @@ class _AppDatabase implements AppDatabase {
   _AppDatabase(this._db);
 
   @override
-  late final FinancialHistoryDao financialHistoryDao = FinancialHistoryDaoImpl(
-    _db,
-  );
-
-  @override
-  late final FinancialHistoryPlatformDao financialHistoryPlatformDao =
-      FinancialHistoryPlatformDaoImpl(_db);
+  sqflite.Database get database => _db;
 
   @override
   late final PlatformDao platformDao = PlatformDaoImpl(_db);
