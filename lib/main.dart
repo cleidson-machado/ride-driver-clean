@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'app/di/service_locator.dart';
 import 'app/theme/app_theme.dart';
 import 'features/home_add_ride/home_content_tab_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // TODO: inicializações futuras (.env, banco de dados, DI) entram aqui.
+  setupServiceLocator();
+  // TODO: outras inicializações futuras (.env, etc.) entram aqui.
   runApp(const RideDriverApp());
 }
 

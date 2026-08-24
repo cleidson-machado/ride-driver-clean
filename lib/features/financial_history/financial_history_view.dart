@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'financial_history_composition.dart';
+import '../../app/di/service_locator.dart';
 import 'financial_history_controller.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';
@@ -71,9 +71,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   @override
   void initState() {
     super.initState();
-    // A composição da cadeia dependente (SQLite → service → controller) ocorre
-    // no `FinancialHistoryComposition`. A view não conhece a infraestrutura.
-    _controller = FinancialHistoryComposition.createController();
+    // Controller resolvida via container de DI (get_it); a view não conhece
+    // a infraestrutura nem a composição concreta das dependências.
+    _controller = getIt<FinancialHistoryController>();
   }
 
   @override

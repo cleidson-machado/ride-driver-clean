@@ -12,24 +12,23 @@ import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 /// hoje uma implementação SQLite e, futuramente, uma REST, sem alterar esta
 /// classe (princípio da inversão de dependência).
 class FinancialHistoryService {
-  const FinancialHistoryService({
-    required FinancialHistoryInterface repository,
-  }) : _repository = repository;
 
-  final FinancialHistoryInterface _repository;
+  const FinancialHistoryService({required FinancialHistoryInterface repository,}) : _interface = repository;
+
+  final FinancialHistoryInterface _interface;
 
   // INICIO getById ###############################################################
   Future<FinancialHistoryModel?> getById(String id) async {
-    final FinancialHistoryModel? entity = await _repository.getById(id);
+    final FinancialHistoryModel? entity = await _interface.getById(id);
     if (entity == null) return null;
 
-    final List<FinancialHistoryPlatformModel> links = await _repository
+    final List<FinancialHistoryPlatformModel> links = await _interface
         .getPlatformLinksByFinancialHistoryId(id);
 
     final List<FinancialHistoryPlatformSummaryModel> platforms =
         <FinancialHistoryPlatformSummaryModel>[];
     for (final FinancialHistoryPlatformModel link in links) {
-      final PlatformModel? platform = await _repository.getPlatformById(
+      final PlatformModel? platform = await _interface.getPlatformById(
         link.platformId,
       );
       platforms.add(
@@ -53,7 +52,7 @@ class FinancialHistoryService {
   Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
     _validate(report);
 
-    final bool exists = await _repository.getById(report.id) != null;
+    final bool exists = await _interface.getById(report.id) != null;
 
     FinancialHistoryModel toSave = report;
     if (!exists && _isPlaceholderSku(report.sku)) {
@@ -61,9 +60,9 @@ class FinancialHistoryService {
     }
 
     if (exists) {
-      await _repository.update(toSave);
+      await _interface.update(toSave);
     } else {
-      await _repository.insert(toSave);
+      await _interface.insert(toSave);
     }
     debugPrint(
       '[SAVE][service] ${exists ? 'UPDATE' : 'INSERT'} financial_history -> '
@@ -73,7 +72,7 @@ class FinancialHistoryService {
     await _replacePlatformLinks(toSave);
 
     // Releitura do SQLite: comprova que o registro foi de fato persistido.
-    final FinancialHistoryModel? persisted = await _repository.getById(
+    final FinancialHistoryModel? persisted = await _interface.getById(
       toSave.id,
     );
     debugPrint('[SAVE][service] releitura do banco -> ${persisted?.toMap()}');
@@ -82,20 +81,20 @@ class FinancialHistoryService {
   }
 
   Future<void> delete(String id) async {
-    final FinancialHistoryModel? entity = await _repository.getById(id);
+    final FinancialHistoryModel? entity = await _interface.getById(id);
     if (entity == null) return;
     // FKs com ON DELETE CASCADE removem os vínculos de plataforma.
-    await _repository.deleteById(entity.id);
+    await _interface.deleteById(entity.id);
   }
   // FIM ORQUESTRAÇÃO DE GRAVAÇÃO ################################################
 
   Future<void> _replacePlatformLinks(FinancialHistoryModel report) async {
-    await _repository.deletePlatformLinksByFinancialHistoryId(report.id);
+    await _interface.deletePlatformLinksByFinancialHistoryId(report.id);
 
     for (final FinancialHistoryPlatformSummaryModel platform
         in report.platforms) {
       final String platformId = await _ensurePlatform(platform.name);
-      await _repository.insertPlatformLink(
+      await _interface.insertPlatformLink(
         FinancialHistoryPlatformModel(
           id: _newId(),
           financialHistoryId: report.id,
@@ -113,20 +112,20 @@ class FinancialHistoryService {
 
   Future<String> _ensurePlatform(String name) async {
     final String normalized = name.trim().toUpperCase();
-    final List<PlatformModel> all = await _repository.getAllPlatforms();
+    final List<PlatformModel> all = await _interface.getAllPlatforms();
     for (final PlatformModel platform in all) {
       if (platform.name.trim().toUpperCase() == normalized) {
         return platform.id;
       }
     }
     final PlatformModel created = PlatformModel(id: _newId(), name: normalized);
-    await _repository.insertPlatform(created);
+    await _interface.insertPlatform(created);
     return created.id;
   }
 
   /// Gera o próximo SKU legível ("PASSEIO 001", "PASSEIO 002", ...).
   Future<String> _nextSku() async {
-    final int count = (await _repository.getAll()).length;
+    final int count = (await _interface.getAll()).length;
     return 'PASSEIO ${(count + 1).toString().padLeft(3, '0')}';
   }
 
