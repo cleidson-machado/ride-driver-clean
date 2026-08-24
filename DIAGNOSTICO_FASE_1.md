@@ -21,7 +21,7 @@ e varrer todas as features.
 |---|---|---|
 | `domain/` | `financial_history_model.dart` | `FinancialHistoryModel` — entidade `@Entity` (tabela `financial_history`) |
 | `domain/` | `financial_history_platform_model.dart` | `FinancialHistoryPlatformModel` — entidade `@Entity` (tabela associativa) |
-| `domain/` | `financial_history_platform_summary_model.dart` | DTO de visão (nome + totais), `@ignore` (não persistido) |
+| `domain/` | `financial_history_platform_summary_dto.dart` | DTO de visão (nome + totais), `@ignore` (não persistido) |
 | `data/` | `financial_history_repository_interface.dart` | **Contrato** de persistência (abstração) |
 | `data/` | `financial_history_repository_sqlite_impl.dart` | Implementação SQLite com **SQL cru** (`rawQuery` + `db.database`) |
 | raiz | `financial_history_service.dart` | **Service/Use-Case**: regras de negócio, orquestração, validação, SKU, `_ensurePlatform` |

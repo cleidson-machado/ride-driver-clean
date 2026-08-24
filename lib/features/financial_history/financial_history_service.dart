@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:ride_driver_app_1/features/financial_history/data/financial_history_repository_interface.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_summary_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_summary_dto.dart';
 
 import 'package:ride_driver_app_1/features/financial_history/domain/platform_model.dart';
 
@@ -27,14 +27,14 @@ class FinancialHistoryService {
     final List<FinancialHistoryPlatformModel> links = await _storage
         .getPlatformLinksByFinancialHistoryId(id);
 
-    final List<FinancialHistoryPlatformSummaryModel> platforms =
-        <FinancialHistoryPlatformSummaryModel>[];
+    final List<FinancialHistoryPlatformSummaryDTO> platforms =
+        <FinancialHistoryPlatformSummaryDTO>[];
     for (final FinancialHistoryPlatformModel link in links) {
       final PlatformModel? platform = await _storage.getPlatformById(
         link.platformId,
       );
       platforms.add(
-        FinancialHistoryPlatformSummaryModel(
+        FinancialHistoryPlatformSummaryDTO(
           name: platform?.name ?? 'DESCONHECIDA',
           totalValue: link.dailyEarnings,
           totalRides: link.dailyTripCount,
@@ -91,7 +91,7 @@ class FinancialHistoryService {
   Future<void> _replacePlatformLinks(FinancialHistoryModel report) async {
     await _storage.deletePlatformLinksByFinancialHistoryId(report.id);
 
-    for (final FinancialHistoryPlatformSummaryModel platform
+    for (final FinancialHistoryPlatformSummaryDTO platform
         in report.platforms) {
       final String platformId = await _ensurePlatform(platform.name);
       await _storage.insertPlatformLink(

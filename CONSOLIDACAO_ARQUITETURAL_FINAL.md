@@ -66,7 +66,7 @@ lib/features/financial_history/
 │   ├── financial_history_platform_model.dart               # entidade associativa (@Entity)
 │   ├── platform_model.dart                                 # catálogo @Entity (movido FASE 2)
 │   ├── extra_expenses_model.dart                           # despesas @Entity (movido FASE 2)
-│   └── financial_history_platform_summary_model.dart       # DTO/visão (nome+totais)
+│   └── financial_history_platform_summary_dto.dart       # DTO/visão (nome+totais)
 ├── financial_history_service.dart     # regras de negócio (save, _ensurePlatform, _replacePlatformLinks, SKU, validação)
 ├── financial_history_controller.dart  # ChangeNotifier (estado da tela)
 ├── financial_history_injection.dart  # DI get_it (interface→impl, service, factory de controller)

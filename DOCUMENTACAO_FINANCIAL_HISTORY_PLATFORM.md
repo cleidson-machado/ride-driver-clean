@@ -16,7 +16,7 @@ A feature trata do catálogo de plataformas e do vínculo **plataforma ↔ dia d
 - **`PlatformModel`** → catálogo persistido (UBER, BOLT, PARTICULAR, …).
 - **`FinancialHistoryPlatformModel`** → entidade associativa (N plataformas por dia), com
   faturamento e nº de corridas de cada plataforma num dia.
-- **`FinancialHistoryPlatformSummaryModel`** → **visão de domínio** (imutável) já resolvida
+- **`FinancialHistoryPlatformSummaryDTO`** → **visão de domínio** (imutável) já resolvida
   para consumo da UI/controller: `name` + `totalValue` + `totalRides`.
 
 A persistência NÃO usa DAO do Floor. Tudo é feito por **SQL cru** em
@@ -50,7 +50,7 @@ Entidades (todas em `domain/`):
 
 | Entidade | Arquivo | Papel |
 |---|---|---|
-| `FinancialHistoryPlatformSummaryModel` | `domain/financial_history_platform_summary_model.dart` | Visão de domínio (UI/controller) — `name`, `totalValue`, `totalRides`, `copyWith` |
+| `FinancialHistoryPlatformSummaryDTO` | `domain/financial_history_platform_summary_dto.dart` | Visão de domínio (UI/controller) — `name`, `totalValue`, `totalRides`, `copyWith` |
 | `FinancialHistoryPlatformModel` | `domain/financial_history_platform_model.dart` | Entidade SQLite `financial_history_platform` (FKs + valores crus) |
 | `PlatformModel` | `domain/platform_model.dart` | Catálogo `platform` (id, name, isActive) |
 | `FinancialHistoryModel` | `domain/financial_history_model.dart` | Registro diário (pai) — lista `platforms` + getters `totalEarnings`/`profit` |
@@ -60,7 +60,7 @@ Entidades (todas em `domain/`):
 ```
 ┌────────────────────────── UI / Controller ───────────────────────────┐
 │  FinancialHistoryView ↔ FinancialHistoryController                   │
-│        trabalha com FinancialHistoryPlatformSummaryModel (nome+totais)│
+│        trabalha com FinancialHistoryPlatformSummaryDTO (nome+totais)│
 └────────────────────────────────┬─────────────────────────────────────┘
                                  │
                                  ▼
@@ -70,7 +70,7 @@ Entidades (todas em `domain/`):
    FinancialHistoryRepositorySqliteImpl  (SQL cru)
       ├── lê/escreve `financial_history_platform` (associativo)
       ├── resolve catálogo `platform` via rawQuery
-      └── monta FinancialHistoryPlatformSummaryModel (nome + totais)
+      └── monta FinancialHistoryPlatformSummaryDTO (nome + totais)
 ```
 
 ---
@@ -142,14 +142,14 @@ E `_replacePlatformLinks` deleta os vínculos antigos e insere os novos a cada `
 
 ---
 
-## 4. Visão de Domínio — `FinancialHistoryPlatformSummaryModel`
+## 4. Visão de Domínio — `FinancialHistoryPlatformSummaryDTO`
 
-Arquivo: `lib/features/financial_history/domain/financial_history_platform_summary_model.dart`
+Arquivo: `lib/features/financial_history/domain/financial_history_platform_summary_dto.dart`
 
 Modelo imutável consumido pela UI/controller:
 
 ```dart
-class FinancialHistoryPlatformSummaryModel {
+class FinancialHistoryPlatformSummaryDTO {
   final String name;        // Ex.: UBER, BOLT, FREENOW, PARTICULAR
   final double totalValue;  // Faturamento do dia nessa plataforma (€)
   final int totalRides;     // Nº de corridas do dia nessa plataforma
@@ -163,7 +163,7 @@ report com `platforms` resolvido.
 
 ### Não confundir com `FinancialHistoryPlatformModel`
 
-| | `FinancialHistoryPlatformSummaryModel` | `FinancialHistoryPlatformModel` |
+| | `FinancialHistoryPlatformSummaryDTO` | `FinancialHistoryPlatformModel` |
 |---|---|---|
 | **Camada** | Domínio (visão resolvida) | Persistência (entidade SQLite) |
 | **Tabela** | Nenhuma (não é `@Entity`) | `financial_history_platform` |
@@ -177,7 +177,7 @@ report com `platforms` resolvido.
 
 Arquivo: `lib/features/financial_history/financial_history_controller.dart`
 
-`ChangeNotifier` injetado na view. Manipula `FinancialHistoryPlatformSummaryModel`:
+`ChangeNotifier` injetado na view. Manipula `FinancialHistoryPlatformSummaryDTO`:
 
 | Método | Finalidade |
 |---|---|
@@ -219,7 +219,7 @@ Registra em `get_it`:
 
 | Artefato | Caminho |
 |---|---|
-| Visão de domínio (plataforma do dia) | `lib/features/financial_history/domain/financial_history_platform_summary_model.dart` |
+| Visão de domínio (plataforma do dia) | `lib/features/financial_history/domain/financial_history_platform_summary_dto.dart` |
 | Entidade associativa | `lib/features/financial_history/domain/financial_history_platform_model.dart` |
 | Catálogo | `lib/features/financial_history/domain/platform_model.dart` |
 | Entidade diária (pai) | `lib/features/financial_history/domain/financial_history_model.dart` |

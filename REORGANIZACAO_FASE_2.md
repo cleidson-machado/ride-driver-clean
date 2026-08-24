@@ -79,7 +79,7 @@ domain/
 ├── extra_expenses_model.dart              # (movido) Entity extra_expenses
 ├── financial_history_model.dart           # Entity financial_history
 ├── financial_history_platform_model.dart  # Entity associativa
-├── financial_history_platform_summary_model.dart  # DTO de visão
+├── financial_history_platform_summary_dto.dart  # DTO de visão
 └── platform_model.dart                    # (movido) Entity platform
 ```
 

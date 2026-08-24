@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'domain/financial_history_model.dart';
-import 'domain/financial_history_platform_summary_model.dart';
+import 'domain/financial_history_platform_summary_dto.dart';
 import 'financial_history_service.dart';
 
 export 'financial_history_service.dart' show FinancialHistoryValidationException;
@@ -150,9 +150,9 @@ class FinancialHistoryController extends ChangeNotifier {
     required double totalValue,
     required int totalRides,
   }) {
-    final List<FinancialHistoryPlatformSummaryModel> updated =
-        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms)..add(
-          FinancialHistoryPlatformSummaryModel(
+    final List<FinancialHistoryPlatformSummaryDTO> updated =
+        List<FinancialHistoryPlatformSummaryDTO>.of(_report.platforms)..add(
+          FinancialHistoryPlatformSummaryDTO(
             name: name,
             totalValue: totalValue < 0 ? 0 : totalValue,
             totalRides: totalRides < 0 ? 0 : totalRides,
@@ -169,8 +169,8 @@ class FinancialHistoryController extends ChangeNotifier {
     double? totalValue,
     int? totalRides,
   }) {
-    final List<FinancialHistoryPlatformSummaryModel> updated =
-        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms);
+    final List<FinancialHistoryPlatformSummaryDTO> updated =
+        List<FinancialHistoryPlatformSummaryDTO>.of(_report.platforms);
     updated[index] = updated[index].copyWith(
       name: name,
       totalValue: totalValue,
@@ -183,8 +183,8 @@ class FinancialHistoryController extends ChangeNotifier {
   /// Remove a plataforma no índice [index], se existir.
   void removePlatform(int index) {
     if (index < 0 || index >= _report.platforms.length) return;
-    final List<FinancialHistoryPlatformSummaryModel> updated =
-        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms)
+    final List<FinancialHistoryPlatformSummaryDTO> updated =
+        List<FinancialHistoryPlatformSummaryDTO>.of(_report.platforms)
           ..removeAt(index);
     _report = _report.copyWith(platforms: updated);
     notifyListeners();

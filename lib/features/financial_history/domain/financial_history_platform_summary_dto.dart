@@ -1,5 +1,5 @@
 // =============================================================================
-// FinancialHistoryPlatformSummaryModel
+// FinancialHistoryPlatformSummaryDTO
 // -----------------------------------------------------------------------------
 // É UM DTO DE VISÃO (DTO de domínio / ViewModel). - É, SIM, um DTO.
 //
@@ -19,9 +19,9 @@
 //   DTO de request/response de API genérico: é o formato de leitura/exibição.
 //
 // ▶ A REGRA DE OURO PARA NÃO CONFUNDIR:
-//   | Modelo                                  | É @Entity? | Persistido?  | Papel                    |
-//   | FinancialHistoryPlatformModel           | SIM        | SIM (SQLite) | Entidade associativa crua |
-//   | FinancialHistoryPlatformSummaryModel    | NÃO        | NÃO          | DTO de visão p/ UI      |
+//   | Modelo                                   | É @Entity? | Persistido?  | Papel                    |
+//   | FinancialHistoryPlatformModel            | SIM        | SIM (SQLite) | Entidade associativa crua |
+//   | FinancialHistoryPlatformSummaryDTO       | NÃO        | NÃO          | DTO de visão p/ UI      |
 //   Se tiver que SALVAR → use o *_PlatformModel e PlatformModel.
 //   Se for só EXIBIR na tela  → use ESTE DTO aqui.
 //
@@ -29,11 +29,11 @@
 //   - Controller (financial_history_controller.dart) é quem MANIPULA essas
 //     instâncias (addPlatform/updatePlatform/removePlatform) e o que a UI exibe.
 //   - Sempre imutável: altere via `copyWith`, nunca mude os campos in-place.
-//   - Viva apenas em memória (report do controller). NÃO persista diretamente —
-//     a persistência passa por PlatformModel + FinancialHistoryPlatformModel.
+//   - Consuma apenas em memória. NÃO persista diretamente — a persistência
+//     passa por PlatformModel + FinancialHistoryPlatformModel.
 // =============================================================================
-class FinancialHistoryPlatformSummaryModel {
-  const FinancialHistoryPlatformSummaryModel({
+class FinancialHistoryPlatformSummaryDTO {
+  const FinancialHistoryPlatformSummaryDTO({
     required this.name,
     required this.totalValue,
     required this.totalRides,
@@ -49,16 +49,15 @@ class FinancialHistoryPlatformSummaryModel {
   final int totalRides;
 
   /// Retorna uma cópia imutável, com os campos informados substituídos.
-  FinancialHistoryPlatformSummaryModel copyWith({
+  FinancialHistoryPlatformSummaryDTO copyWith({
     String? name,
     double? totalValue,
     int? totalRides,
   }) {
-    return FinancialHistoryPlatformSummaryModel(
+    return FinancialHistoryPlatformSummaryDTO(
       name: name ?? this.name,
       totalValue: totalValue ?? this.totalValue,
       totalRides: totalRides ?? this.totalRides,
     );
   }
 }
-

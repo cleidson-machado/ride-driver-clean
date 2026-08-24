@@ -4,7 +4,7 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
 import '../features/financial_history/domain/financial_history_model.dart';
-import '../features/financial_history/domain/financial_history_platform_summary_model.dart';
+import '../features/financial_history/domain/financial_history_platform_summary_dto.dart';
 import '../features/financial_history/to_trash_bkp/financial_history_repository_interface.dart';
 
 /// Implementação concreta (local, SQLite/sqflite) do contrato
@@ -28,14 +28,14 @@ class FinancialHistoryRepository
         .financialHistoryPlatformDao
         .getPlatformsByFinancialHistoryId(id);
 
-    final List<FinancialHistoryPlatformSummaryModel> platforms =
-        <FinancialHistoryPlatformSummaryModel>[];
+    final List<FinancialHistoryPlatformSummaryDTO> platforms =
+        <FinancialHistoryPlatformSummaryDTO>[];
     for (final FinancialHistoryPlatformModel link in links) {
       final PlatformModel? platform = await db.platformDao.getPlatformById(
         link.platformId,
       );
       platforms.add(
-        FinancialHistoryPlatformSummaryModel(
+        FinancialHistoryPlatformSummaryDTO(
           name: platform?.name ?? 'DESCONHECIDA',
           totalValue: link.dailyEarnings,
           totalRides: link.dailyTripCount,
@@ -103,7 +103,7 @@ class FinancialHistoryRepository
       await db.financialHistoryPlatformDao.deleteFinancialHistoryPlatform(link);
     }
 
-    for (final FinancialHistoryPlatformSummaryModel platform
+    for (final FinancialHistoryPlatformSummaryDTO platform
         in report.platforms) {
       final String platformId = await _ensurePlatform(db, platform.name);
       await db.financialHistoryPlatformDao.insertFinancialHistoryPlatform(

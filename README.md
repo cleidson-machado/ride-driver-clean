@@ -64,7 +64,7 @@ Entidades consumidas transversalmente pela feature modelo ficam no domínio de
 
 Ambas foram movidas para esse domínio na **FASE 2** de reorganização (unificação da
 persistência), junto às demais entidades da feature (`FinancialHistoryModel`,
-`FinancialHistoryPlatformModel`, `FinancialHistoryPlatformSummaryModel`).
+`FinancialHistoryPlatformModel`, `FinancialHistoryPlatformSummaryDTO`).
 
 ---
 
