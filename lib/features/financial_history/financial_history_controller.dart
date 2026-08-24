@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import 'data/financial_history_repository_interface.dart';
 import 'domain/financial_history_model.dart';
 import 'domain/financial_history_platform_summary_model.dart';
+import 'financial_history_service.dart';
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
@@ -15,17 +15,17 @@ import 'domain/financial_history_platform_summary_model.dart';
 /// alinhado ao restante do projeto (que não usa packages de estado/DI).
 ///
 /// To-do central desta etapa:
-///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryRepositoryInterface];
+///  - `load()`, `save()` e `delete()` delegam para [FinancialHistoryService];
 ///  - todos os setters atualizam [_report] e notificam listeners;
 ///  - as validações antes de salvar ficam em [_validate].
 class FinancialHistoryController extends ChangeNotifier {
   FinancialHistoryController({
-    required FinancialHistoryRepositoryInterface repository,
+    required FinancialHistoryService service,
     FinancialHistoryModel? initialReport,
-  }) : _repository = repository,
+  }) : _service = service,
        _report = initialReport ?? _buildBlankReport();
 
-  final FinancialHistoryRepositoryInterface _repository;
+  final FinancialHistoryService _service;
   FinancialHistoryModel _report;
 
   // ── Estado exposto à view ────────────────────────────────────────────────
@@ -192,7 +192,7 @@ class FinancialHistoryController extends ChangeNotifier {
   Future<bool> load(String id) async {
     _setBusy(true);
     try {
-      final FinancialHistoryModel? loaded = await _repository.getById(id);
+      final FinancialHistoryModel? loaded = await _service.getById(id);
       if (loaded == null) {
         _lastError = 'Passeio não encontrado.';
         return false;
@@ -219,7 +219,7 @@ class FinancialHistoryController extends ChangeNotifier {
       '(id=${_report.id}, sku=${_report.sku}, isNew=$isNew)',
     );
     try {
-      _report = await _repository.save(_report);
+      _report = await _service.save(_report);
       _lastError = null;
       debugPrint('[SAVE][controller] concluído → sku=${_report.sku}');
     } catch (error) {
@@ -236,7 +236,7 @@ class FinancialHistoryController extends ChangeNotifier {
     if (isNew) return; // nada a excluir em um report ainda não salvo.
     _setBusy(true);
     try {
-      await _repository.delete(_report.id);
+      await _service.delete(_report.id);
       _lastError = null;
     } catch (error) {
       _lastError = 'Erro ao excluir o passeio: $error';
