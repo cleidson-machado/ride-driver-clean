@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'data/financial_history_repository_interface.dart';
 import 'domain/financial_history_model.dart';
-import 'domain/financial_history_platform.dart';
+import 'domain/financial_history_platform_summary_model.dart';
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
@@ -144,9 +144,9 @@ class FinancialHistoryController extends ChangeNotifier {
     required double totalValue,
     required int totalRides,
   }) {
-    final List<FinancialHistoryPlatform> updated =
-        List<FinancialHistoryPlatform>.of(_report.platforms)..add(
-          FinancialHistoryPlatform(
+    final List<FinancialHistoryPlatformSummaryModel> updated =
+        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms)..add(
+          FinancialHistoryPlatformSummaryModel(
             name: name,
             totalValue: totalValue < 0 ? 0 : totalValue,
             totalRides: totalRides < 0 ? 0 : totalRides,
@@ -163,8 +163,8 @@ class FinancialHistoryController extends ChangeNotifier {
     double? totalValue,
     int? totalRides,
   }) {
-    final List<FinancialHistoryPlatform> updated =
-        List<FinancialHistoryPlatform>.of(_report.platforms);
+    final List<FinancialHistoryPlatformSummaryModel> updated =
+        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms);
     updated[index] = updated[index].copyWith(
       name: name,
       totalValue: totalValue,
@@ -177,8 +177,9 @@ class FinancialHistoryController extends ChangeNotifier {
   /// Remove a plataforma no índice [index], se existir.
   void removePlatform(int index) {
     if (index < 0 || index >= _report.platforms.length) return;
-    final List<FinancialHistoryPlatform> updated =
-        List<FinancialHistoryPlatform>.of(_report.platforms)..removeAt(index);
+    final List<FinancialHistoryPlatformSummaryModel> updated =
+        List<FinancialHistoryPlatformSummaryModel>.of(_report.platforms)
+          ..removeAt(index);
     _report = _report.copyWith(platforms: updated);
     notifyListeners();
   }

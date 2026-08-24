@@ -4,7 +4,7 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
 import '../domain/financial_history_model.dart';
-import '../domain/financial_history_platform.dart';
+import '../domain/financial_history_platform_summary_model.dart';
 import 'financial_history_repository.dart';
 
 /// Implementação local (SQLite/sqflite) do contrato
@@ -27,14 +27,14 @@ class FinancialHistoryRepositoryLocal implements FinancialHistoryRepository {
         .financialHistoryPlatformDao
         .getPlatformsByFinancialHistoryId(id);
 
-    final List<FinancialHistoryPlatform> platforms =
-        <FinancialHistoryPlatform>[];
+    final List<FinancialHistoryPlatformSummaryModel> platforms =
+        <FinancialHistoryPlatformSummaryModel>[];
     for (final FinancialHistoryPlatformModel link in links) {
       final PlatformModel? platform = await db.platformDao.getPlatformById(
         link.platformId,
       );
       platforms.add(
-        FinancialHistoryPlatform(
+        FinancialHistoryPlatformSummaryModel(
           name: platform?.name ?? 'DESCONHECIDA',
           totalValue: link.dailyEarnings,
           totalRides: link.dailyTripCount,
@@ -103,7 +103,8 @@ class FinancialHistoryRepositoryLocal implements FinancialHistoryRepository {
       await db.financialHistoryPlatformDao.deleteFinancialHistoryPlatform(link);
     }
 
-    for (final FinancialHistoryPlatform platform in report.platforms) {
+    for (final FinancialHistoryPlatformSummaryModel platform
+        in report.platforms) {
       final String platformId = await _ensurePlatform(db, platform.name);
       await db.financialHistoryPlatformDao.insertFinancialHistoryPlatform(
         FinancialHistoryPlatformModel(

@@ -4,7 +4,7 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
 import '../domain/financial_history_model.dart';
-import '../domain/financial_history_platform.dart';
+import '../domain/financial_history_platform_summary_model.dart';
 import 'financial_history_repository_interface.dart';
 
 /// Implementação concreta (local, SQLite/sqflite) do contrato
@@ -15,7 +15,8 @@ import 'financial_history_repository_interface.dart';
 /// resolver os vínculos de plataforma (`financial_history_platform` +
 /// catálogo `platform`) e gerar o SKU sequencial. A view e o controller
 /// nunca enxergam DAOs nem SQL — apenas esta camada.
-class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface {
+class FinancialHistoryRepository
+    implements FinancialHistoryRepositoryInterface {
   @override
   Future<FinancialHistoryModel?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
@@ -27,14 +28,14 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
         .financialHistoryPlatformDao
         .getPlatformsByFinancialHistoryId(id);
 
-    final List<FinancialHistoryPlatform> platforms =
-        <FinancialHistoryPlatform>[];
+    final List<FinancialHistoryPlatformSummaryModel> platforms =
+        <FinancialHistoryPlatformSummaryModel>[];
     for (final FinancialHistoryPlatformModel link in links) {
       final PlatformModel? platform = await db.platformDao.getPlatformById(
         link.platformId,
       );
       platforms.add(
-        FinancialHistoryPlatform(
+        FinancialHistoryPlatformSummaryModel(
           name: platform?.name ?? 'DESCONHECIDA',
           totalValue: link.dailyEarnings,
           totalRides: link.dailyTripCount,
@@ -102,7 +103,8 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
       await db.financialHistoryPlatformDao.deleteFinancialHistoryPlatform(link);
     }
 
-    for (final FinancialHistoryPlatform platform in report.platforms) {
+    for (final FinancialHistoryPlatformSummaryModel platform
+        in report.platforms) {
       final String platformId = await _ensurePlatform(db, platform.name);
       await db.financialHistoryPlatformDao.insertFinancialHistoryPlatform(
         FinancialHistoryPlatformModel(

@@ -1,5 +1,6 @@
-class FinancialHistoryPlatform {
-  const FinancialHistoryPlatform({
+
+class FinancialHistoryPlatformSummaryModel {
+  const FinancialHistoryPlatformSummaryModel({
     required this.name,
     required this.totalValue,
     required this.totalRides,
@@ -11,12 +12,12 @@ class FinancialHistoryPlatform {
 
   final int totalRides;
 
-  FinancialHistoryPlatform copyWith({
+  FinancialHistoryPlatformSummaryModel copyWith({
     String? name,
     double? totalValue,
     int? totalRides,
   }) {
-    return FinancialHistoryPlatform(
+    return FinancialHistoryPlatformSummaryModel(
       name: name ?? this.name,
       totalValue: totalValue ?? this.totalValue,
       totalRides: totalRides ?? this.totalRides,
