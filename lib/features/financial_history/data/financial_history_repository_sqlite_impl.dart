@@ -3,7 +3,7 @@ import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-import '../domain/financial_history_interface.dart';
+import 'financial_history_interface.dart';
 import '../domain/financial_history_model.dart';
 
 /// Implementação SQLite do [FinancialHistoryInterface].

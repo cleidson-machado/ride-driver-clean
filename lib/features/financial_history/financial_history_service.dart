@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_interface.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_interface.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_summary_model.dart';

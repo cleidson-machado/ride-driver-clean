@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
-import 'financial_history_platform.dart';
+import '../features/financial_history/to_trash_bkp/financial_history_platform.dart';
 
 /// ENTIDADE-PAI da feature — tabela `financial_history` (1 linha por dia).
 ///

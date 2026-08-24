@@ -3,9 +3,9 @@ import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
-import '../domain/financial_history_model.dart';
-import '../domain/financial_history_platform_summary_model.dart';
-import 'financial_history_repository_interface.dart';
+import '../features/financial_history/domain/financial_history_model.dart';
+import '../features/financial_history/domain/financial_history_platform_summary_model.dart';
+import '../features/financial_history/to_trash_bkp/financial_history_repository_interface.dart';
 
 /// Implementação concreta (local, SQLite/sqflite) do contrato
 /// [FinancialHistoryRepositoryInterface].
