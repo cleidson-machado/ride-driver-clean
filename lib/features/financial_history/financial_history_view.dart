@@ -315,14 +315,12 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. Header
-            RideHeaderWidget(
+            RideHeaderWidget( // ######################################################################## 1. Header
               rideSku: _controller.report.sku,
               isRideInProgress: !_isFinished,
             ),
             Divider(color: colorScheme.outlineVariant, height: 1),
-            // Scrollable body
-            Expanded(
+            Expanded( // ############################################################################### Scrollable body
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -331,20 +329,19 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // 2. Grelha de 3 colunas superiores
-                    TopDataGridWidget(
+                    TopDataGridWidget( // ############################################################### 2. Grelha de 3 colunas superiores
                       leftColumn: _buildLeftColumn(),
                       rightColumn: _buildRightColumn(),
                     ),
                     const SizedBox(height: 26),
-                    // 3. Secção plataformas base
-                    PlatformsSectionWidget(
+                    
+                    PlatformsSectionWidget( // ########################################################## 3. Secção plataformas base
                       onAddPlatform: () =>
                           _showSnack('Adicionar plataforma — em breve (mock).'),
                     ),
                     const SizedBox(height: 26),
-                    // 4. Linha de opções rápidas
-                    QuickOptionsRowWidget(
+                    
+                    QuickOptionsRowWidget( // ########################################################### 4. Linha de opções rápidas
                       hasImages: _hasImages,
                       isFinished: _isFinished,
                       onHasImagesChanged: (bool value) =>
@@ -355,35 +352,35 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                           _showSnack('Adicionar plataforma — em breve (mock).'),
                     ),
                     const SizedBox(height: 26),
-                    // 5. Campo de notas
-                    NotesFieldWidget(controller: _notesController),
+                    
+                    NotesFieldWidget(controller: _notesController), // ################################### 5. Campo de notas
                     const SizedBox(height: 26),
-                    // 6. Footer — botão salvar
-                    SaveButtonWidget(onPressed: _actionSaveRide),
+                    
+                    SaveButtonWidget(onPressed: _actionSaveRide), // ##################################### 6. Footer — botão salvar
                     const SizedBox(height: 20),
-                    // 7. Footer — botão combustível (forma de pagamento)
-                    FuelPaymentButtonWidget(
+                    
+                    FuelPaymentButtonWidget( // ########################################################## 7. Footer — botão combustível (forma de pagamento)
                       onPressed: () =>
                           _showSnack('Forma de pagamento — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    // 8. Footer — botão para adicionar imagens
-                    AddImagesButtonWidget(
+                    
+                    AddImagesButtonWidget( // ############################################################# 8. Footer — botão para adicionar imagens/anexos
                       onPressed: () =>
                           _showSnack('Imagens/anexos — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    // 9. Footer — botão para gastos extras/alimentacao
-                    ExtraExpensesButtonWidget(
+                    
+                    ExtraExpensesButtonWidget( // ########################################################## 9. Footer — botão para gastos extras/alimentacao
                       onPressed: () =>
                           _showSnack('Gastos extras — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    // 10. Legenda de termos abreviados/ingles
-                    const TermsLegendSectionWidget(),
+                    
+                    const TermsLegendSectionWidget(), // ################################################### 10. Legenda de termos abreviados/ingles
                     const SizedBox(height: 20),
-                    // 11. Footer — botao de exclusao do report/passeio
-                    DeleteRideReportButtonWidget(onPressed: _handleDeleteReportRequest),
+                    
+                    DeleteRideReportButtonWidget(onPressed: _handleDeleteReportRequest), // ################ 11. Footer — botao de exclusao do report/passeio
                   ],
                 ),
               ),
