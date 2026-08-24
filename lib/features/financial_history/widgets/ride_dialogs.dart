@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 /// Retorna o valor digitado (como [double]) ou `null` se o usuário cancelar.
 /// Aceita vírgula como separador decimal. Usado pelos campos numéricos da
 /// grelha (KM, CASH, Hodo-2) quando o usuário toca no valor para editar.
-Future<double?> promptNumber(
+Future<double?> showNumberPromptDialog(
   BuildContext context,
   String title,
   double? current,
@@ -58,7 +58,7 @@ Future<double?> promptNumber(
 ///
 /// Retorna `true` somente se o usuário confirmar a exclusão. O botão de
 /// confirmação usa as cores de erro do tema para sinalizar a ação destrutiva.
-Future<bool?> confirmDeleteReport(BuildContext context) {
+Future<bool?> showDeleteReportDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
     builder: (BuildContext dialogContext) => AlertDialog(

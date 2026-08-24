@@ -121,7 +121,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   }
 
   Future<void> _editKmIn() async {
-    final double? typed = await promptNumber(
+    final double? typed = await showNumberPromptDialog(
       context,
       'KM - IN',
       _kmIn?.toDouble(),
@@ -132,7 +132,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   }
 
   Future<void> _editKmOut() async {
-    final double? typed = await promptNumber(
+    final double? typed = await showNumberPromptDialog(
       context,
       'KM - OUT',
       _kmOut?.toDouble(),
@@ -143,7 +143,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   }
 
   Future<void> _editCash() async {
-    final double? typed = await promptNumber(
+    final double? typed = await showNumberPromptDialog(
       context,
       'CASH - Gas / Energia',
       _cashSpent,
@@ -154,7 +154,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   }
 
   Future<void> _editHodo2() async {
-    final double? typed = await promptNumber(
+    final double? typed = await showNumberPromptDialog(
       context,
       'Hodo-2 - NUMBER',
       _hodo2Number?.toDouble(),
@@ -214,8 +214,8 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     }
   }
 
-  Future<void> _confirmDeleteReport() async {
-    final bool? confirmed = await confirmDeleteReport(context);
+  Future<void> _handleDeleteReportRequest() async {
+    final bool? confirmed = await showDeleteReportDialog(context);
     if (confirmed == true && mounted) _showSnack('Report excluído (mock).');
   }
 
@@ -383,7 +383,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                     const TermsLegendSectionWidget(),
                     const SizedBox(height: 20),
                     // 11. Footer — botao de exclusao do report/passeio
-                    DeleteRideReportButtonWidget(onPressed: _confirmDeleteReport),
+                    DeleteRideReportButtonWidget(onPressed: _handleDeleteReportRequest),
                   ],
                 ),
               ),
