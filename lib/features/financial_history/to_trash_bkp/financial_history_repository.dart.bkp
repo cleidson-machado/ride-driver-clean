@@ -7,9 +7,16 @@ import '../domain/financial_history_model.dart';
 import '../domain/financial_history_platform_summary_model.dart';
 import 'financial_history_repository_interface.dart';
 
-class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface {
-
-  // INICIO getById ###############################################################
+/// Implementação concreta (local, SQLite/sqflite) do contrato
+/// [FinancialHistoryRepositoryInterface].
+///
+/// A entidade [FinancialHistoryModel] já sabe se mapear para a tabela
+/// `financial_history`; este repositório cuida do que é relacional:
+/// resolver os vínculos de plataforma (`financial_history_platform` +
+/// catálogo `platform`) e gerar o SKU sequencial. A view e o controller
+/// nunca enxergam DAOs nem SQL — apenas esta camada.
+class FinancialHistoryRepository
+    implements FinancialHistoryRepositoryInterface {
   @override
   Future<FinancialHistoryModel?> getById(String id) async {
     final AppDatabase db = await openAppDatabase();
@@ -38,9 +45,7 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
 
     return entity.copyWith(platforms: platforms);
   }
-  // FIM getById ##################################################################
 
-  // INICIO CRUD SIMPLES 2 FUNÇÕES ###############################################################
   @override
   Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
     final AppDatabase db = await openAppDatabase();
@@ -82,9 +87,11 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
     // FKs com ON DELETE CASCADE removem os vínculos de plataforma.
     await db.financialHistoryDao.deleteFinancialHistory(entity);
   }
-  // FIM CRUD SIMPLES 2 FUNÇÕES ###############################################################
 
-  // INICIO MÉTODOS AUXILIARES ###############################################################
+  // ── Auxiliares ─────────────────────────────────────────────────────────
+
+  /// Substitui os vínculos `financial_history_platform` do report pelos
+  /// atuais, garantindo cada plataforma no catálogo (upsert por nome).
   Future<void> _replacePlatformLinks(
     AppDatabase db,
     FinancialHistoryModel report,
@@ -115,6 +122,8 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
     }
   }
 
+  /// Retorna o id da plataforma com [name] (case-insensitive),
+  /// criando-a no catálogo caso ainda não exista.
   Future<String> _ensurePlatform(AppDatabase db, String name) async {
     final String normalized = name.trim().toUpperCase();
     final List<PlatformModel> all = await db.platformDao.getAllPlatforms();
@@ -141,5 +150,4 @@ class FinancialHistoryRepository implements FinancialHistoryRepositoryInterface 
   }
 
   String _newId() => '${DateTime.now().microsecondsSinceEpoch}';
-  // FIM MÉTODOS AUXILIARES #################################################################
 }
