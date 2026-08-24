@@ -155,15 +155,7 @@ class AddPlatformCardWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sem plataforma\nneste slot',
-                textAlign: TextAlign.center,
-                style: textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'ADD - PLAT',
+                'ADD - PLATAFORMA',
                 textAlign: TextAlign.center,
                 style: textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w800,
