@@ -126,8 +126,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
       'KM - IN',
       _kmIn?.toDouble(),
     );
-    if (typed != null && mounted)
+    if (typed != null && mounted) {
       setState(() => _kmIn = _nonNegative(typed.round()));
+    }
   }
 
   Future<void> _editKmOut() async {
@@ -136,8 +137,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
       'KM - OUT',
       _kmOut?.toDouble(),
     );
-    if (typed != null && mounted)
+    if (typed != null && mounted) {
       setState(() => _kmOut = _nonNegative(typed.round()));
+    }
   }
 
   Future<void> _editCash() async {
@@ -146,8 +148,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
       'CASH - Gas / Energia',
       _cashSpent,
     );
-    if (typed != null && mounted)
+    if (typed != null && mounted) {
       setState(() => _cashSpent = typed < 0 ? 0 : typed);
+    }
   }
 
   Future<void> _editHodo2() async {
@@ -206,8 +209,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     final int? kmOut = _kmOut;
     if (kmOut != null) _financialHistoryController.setKmOut(kmOut);
     final int? hodo2Number = _hodo2Number;
-    if (hodo2Number != null)
+    if (hodo2Number != null) {
       _financialHistoryController.setHodo2Number(hodo2Number);
+    }
   }
 
   Future<void> _confirmDeleteReport() async {
