@@ -1,6 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
-import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
+import 'financial_history_model.dart';
 
 /// Entidade que representa uma despesa extra avulsa (alimentação, bebidas,
 /// medicamentos, etc.) decorrente do dia de trabalho como motorista.
@@ -8,6 +8,10 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 /// É facultativa: ao encerrar um registro em [FinancialHistoryModel], o
 /// usuário pode ou não adicionar despesas extras. Um mesmo registro diário
 /// pode ter 0 ou N despesas extras associadas.
+///
+/// Apesar de usar a annotation [floor@Entity] para documentar o schema, a
+/// persistência é feita por SQL cru via repositório (padrão da feature
+/// "financial_history"), nunca por DAO do Floor.
 @Entity(
   tableName: 'extra_expenses',
   foreignKeys: [

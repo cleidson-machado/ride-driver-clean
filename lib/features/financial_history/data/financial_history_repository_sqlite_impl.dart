@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:ride_driver_app_1/app/database/app_database.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
-import 'package:ride_driver_app_1/features/platform/platform_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/platform_model.dart';
 
 import 'financial_history_repository_interface.dart';
 import '../domain/financial_history_model.dart';
@@ -103,19 +103,31 @@ class FinancialHistoryRepositorySqliteImpl
   @override
   Future<PlatformModel?> getPlatformById(String id) async {
     final AppDatabase db = await openAppDatabase();
-    return db.platformDao.getPlatformById(id);
+    final rows = await db.database.rawQuery(
+      'SELECT * FROM platform WHERE id = ?',
+      [id],
+    );
+    if (rows.isEmpty) return null;
+    return PlatformModel.fromMap(rows.first);
   }
 
   @override
   Future<List<PlatformModel>> getAllPlatforms() async {
     final AppDatabase db = await openAppDatabase();
-    return db.platformDao.getAllPlatforms();
+    final rows = await db.database.rawQuery(
+      'SELECT * FROM platform ORDER BY name ASC',
+    );
+    return rows.map((r) => PlatformModel.fromMap(r)).toList();
   }
 
   @override
   Future<void> insertPlatform(PlatformModel model) async {
     final AppDatabase db = await openAppDatabase();
-    await db.platformDao.insertPlatform(model);
+    await db.database.insert(
+      'platform',
+      model.toMap(),
+      conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
+    );
   }
 
   // FIM PERSISTÊNCIA DIRETA #################################################################

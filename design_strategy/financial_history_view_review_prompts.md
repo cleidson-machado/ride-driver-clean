@@ -73,3 +73,28 @@ Passos:
 5. Após a refatoração, validar que a persistência em SQLite continua funcionando corretamente (mapeamentos toMap/fromMap, nome de tabela, queries e afins), reportando qualquer inconsistência encontrada.
 
 Restrição: Não alterar lógica de negócio — apenas refatoração de nomenclatura e ajustes decorrentes dela.
+
+##### ARRUMANDO A ZONA EM RELAÇÃO A PERSITÊNCIA DO SQLITE NO PROJETO POC
+Vamos lá! Terminar de organizar esse projeto principalmente em relação a feature / pasta "financial_history" e afins de persistência usando SQLite no projeto.. Primeiro avalia como a feature / pasta: "financial_history" está tratando ou interagindo com a persistência para SQLite. Esse projeto é uma POC e nas primeiras interações houve alguma perda de foco de modo que agora temos dois paradigmas de persistencia no projeto.Ambos voltados ao SQLite. ENTÃO O QUE temos é o uso do termo DAO em outras Features como a "platform" essa feature "platform" e outras que não tem sua respectiva view no DDD Tático são fruto da minha primeira tentativa de organizar minha idéias e objetivos nessa POC... Então todos os .dart que estão aqui nessa pasta do projeto em: "lib/app/database/*.*" devem ser reavaliados por há redundãncias e afins de overegennering e afins outros. Analize novamente os .dart relacionados a entidades afins em todas as outras features de: "lib/features/*.*" e as os .dart que possuem DAO no seu respectivo nome de arquivo .dart é provalmente ainda resquicio dessa desorganização. A feature que em termos de MVC, Orientação a Objetos e Inversão de Controle e afins de Injeção de Dependência mais bem organizada e que serve de modelo é a: "lib/features/financial_history/*.*"...  EM RESUMO A FEATURE: "lib/features/financial_history/*.*" É Complexa pois é a principal no projeto dessa POC, ela deve conter nas suas respectivas sub pastas as entidades de que necessita trabalhar como a "PlatformModel" e afins.. Em resumo e "PlatformModel" e os .dart em: "lib/app/database/*.*" estão criados em locais inapropriados no projeto e afins ou são overegenering faça a analize detalhada e me ajuda a reorganizar as itens referente a isso no projeto!
+
+#### CRIADO DERIVADO DO PROMPT ACIMA EM: 24-08-2026 as 20:54 da segundona!
+CONTEXTO
+Este projeto Flutter é uma POC. Durante as primeiras iterações houve perda de foco e hoje coexistem DOIS paradigmas de persistência, ambos voltados ao SQLite: um baseado em arquivos "DAO" (resquício da organização inicial, presente em features como "platform") e outro, mais recente e correto, presente na feature "financial_history". A feature de referência arquitetural do projeto — em termos de MVC, Orientação a Objetos, Inversão de Controle e Injeção de Dependência — é "lib/features/financial_history/". Ela é a feature principal e mais complexa da POC e deve servir de modelo para todo o restante.
+
+OBJETIVO GERAL
+Unificar a persistência SQLite em um único paradigma (o da feature "financial_history"), eliminar redundâncias e over-engineering, e reorganizar entidades/arquivos que estão em locais inapropriados. Você (agente) tem autonomia total: analise o código e tome todas as decisões de refatoração a partir das suas próprias observações, sem solicitar permissões ou confirmações intermediárias — as instruções abaixo indicam ONDE atuar, não COMO exatamente.
+
+ESTÁGIO 1 — DIAGNÓSTICO
+1. Analise como "lib/features/financial_history/" trata e interage com a persistência SQLite. Documente para si o padrão adotado (camadas, repositórios, injeção de dependência).
+2. Avalie todos os .dart em "lib/app/database/": identifique redundâncias, over-engineering e o que conflita com o padrão da feature modelo.
+3. Varra "lib/features/" (todas as features, ex.: "platform") localizando: (a) arquivos .dart com "DAO" no nome — provavelmente resquícios da desorganização inicial; (b) entidades/modelos criados em locais inapropriados, como "PlatformModel"; (c) features sem sua respectiva view no DDD Tático.
+
+ESTÁGIO 2 — REORGANIZAÇÃO
+1. Migre a persistência das demais features para o paradigma da "financial_history", eliminando o padrão DAO legado.
+2. Mova para as subpastas apropriadas de "lib/features/financial_history/" as entidades de que ela necessita (ex.: "PlatformModel" e afins).
+3. Enxugue "lib/app/database/", mantendo ali apenas o que for genuinamente infraestrutura compartilhada (ex.: inicialização/conexão do banco).
+
+ESTÁGIO 3 — LIMPEZA E VALIDAÇÃO
+1. Remova arquivos DAO e código morto remanescentes, ajustando imports e a injeção de dependência.
+2. Garanta que o projeto compila e que a feature "financial_history" continua funcional.
+3. Ao final, apresente apenas um resumo objetivo das mudanças realizadas.

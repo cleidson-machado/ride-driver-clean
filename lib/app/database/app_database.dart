@@ -1,10 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:ride_driver_app_1/app/database/daos_impl.dart';
 import 'package:ride_driver_app_1/app/database/migrations.dart';
-import 'package:ride_driver_app_1/features/extra_expenses/extra_expenses_dao.dart';
-import 'package:ride_driver_app_1/features/platform/platform_dao.dart';
-
 /// Singleton lazy do banco: abre uma única vez com todas as migrações
 /// registradas. Ponto de acesso único das camadas de dados (repositórios).
 Future<AppDatabase> openAppDatabase() {
@@ -18,16 +14,15 @@ Future<AppDatabase>? _appDatabaseFuture;
 
 /// Interface abstrata do banco de dados.
 ///
-/// DAOs são acessados como getters e, quando o acesso é por SQL cru, o
-/// repositório pode usar [database] diretamente. A implementação concreta é
-/// provida por [AppDatabaseBuilder.build].
+/// Expõe apenas a conexão **sqflite.Database** bruta usada pelas camadas de
+/// dados (repositórios) via SQL cru. Nenhum DAO é exposto publicamente: a
+/// persistência segue o padrão da feature "financial_history" (SQL cru no
+/// repositório). A implementação concreta é provida por
+/// [AppDatabaseBuilder.build].
 abstract class AppDatabase {
   /// Conexão **sqflite.Database** bruta usada pelas camadas de dados para
-  /// queries não cobertas por DAO (ex.: financial_history e seus vínculos).
+  /// todas as queries (via SQL cru no repositório).
   sqflite.Database get database;
-  PlatformDao get platformDao;
-  ExtraExpensesDao get extraExpensesDao;
-
   Future<void> close();
 }
 
@@ -35,6 +30,9 @@ abstract class AppDatabase {
 ///
 /// Contorna uma limitação do floor_generator 1.5.x que não processa
 /// a annotation `@Database` em projetos com SDK >= 3.12.0.
+///
+/// É a **única fonte de verdade** do schema (SQL DDL manual) — não há
+/// dependência da geração de código/DAO do Floor.
 ///
 /// Exemplo:
 /// ```dart
@@ -87,6 +85,7 @@ class AppDatabaseBuilder {
     return _AppDatabase(database);
   }
 
+  /// Define o schema de todas as tabelas (fonte de verdade única do SQL DDL).
   Future<void> _createTables(sqflite.Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS `financial_history` (
@@ -157,11 +156,6 @@ class _AppDatabase implements AppDatabase {
   sqflite.Database get database => _db;
 
   @override
-  late final PlatformDao platformDao = PlatformDaoImpl(_db);
-
-  @override
-  late final ExtraExpensesDao extraExpensesDao = ExtraExpensesDaoImpl(_db);
-
-  @override
   Future<void> close() => _db.close();
 }
+

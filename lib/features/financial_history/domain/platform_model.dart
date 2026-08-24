@@ -5,6 +5,10 @@ import 'package:ride_driver_app_1/app/generic/base_model.dart';
 ///
 /// Ex: UBER, BOLT, PARTICULAR (corridas avulsas) ou qualquer outra
 /// adicionada pelo usuário via botão "+ PLATAFORMA".
+///
+/// Apesar de usar a annotation [floor@Entity] para documentar o schema, a
+/// persistência é feita por SQL cru via repositório (padrão da feature
+/// "financial_history"), nunca por DAO do Floor.
 @Entity(tableName: 'platform')
 class PlatformModel implements BaseModel {
   @override

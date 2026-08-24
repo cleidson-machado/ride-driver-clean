@@ -2,8 +2,7 @@ import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
-import 'package:ride_driver_app_1/features/platform/platform_model.dart';
-
+import 'platform_model.dart';
 @Entity(
   tableName: 'financial_history_platform',
   foreignKeys: [
@@ -71,3 +70,4 @@ class FinancialHistoryPlatformModel implements BaseModel {
     };
   }
 }
+

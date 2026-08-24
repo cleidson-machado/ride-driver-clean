@@ -1,6 +1,6 @@
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
-import 'package:ride_driver_app_1/features/platform/platform_model.dart';
+import 'package:ride_driver_app_1/features/financial_history/domain/platform_model.dart';
 
 abstract class FinancialHistoryRepositoryInterface {
   Future<List<FinancialHistoryModel>> getAll();
@@ -28,3 +28,4 @@ abstract class FinancialHistoryRepositoryInterface {
 
   Future<void> insertPlatform(PlatformModel model);
 }
+
