@@ -1,17 +1,29 @@
 // =============================================================================
 // FinancialHistoryPlatformSummaryModel
 // -----------------------------------------------------------------------------
-// VISÃO DE DOMÍNIO (imutável) já "resolvida" para consumo da UI/controller.
+// É UM DTO DE VISÃO (DTO de domínio / ViewModel). - É, SIM, um DTO.
 //
-// Diferente de FinancialHistoryPlatformModel (entidade SQLite crua, com FK,
-// dailyEarnings e dailyRides), ESTE modelo já combina o catálogo de plataformas
-// (PlatformModel) com os valores do dia e entrega pronto para a camada de
-// apresentação: `name` (ex.: UBER/BOLT/FREENOW), `totalValue` (faturamento em €)
-// e `totalRides` (nº de corridas).
+// O próprio projeto o trata como "DTO de visão" (ver README.md, FASE 2/3 e
+// CONSOLIDACAO_ARQUITETURAL_FINAL.md — todos o chamam de "DTO/visão de domínio,
+// não persistido").
 //
-// NÃO É 1:1 com a tabela `financial_history_platform`. Quem monta o objeto é o
-// FINANCIAL_HISTORY_SERVICE (camada de dados), que lê os links (associativos),
-// resolve o nome real do catálogo `platform` e agrupa os totais por plataforma.
+// ▶ POR QUE É UM DTO?
+//   - Não tem anotação @Entity → NÃO é persistido em nenhuma tabela SQLite.
+//   - Sua ÚNICA função é TRANSFERIR dados prontos entre camadas:
+//     camada de dados (service) → controller → UI.
+//   - Carrega apenas o que a tela precisa (nome + totais), sem FK, sem campos crus.
+//
+// ▶ MAS TAMBÉM É UMA "VISÃO DE DOMÍNIO"?
+//   Sim — são a MESMA coisa aqui. Um DTO cuja finalidade é apresentar uma visão
+//   já "resolvida" da entidade para a UI. Não é nem a entidade de banco nem um
+//   DTO de request/response de API genérico: é o formato de leitura/exibição.
+//
+// ▶ A REGRA DE OURO PARA NÃO CONFUNDIR:
+//   | Modelo                                  | É @Entity? | Persistido?  | Papel                    |
+//   | FinancialHistoryPlatformModel           | SIM        | SIM (SQLite) | Entidade associativa crua |
+//   | FinancialHistoryPlatformSummaryModel    | NÃO        | NÃO          | DTO de visão p/ UI      |
+//   Se tiver que SALVAR → use o *_PlatformModel e PlatformModel.
+//   Se for só EXIBIR na tela  → use ESTE DTO aqui.
 //
 // ⚠️ LEMBRETE DE USO:
 //   - Controller (financial_history_controller.dart) é quem MANIPULA essas
