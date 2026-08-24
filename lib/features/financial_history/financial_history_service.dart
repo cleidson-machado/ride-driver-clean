@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:ride_driver_app_1/features/financial_history/data/financial_history_interface.dart';
+import 'package:ride_driver_app_1/features/financial_history/data/financial_history_repository_interface.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_model.dart';
 import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_platform_summary_model.dart';
@@ -7,28 +7,29 @@ import 'package:ride_driver_app_1/features/platform/platform_model.dart';
 
 /// Regras de negócio da feature de histórico financeiro.
 ///
-/// Depende apenas do contrato [FinancialHistoryInterface] abstraído na camada
+/// Depende apenas do contrato [FinancialHistoryRepositoryInterface] abstraído na camada
 /// de domínio — nunca de uma implementação concreta. Isso permite injetar
 /// hoje uma implementação SQLite e, futuramente, uma REST, sem alterar esta
 /// classe (princípio da inversão de dependência).
 class FinancialHistoryService {
+  const FinancialHistoryService({
+    required FinancialHistoryRepositoryInterface repository,
+  }) : _storage = repository;
 
-  const FinancialHistoryService({required FinancialHistoryInterface repository,}) : _interface = repository;
-
-  final FinancialHistoryInterface _interface;
+  final FinancialHistoryRepositoryInterface _storage;
 
   // INICIO getById ###############################################################
   Future<FinancialHistoryModel?> getById(String id) async {
-    final FinancialHistoryModel? entity = await _interface.getById(id);
+    final FinancialHistoryModel? entity = await _storage.getById(id);
     if (entity == null) return null;
 
-    final List<FinancialHistoryPlatformModel> links = await _interface
+    final List<FinancialHistoryPlatformModel> links = await _storage
         .getPlatformLinksByFinancialHistoryId(id);
 
     final List<FinancialHistoryPlatformSummaryModel> platforms =
         <FinancialHistoryPlatformSummaryModel>[];
     for (final FinancialHistoryPlatformModel link in links) {
-      final PlatformModel? platform = await _interface.getPlatformById(
+      final PlatformModel? platform = await _storage.getPlatformById(
         link.platformId,
       );
       platforms.add(
@@ -52,7 +53,7 @@ class FinancialHistoryService {
   Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
     _validate(report);
 
-    final bool exists = await _interface.getById(report.id) != null;
+    final bool exists = await _storage.getById(report.id) != null;
 
     FinancialHistoryModel toSave = report;
     if (!exists && _isPlaceholderSku(report.sku)) {
@@ -60,9 +61,9 @@ class FinancialHistoryService {
     }
 
     if (exists) {
-      await _interface.update(toSave);
+      await _storage.update(toSave);
     } else {
-      await _interface.insert(toSave);
+      await _storage.insert(toSave);
     }
     debugPrint(
       '[SAVE][service] ${exists ? 'UPDATE' : 'INSERT'} financial_history -> '
@@ -72,29 +73,27 @@ class FinancialHistoryService {
     await _replacePlatformLinks(toSave);
 
     // Releitura do SQLite: comprova que o registro foi de fato persistido.
-    final FinancialHistoryModel? persisted = await _interface.getById(
-      toSave.id,
-    );
+    final FinancialHistoryModel? persisted = await _storage.getById(toSave.id);
     debugPrint('[SAVE][service] releitura do banco -> ${persisted?.toMap()}');
 
     return toSave;
   }
 
   Future<void> delete(String id) async {
-    final FinancialHistoryModel? entity = await _interface.getById(id);
+    final FinancialHistoryModel? entity = await _storage.getById(id);
     if (entity == null) return;
     // FKs com ON DELETE CASCADE removem os vínculos de plataforma.
-    await _interface.deleteById(entity.id);
+    await _storage.deleteById(entity.id);
   }
   // FIM ORQUESTRAÇÃO DE GRAVAÇÃO ################################################
 
   Future<void> _replacePlatformLinks(FinancialHistoryModel report) async {
-    await _interface.deletePlatformLinksByFinancialHistoryId(report.id);
+    await _storage.deletePlatformLinksByFinancialHistoryId(report.id);
 
     for (final FinancialHistoryPlatformSummaryModel platform
         in report.platforms) {
       final String platformId = await _ensurePlatform(platform.name);
-      await _interface.insertPlatformLink(
+      await _storage.insertPlatformLink(
         FinancialHistoryPlatformModel(
           id: _newId(),
           financialHistoryId: report.id,
@@ -112,20 +111,20 @@ class FinancialHistoryService {
 
   Future<String> _ensurePlatform(String name) async {
     final String normalized = name.trim().toUpperCase();
-    final List<PlatformModel> all = await _interface.getAllPlatforms();
+    final List<PlatformModel> all = await _storage.getAllPlatforms();
     for (final PlatformModel platform in all) {
       if (platform.name.trim().toUpperCase() == normalized) {
         return platform.id;
       }
     }
     final PlatformModel created = PlatformModel(id: _newId(), name: normalized);
-    await _interface.insertPlatform(created);
+    await _storage.insertPlatform(created);
     return created.id;
   }
 
   /// Gera o próximo SKU legível ("PASSEIO 001", "PASSEIO 002", ...).
   Future<String> _nextSku() async {
-    final int count = (await _interface.getAll()).length;
+    final int count = (await _storage.getAll()).length;
     return 'PASSEIO ${(count + 1).toString().padLeft(3, '0')}';
   }
 
@@ -172,4 +171,3 @@ class FinancialHistoryValidationException implements Exception {
   @override
   String toString() => message;
 }
-
