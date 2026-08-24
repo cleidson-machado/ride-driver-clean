@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/di/service_locator.dart';
+import '../../app/helper/ride_formatters.dart';
 import 'financial_history_controller.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';
@@ -32,21 +33,6 @@ class FinancialHistoryView extends StatefulWidget {
 // plataformas, opções rápidas, notas, botões, legenda e diálogos) — este arquivo
 // concentra somente estado, handlers, diálogos invocados e a composição do layout.
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-  static const List<String> _monthNames = [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ];
-
   // Controller (application layer): dono do FinancialHistoryModel e da persistência.
   late final FinancialHistoryController _controller;
 
@@ -83,24 +69,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     super.dispose();
   }
 
-  String get _rideDateLabel =>
-      '${_rideDate.day} ${_monthNames[_rideDate.month - 1]} ${_rideDate.year}';
-
-  String _formatKm(int? value) {
-    if (value == null) return 'NONE';
-    final String digits = value.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (int i = 0; i < digits.length; i++) {
-      buffer.write(digits[i]);
-      final int remaining = digits.length - i - 1;
-      if (remaining > 0 && remaining % 3 == 0) buffer.write('.');
-    }
-    return buffer.toString();
-  }
-
-  String get _cashLabel => _cashSpent == null
-      ? 'NONE'
-      : '€ ${_cashSpent!.toStringAsFixed(2).replaceAll('.', ',')}';
+  String get _rideDateLabel => RideFormatters.formatDateLabel(_rideDate);
 
   int _nonNegative(int value) => value < 0 ? 0 : value;
 
@@ -179,16 +148,13 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
           if (!mounted) return;
           // Reflete o SKU gerado para reports novos no header.
           setState(() {});
-          _showSnack(
-            'Passeio salvo com sucesso (${_controller.report.sku}).',
-          );
+          _showSnack('Passeio salvo com sucesso (${_controller.report.sku}).');
         })
         .catchError((Object error) {
           if (!mounted) return;
           final String message = error is FinancialHistoryValidationException
               ? error.message
-              : _controller.lastError ??
-                    'Erro ao salvar o passeio.';
+              : _controller.lastError ?? 'Erro ao salvar o passeio.';
           _showSnack(message);
         });
   }
@@ -235,7 +201,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         FieldSlotWidget(
           label: 'KM - IN',
           child: StepperFieldWidget(
-            value: _formatKm(_kmIn),
+            value: RideFormatters.formatKm(_kmIn),
             semanticLabel: 'quilometragem inicial',
             onDecrement: () =>
                 setState(() => _kmIn = _nonNegative((_kmIn ?? 0) - 1)),
@@ -262,7 +228,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         FieldSlotWidget(
           label: 'CASH - Gas / Energia',
           child: StepperFieldWidget(
-            value: _cashLabel,
+            value: RideFormatters.formatCurrency(_cashSpent),
             semanticLabel: 'valor de combustível/energia',
             onDecrement: () => setState(() {
               final double next = (_cashSpent ?? 0) - 1;
@@ -277,7 +243,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         FieldSlotWidget(
           label: 'KM - OUT',
           child: StepperFieldWidget(
-            value: _formatKm(_kmOut),
+            value: RideFormatters.formatKm(_kmOut),
             semanticLabel: 'quilometragem final',
             onDecrement: () => setState(
               () => _kmOut = _nonNegative((_kmOut ?? _kmIn ?? 0) - 1),
@@ -291,7 +257,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
         FieldSlotWidget(
           label: 'Hodo-2 - NUMBER',
           child: StepperFieldWidget(
-            value: _formatKm(_hodo2Number),
+            value: RideFormatters.formatKm(_hodo2Number),
             semanticLabel: 'hodômetro 2',
             onDecrement: () => setState(
               () => _hodo2Number = _nonNegative((_hodo2Number ?? 0) - 1),
@@ -334,13 +300,13 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                       rightColumn: _buildRightColumn(),
                     ),
                     const SizedBox(height: 26),
-                    
+
                     PlatformsSectionWidget( // ########################################################## 3. Secção plataformas base
                       onAddPlatform: () =>
                           _showSnack('Adicionar plataforma — em breve (mock).'),
                     ),
                     const SizedBox(height: 26),
-                    
+
                     QuickOptionsRowWidget( // ########################################################### 4. Linha de opções rápidas
                       hasImages: _hasImages,
                       isFinished: _isFinished,
@@ -352,35 +318,41 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                           _showSnack('Adicionar plataforma — em breve (mock).'),
                     ),
                     const SizedBox(height: 26),
-                    
-                    NotesFieldWidget(controller: _notesController), // ################################### 5. Campo de notas
+
+                    NotesFieldWidget( // ############################################################### 5. Campo de notas
+                      controller: _notesController,
+                    ), 
                     const SizedBox(height: 26),
-                    
-                    SaveButtonWidget(onPressed: _actionSaveRide), // ##################################### 6. Footer — botão salvar
+
+                    SaveButtonWidget( // ############################################################## 6. Footer — botão salvar
+                      onPressed: _actionSaveRide,
+                    ), 
                     const SizedBox(height: 20),
-                    
-                    FuelPaymentButtonWidget( // ########################################################## 7. Footer — botão combustível (forma de pagamento)
+
+                    FuelPaymentButtonWidget( // ####################################################### 7. Footer — botão combustível (forma de pagamento)
                       onPressed: () =>
                           _showSnack('Forma de pagamento — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    
-                    AddImagesButtonWidget( // ############################################################# 8. Footer — botão para adicionar imagens/anexos
+
+                    AddImagesButtonWidget( // ########################################################## 8. Footer — botão para adicionar imagens/anexos
                       onPressed: () =>
                           _showSnack('Imagens/anexos — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    
-                    ExtraExpensesButtonWidget( // ########################################################## 9. Footer — botão para gastos extras/alimentacao
+
+                    ExtraExpensesButtonWidget( // ###################################################### 9. Footer — botão para gastos extras/alimentacao
                       onPressed: () =>
                           _showSnack('Gastos extras — em breve (mock).'),
                     ),
                     const SizedBox(height: 20),
-                    
-                    const TermsLegendSectionWidget(), // ################################################### 10. Legenda de termos abreviados/ingles
+
+                    const TermsLegendSectionWidget(), // ############################################### 10. Legenda de termos abreviados/ingles
                     const SizedBox(height: 20),
-                    
-                    DeleteRideReportButtonWidget(onPressed: _handleDeleteReportRequest), // ################ 11. Footer — botao de exclusao do report/passeio
+
+                    DeleteRideReportButtonWidget(
+                      onPressed: _handleDeleteReportRequest,
+                    ), // ################ 11. Footer — botao de exclusao do report/passeio
                   ],
                 ),
               ),
@@ -391,5 +363,3 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     );
   }
 }
-
-// Fim da classe _FinancialHistoryViewState ###########################################
