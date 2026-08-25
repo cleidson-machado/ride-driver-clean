@@ -3,6 +3,7 @@ import 'package:ride_driver_app_1/features/financial_history/domain/financial_hi
 import 'package:ride_driver_app_1/features/financial_history/domain/platform_model.dart';
 
 abstract class FinancialHistoryRepositoryInterface {
+  
   Future<List<FinancialHistoryModel>> getAll();
 
   Future<FinancialHistoryModel?> getById(String id);
@@ -23,6 +24,7 @@ abstract class FinancialHistoryRepositoryInterface {
   Future<void> insertPlatformLink(FinancialHistoryPlatformModel model);
 
   Future<void> updatePlatformLink(FinancialHistoryPlatformModel model);
+  
   Future<void> deletePlatformLink(String id);
 
   Future<PlatformModel?> getPlatformById(String id);
