@@ -67,15 +67,11 @@ class FinancialHistoryService {
       await _storage.insert(toSave);
     }
     debugPrint(
-      '[SAVE][service] ${exists ? 'UPDATE' : 'INSERT'} financial_history -> '
-      '${toSave.toMap()}',
+      '[SAVE][service] ${exists ? 'UPDATE' : 'INSERT'} '
+      '${toSave.id} (SKU ${toSave.sku})',
     );
 
     await _replacePlatformLinks(toSave);
-
-    // Releitura do SQLite: comprova que o registro foi de fato persistido.
-    final FinancialHistoryModel? persisted = await _storage.getById(toSave.id);
-    debugPrint('[SAVE][service] releitura do banco -> ${persisted?.toMap()}');
 
     return toSave;
   }
@@ -102,10 +98,6 @@ class FinancialHistoryService {
           dailyEarnings: platform.totalValue,
           dailyTripCount: platform.totalRides,
         ),
-      );
-      debugPrint(
-        '[SAVE][service] vínculo plataforma -> ${platform.name}: '
-        '€${platform.totalValue} / ${platform.totalRides} corridas',
       );
     }
   }

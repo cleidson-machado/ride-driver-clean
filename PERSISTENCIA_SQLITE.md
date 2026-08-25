@@ -25,9 +25,9 @@ O projeto adota **DDD Tático em camadas**. A feature **`financial_history`** é
 mock** (dados `static const`), **sem** camada de dados e **sem** persistência.
 
 Portanto, do ponto de vista real de código, **apenas a feature `financial_history`**
-consome a persistência hoje. O `ExtraExpensesModel` permanece no domínio como modelo puro,
-mas **não é persistido** (a tabela foi removida do schema por se tratar de funcionalidade
-não implementada).
+consome a persistência hoje (`financial_history`, `financial_history_platform` e o
+catálogo `platform`). Não há modelo/feature de despesas extras: o `ExtraExpensesModel`
+foi **removido** (código morto — sem tabela, sem repositório e sem uso real).
 
 ---
 
@@ -39,23 +39,35 @@ não implementada).
 definição do **schema (DDL)** de forma direta:
 
 - `openAppDatabase()` → **singleton lazy** que abre e devolve a conexão **`sqflite.Database` bruta** (única vez).
+- `schemaVersion` → versão do schema (hoje **1**).
 - `createSchema(db)` → define o **schema completo** (fonte de verdade única do DDL).
 
-**Não há** `AppDatabase` interface, `AppDatabaseBuilder`, DAOs, nem migrações — a POC
-abre o banco diretamente com `sqflite.openDatabase` (versão **1**, schema criado no
+**Não há** `AppDatabase` interface, `AppDatabaseBuilder`, DAOs, nem migrações
+incrementais — a POC abre o banco diretamente com `sqflite.openDatabase` (schema criado no
 `onCreate`).
 
 ```dart
+const int schemaVersion = 1;
+
 Future<sqflite.Database> openAppDatabase() {
   return _dbFuture ??= _open();
 }
 
 // _open(...) usa sqflite.openDatabase(
-//   version: 1,
+//   version: schemaVersion,
 //   onConfigure: /* PRAGMA foreign_keys = ON */,
-//   onCreate: createSchema,   // define todas as tabelas/índices
+//   onCreate: createSchema,      // define todas as tabelas/índices
+//   onUpgrade: _recreateSchema,  // drop + create quando a versão sobe
+//   onDowngrade: _recreateSchema,// drop + create quando a versão desce
 // );
 ```
+
+**Evolução de schema sem migrações (estratégia "recriar"):** como não há dados reais a
+preservar, `onUpgrade`/`onDowngrade` **descartam o banco antigo** (`_dropAllTables`) e o
+recriam de zero via `createSchema`. Assim, ao mudar o DDL basta **incrementar
+`schemaVersion`** — a abertura de um banco antigo regera tudo pelo schema novo. Sem isso,
+a simples mudança de versão deixaria o banco antigo intacto (schema defasado) sem retorno
+de erro.
 
 ### 2.2 Fluxo de escrita/leitura (SQL cru)
 
@@ -86,8 +98,9 @@ Definido em `createSchema()` de `app_database.dart` (versão do banco = **1**).
 | `platform` | Catálogo de plataformas (UBER, BOLT, PARTICULAR, …). | — |
 
 > ℹ️ **Removida:** a tabela `extra_expenses` (e seu índice `idx_ee_...`) **não** existe
-> mais no schema, pois a feature não é implementada (ver decisões na seção 9). O modelo
-> `ExtraExpensesModel` continua no domínio como referência futura.
+> no schema, pois a feature não é implementada (ver decisões na seção 9). O modelo
+> `ExtraExpensesModel` também foi **removido** (código morto) — será recriado junto com a
+> feature, quando ela existir.
 
 ### Relacionamento
 ```
@@ -105,15 +118,19 @@ financial_history (1) ──< financial_history_platform >── (1) platform
 
 ---
 
-## 4. Migrações — **removidas**
+## 4. Migrações — **removidas** (substituídas por "drop + recreate")
 
-✅ **Não há mais migrações.** Em uma POC sem usuários em produção nem dados reais a
-preservar, migrações (`v1→v2`, `v2→v3`) eram **over-engineering**: adicionavam
-complexidade sem nenhum benefício real. O schema completo é definido no DDL inicial
-(`onCreate`) e o banco é recriado localmente.
+✅ **Não há mais migrações incrementais.** Em uma POC sem usuários em produção nem dados
+reais a preservar, migrações (`v1→v2`, `v2→v3`, com `ALTER TABLE` etc.) eram
+**over-engineering**: adicionavam complexidade sem nenhum benefício real. O schema completo
+é definido no DDL inicial (`onCreate`) e a evolução de schema **recria o banco**:
 
-> `lib/app/database/migrations.dart` foi **excluído** e o `AppDatabaseBuilder.addMigrations`
-> foi removido. A versão do banco voltou para **1**.
+- ao **incrementar `schemaVersion`** e abrir um banco antigo, o `onUpgrade`
+  (`_recreateSchema`) **descarta as tabelas** e chama `createSchema` de novo;
+- o `onDowngrade` usa a mesma estratégia (simétrico).
+
+> `lib/app/database/migrations.dart` foi **excluído**, o `AppDatabaseBuilder.addMigrations`
+> foi removido e a versão do banco voltou para **1** (`schemaVersion`).
 
 ---
 
@@ -162,7 +179,10 @@ No ato de **salvar** (`FinancialHistoryService.save`):
    - Para cada plataforma do report, **`_ensurePlatform`** normaliza o nome (maiúsculas) e:
      - se já existe no catálogo, reaproveita o `id`;
      - senão **cria** via `insertPlatform` (upsert no catálogo).
-5. Faz uma **releitura do SQLite** (`getById`) para comprovar que o registro de fato foi persistido (os `debugPrint` deste fluxo evidenciam essa verificação).
+
+Após persistir, a service **não** faz releitura de confirmação (não há mais `debugPrint`
+de "releitura do banco"): a escrita/leitura já é validada nos testes da camada de dados e
+o fluxo fica limpo de instrumentação de depuração.
 
 Ao **excluir** (`delete`), remove o dia; as FKs com `ON DELETE CASCADE` limpam os vínculos
 de plataforma automaticamente.
@@ -171,11 +191,11 @@ de plataforma automaticamente.
 > - `FinancialHistoryModel` → `financial_history`
 > - `FinancialHistoryPlatformModel` → `financial_history_platform`
 > - `PlatformModel` → `platform`
-> - `ExtraExpensesModel` → **modelo de domínio puro, NÃO persistido** (sem tabela)
 > - `FinancialHistoryPlatformSummaryDTO` → **DTO de visão, não persistido**; apenas leitura/UI.
 >
 > Todos os modelos são **puros** (sem annotations de ORM); o mapeamento para as tabelas
-> é feito pelo SQL cru + `toMap`/`fromMap`.
+> é feito pelo SQL cru + `toMap`/`fromMap`. (`ExtraExpensesModel` foi removido por ser
+> código morto.)
 
 ---
 
@@ -184,7 +204,7 @@ de plataforma automaticamente.
 | Feature | Persistência? | Detalhe |
 |---|---|---|
 | **`financial_history`** (feature modelo) | ✅ **Sim** | Única feature com camada de dados completa e SQL cru real (CRUD de `financial_history`, vínculos `financial_history_platform`, catálogo `platform`). É a fonte de referência. |
-| `extra_expenses` (modelo no domínio) | ❌ Não (sem schema) | `ExtraExpensesModel` permanece como modelo de domínio puro, mas a tabela foi removida — persistência pendente até a feature ser implementada. |
+| `extra_expenses` (feature não implementada) | ❌ Não | `ExtraExpensesModel` e a tabela foram **removidos** (código morto). Serão recriados quando a feature for implementada. |
 | `history` | ❌ Não | View mock (`static const`). Próximos passos: consumir o repositório/service para listar o histórico real. |
 | `search` | ❌ Não | View mock. |
 | `home_add_ride` | ❌ Não | View mock (raiz atual do app via `home_content_tab_view.dart`). |
@@ -203,8 +223,9 @@ Para qualquer feature nova seguir o mesmo padrão:
 4. **`*_controller.dart`** — `ChangeNotifier` (estado da tela).
 5. **`*_injection.dart`** — registra em `get_it` (único ponto que conhece a implementação concreta).
 6. **`*_view.dart`** + `widgets/` — UI resolvendo o controller via `getIt`.
-7. **Schema**: edite **`createSchema`** em `app_database.dart`. Como não há migrações,
-   bastará **incrementar `version`** (bancos antigos locais são recriados) — não há `onUpgrade`.
+7. **Schema**: edite **`createSchema`** em `app_database.dart` e **incremente `schemaVersion`**.
+   Como o `onUpgrade`/`onDowngrade` faz **drop + recreate** (sem migrações), o banco antigo
+   é descartado e regerado com o schema novo ao abrir.
 
 ---
 
@@ -225,16 +246,20 @@ Para qualquer feature nova seguir o mesmo padrão:
 
 | # | Item analisado | Decisão | Justificativa |
 |---|---|---|---|
-| 1 | **Migrações (v1→v2, v2→v3)** | **Removidas** | POC sem usuários em produção nem dados reais a preservar. O schema completo está no DDL inicial; a versão do banco voltou para **1**. `migrations.dart` excluído; `addMigrations` removido. |
+| 1 | **Migrações (v1→v2, v2→v3)** | **Removidas — substituídas por "drop + recreate"** | POC sem usuários em produção nem dados reais a preservar. O schema completo está no DDL inicial (`schemaVersion = 1`). Ao mudar o DDL basta **incrementar `schemaVersion`**: o `onUpgrade`/`onDowngrade` (presentes) **descartam as tabelas** e recriam via `createSchema`. `migrations.dart` excluído; `addMigrations` removido. |
 | 2 | **Dependência `floor`** | **Removida** | Usada apenas para annotations `@Entity`/`@primaryKey`/`@ColumnInfo` "documentacionais" e tipos de migração (`Migration`, `MigrationAdapter`). Sem `@Database`/`@dao`/geração de código, essas annotations **não** influenciavam o SQL cru. Sem as migrações, restava só custo (dependência + `import` em todas as models). As models ficaram **puras**. |
 | 3 | **`AppDatabaseBuilder` + `AppDatabase` interface + `_AppDatabase`** | **Simplificados** | O builder manual (com callbacks, `addMigrations`, wrapper `AppDatabase`) era desproporcional à POC. Reduzido a um `openAppDatabase()` simples que devolve a **`sqflite.Database` bruta**; o schema virou `createSchema()`. Repositórios usam a conexão direta. |
-| 4 | **`extra_expenses` no schema (tabela + índice)** | **Removidos do schema** | Funcionalidade **não implementada** (sem repo/service/controller/view). Manter a tabela/índice seria persistência "morta". `ExtraExpensesModel` continua no domínio como modelo puro/referência futura. |
-| 5 | **Índices `financial_history_platform`** | **Mantidos** | Tabela efetivamente usada pela feature nas consultas por `financial_history_id`/`platform_id`. |
-| 6 | **Cadeia repository → service → controller → injection** | **Mantida** | É a arquitetura padrão (feature modelo) e está funcional. A separação interface/impl segue o padrão DDD do projeto e facilita a futura troca de tecnologia. Não alterada para não quebrar o fluxo. |
+| 4 | **`extra_expenses` no schema (tabela + índice)** | **Removidos do schema** | Funcionalidade **não implementada** (sem repo/service/controller/view). Manter a tabela/índice seria persistência "morta". |
+| 5 | **`ExtraExpensesModel` no domínio** | **Removido** | **Código morto**: modelo puro sem tabela, sem repositório e sem uso real (só referenciado em docs). Pode ser recriado junto com a feature futura, sem custo. |
+| 6 | **Releitura pós-save + `debugPrint` no fluxo de save** | **Removidos/reduzidos** | A releitura (`getById` de comprovação) e os `debugPrint` de `toMap`/por-vínculo eram apenas instrumentação de depuração. Removido o re-`getById` (round-trip desnecessário) e o ruído por vínculo; mantido um único log conciso do save. |
+| 7 | **Índices `financial_history_platform`** | **Mantidos** | Tabela efetivamente usada pela feature nas consultas por `financial_history_id`/`platform_id`. |
+| 8 | **Cadeia repository → service → controller → injection** | **Mantida** | É a arquitetura padrão (feature modelo) e está funcional. A separação interface/impl segue o padrão DDD do projeto e facilita a futura troca de tecnologia. Não alterada para não quebrar o fluxo. |
+| 9 | **`lib/to_trash_bkp/` (backups `.bkp`)** | **Fora do código produtivo** | São backups/histórico, **não** importados por nenhum código de produção. Removidos de `lib/` para não poluir a árvore Dart; o histórico segue preservado (ver docs de fase). |
 
 **Resultado:** a camada de persistência ficou reduzida a **um único arquivo**
-(`app_database.dart`) com inicialização simples + DDL completo, sem ORM, sem migrações e
-com apenas **3 tabelas** de fato usadas. O fluxo funcional de `financial_history`
+(`app_database.dart`) com inicialização simples + DDL completo, sem ORM, **sem migrações
+incrementais** (a evolução de schema é **drop + recreate** via `onUpgrade`/`onDowngrade`)
+e com apenas **3 tabelas** de fato usadas. O fluxo funcional de `financial_history`
 (CRUD + vínculos de plataforma + catálogo) permanece intacto.
 
 > Fontes principais: `lib/app/database/app_database.dart`,

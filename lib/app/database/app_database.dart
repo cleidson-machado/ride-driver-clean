@@ -1,11 +1,20 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart' as sqflite;
 
+/// Versão do schema do banco.
+///
+/// POC: em vez de migrações incrementais, quando o schema (DDL de
+/// [createSchema]) mudar basta **incrementar [schemaVersion]**. O
+/// `onUpgrade`/`onDowngrade` descarta o banco antigo (drop de todas as
+/// tabelas) e o recria do zero — como não há dados reais a preservar.
+const int schemaVersion = 1;
+
 /// Abre o banco SQLite da aplicação (uma única vez — singleton lazy).
 ///
-/// POC: a versão está fixada em 1 e o schema completo é criado no `onCreate`.
-/// Por não haver usuários em produção nem dados reais a preservar, **não há
-/// migrações** — bancos são recriados a partir do DDL inicial.
+/// POC: o schema completo é criado no `onCreate` (banco novo) e, quando a
+/// versão muda (schema evoluído), `onUpgrade`/`onDowngrade` **regeram** o
+/// banco a partir de [createSchema] (drop + recreate). Não há migrações
+/// incrementais — por não haver usuários em produção nem dados a preservar.
 Future<sqflite.Database> openAppDatabase() {
   return _dbFuture ??= _open();
 }
@@ -17,15 +26,34 @@ Future<sqflite.Database> _open() async {
   return sqflite.openDatabase(
     path,
     options: sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: schemaVersion,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: (db, version) async {
         await createSchema(db);
       },
+      onUpgrade: _recreateSchema,
+      onDowngrade: _recreateSchema,
     ),
   );
+}
+
+/// Estratégia "recriar" da POC: descarta o banco antigo e regera o schema.
+Future<void> _recreateSchema(
+  sqflite.Database db,
+  int oldVersion,
+  int newVersion,
+) async {
+  await _dropAllTables(db);
+  await createSchema(db);
+}
+
+/// Remove todas as tabelas conhecidas (ordem segura para as FKs).
+Future<void> _dropAllTables(sqflite.Database db) async {
+  await db.execute('DROP TABLE IF EXISTS `financial_history_platform`');
+  await db.execute('DROP TABLE IF EXISTS `financial_history`');
+  await db.execute('DROP TABLE IF EXISTS `platform`');
 }
 
 /// Define o schema completo do banco (única fonte de verdade do DDL).

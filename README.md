@@ -61,12 +61,15 @@ definição do schema (DDL)**, servindo de infraestrutura comum às features:
 
 | Símbolo | Papel |
 |---|---|
-| `openAppDatabase()` | Singleton lazy que abre e devolve a conexão **`sqflite.Database` bruta** (versão 1). |
+| `openAppDatabase()` | Singleton lazy que abre e devolve a conexão **`sqflite.Database` bruta**. |
+| `schemaVersion` | Versão do schema (hoje **1**). |
 | `createSchema(db)` | **Fonte de verdade do schema** — cria `financial_history`, `financial_history_platform` e `platform` com FKs/índices/`ON DELETE CASCADE`. |
 
-**Não há migrações** nem `migrations.dart`: por ser POC sem dados reais a preservar, o
-banco é criado a partir do DDL inicial (e pode ser recriado localmente). As queries de
-negócio ficam **nos repositórios de cada feature**, não aqui.
+**Não há migrações incrementais** nem `migrations.dart`. Em uma POC sem dados reais a
+preservar, a evolução de schema é resolvida pelo **drop+recreate**: ao mudar o DDL basta
+**incrementar `schemaVersion`** — no `onUpgrade`/`onDowngrade` as tabelas antigas são
+descartadas e o banco é recriado de zero por `createSchema`. As queries de negócio ficam
+**nos repositórios de cada feature**, não aqui.
 
 ---
 
@@ -76,8 +79,6 @@ Entidades consumidas transversalmente pela feature modelo ficam no domínio de
 `lib/features/financial_history/domain/`:
 
 - `PlatformModel` → catálogo de plataformas (UBER, BOLT, PARTICULAR, …)
-- `ExtraExpensesModel` → despesas extras (alimentação, bebidas, …) — modelo puro no
-  domínio; **ainda não persistido** (a feature/UI não está implementada)
 
 Junto às demais entidades da feature (`FinancialHistoryModel`,
 `FinancialHistoryPlatformModel`, `FinancialHistoryPlatformSummaryDTO`).
@@ -99,7 +100,6 @@ lib/
 │   ├── financial_history/       → FEATURE MODELO (camadas completas)
 │   └── history/ · search/ · tour_in_progress/ · home_add_ride/ · data_storage/
 │                                   → telas mock (aguardando implementação)
-└── to_trash_bkp/                → backups/histórico (não fazem parte do código produtivo)
 ```
 
 ---
@@ -117,8 +117,9 @@ lib/
 - Implementar telas reais para as features hoje **mock** (`history`, `search`,
   `home_add_ride`, `tour_in_progress`, `data_storage`), seguindo o padrão da feature
   modelo.
-- Criar a pilha `domain/data/service/controller/injection/view` para `extra_expenses`
-  (e `platform`, se houver gestão na UI).
+- Criar a feature `extra_expenses` completa (`domain/data/service/controller/injection/view`,
+  + tabela no schema) — o `ExtraExpensesModel` foi **removido** por ser código morto (sem
+  tabela nem uso) e pode ser recriado quando a feature existir.
 - Criar testes automatizados em `test/`.
 
 > Detalhamento executivo e histórico do ciclo de reorganização em
