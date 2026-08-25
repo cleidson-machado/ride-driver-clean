@@ -1,7 +1,4 @@
-import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
-import 'financial_history_model.dart';
-
 /// Entidade que representa uma despesa extra avulsa (alimentação, bebidas,
 /// medicamentos, etc.) decorrente do dia de trabalho como motorista.
 ///
@@ -9,33 +6,17 @@ import 'financial_history_model.dart';
 /// usuário pode ou não adicionar despesas extras. Um mesmo registro diário
 /// pode ter 0 ou N despesas extras associadas.
 ///
-/// Apesar de usar a annotation [floor@Entity] para documentar o schema, a
-/// persistência é feita por SQL cru via repositório (padrão da feature
-/// "financial_history"), nunca por DAO do Floor.
-@Entity(
-  tableName: 'extra_expenses',
-  foreignKeys: [
-    ForeignKey(
-      childColumns: ['financial_history_id'],
-      parentColumns: ['id'],
-      entity: FinancialHistoryModel,
-      onDelete: ForeignKeyAction.cascade,
-    ),
-  ],
-  indices: [
-    Index(value: ['financial_history_id']),
-  ],
-)
+/// Modelo de domínio puro. Ainda **não há** feature de UI/repositório de
+/// despesas extras implementada — a persistência desta entidade permanece
+/// pendente (schema da tabela foi removido na simplificação da POC).
 class ExtraExpensesModel implements BaseModel {
   @override
-  @primaryKey
   final String id;
 
   /// FK opcional para o registro diário (financial_history.id).
   ///
   /// Permite `null` para que o vínculo seja estabelecido posteriormente,
   /// ou para despesas avulsas sem vínculo direto com um dia específico.
-  @ColumnInfo(name: 'financial_history_id')
   final String? financialHistoryId;
 
   /// Nome/descrição da despesa. Ex: "Almoço", "Café", "Gasolina extra".
@@ -49,7 +30,6 @@ class ExtraExpensesModel implements BaseModel {
   final String? category;
 
   /// Timestamp (epoch millis) de quando a despesa foi registrada.
-  @ColumnInfo(name: 'created_at')
   final int createdAt;
 
   const ExtraExpensesModel({
@@ -99,3 +79,4 @@ class ExtraExpensesModel implements BaseModel {
     );
   }
 }
+

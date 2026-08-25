@@ -1,4 +1,3 @@
-import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
 /// Entidade que representa uma plataforma de corridas (catálogo).
@@ -6,20 +5,16 @@ import 'package:ride_driver_app_1/app/generic/base_model.dart';
 /// Ex: UBER, BOLT, PARTICULAR (corridas avulsas) ou qualquer outra
 /// adicionada pelo usuário via botão "+ PLATAFORMA".
 ///
-/// Apesar de usar a annotation [floor@Entity] para documentar o schema, a
-/// persistência é feita por SQL cru via repositório (padrão da feature
-/// "financial_history"), nunca por DAO do Floor.
-@Entity(tableName: 'platform')
+/// Modelo de domínio puro: o mapeamento para a tabela `platform` é feito
+/// pelo SQL cru no repositório (via [BaseModel.toMap]/[fromMap]).
 class PlatformModel implements BaseModel {
   @override
-  @primaryKey
   final String id;
 
   /// Nome da plataforma. Ex: "UBER", "BOLT", "PARTICULAR".
   final String name;
 
   /// Indica se a plataforma está ativa/disponível para novos registros.
-  @ColumnInfo(name: 'is_active')
   final bool isActive;
 
   const PlatformModel({
@@ -46,3 +41,4 @@ class PlatformModel implements BaseModel {
     };
   }
 }
+

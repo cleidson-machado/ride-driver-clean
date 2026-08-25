@@ -6,21 +6,20 @@ Flutter app for ride-share drivers, in early development. Much of the scaffoldin
 
 Flutter is pinned to **3.44.7** via [.fvmrc](.fvmrc). Always prefix flutter/dart commands with `fvm`:
 
-- **Dependencies**: keep minimal — currently `dio`, `floor`, `sqflite`, `path`. Add to [pubspec.yaml](pubspec.yaml) and run `fvm flutter pub get`. After modifying Floor entities/DAOs, run `fvm dart run build_runner build --delete-conflicting-outputs`.
-- Code comments are sometimes in Portuguese (pt-BR); the user communicates in Portuguese.
+- **Dependencies**: keep minimal — currently `sqflite`, `path`, `get_it`. Add to [pubspec.yaml](pubspec.yaml) and run `fvm flutter pub get`.
+## Database (SQLite, SQL cru)
 
-## Database (SQLite via Floor)
-
-This project uses **Floor** ORM for local SQLite persistence. Running `build_runner` generates the database code from annotated `@Entity` classes and `@dao` abstract classes.
-
+This project uses **sqflite** with **raw SQL** (SQL cru) for local SQLite persistence.
+**Não há** ORM/Floor nem geração de código (`@dao`, `@Database`, `build_runner`). O schema
+é definido manualmente em `lib/app/database/app_database.dart` (`createSchema`), e não há
+migrações (POC: bancos locais são recriados).
 ### Current schema
 
-Entities defined in `lib/app/database/app_database.dart`:
+Tables defined in `lib/app/database/app_database.dart` (`createSchema`):
 
-- `FinancialHistoryModel` → `financial_history` (registro diário) (entidade unificada em `lib/features/financial_history/domain/financial_history_model.dart`)
-- `PlatformModel` → `platform` (catálogo de plataformas: UBER, BOLT, …)
-- `FinancialHistoryPlatformModel` → `financial_history_platform` (tabela associativa com FKs)
-
+- `financial_history` (registro diário)
+- `financial_history_platform` (tabela associativa com FKs)
+- `platform` (catálogo de plataformas: UBER, BOLT, …)
 Relationships:
 - `financial_history` 1 ──< `financial_history_platform` >── 1 `platform`
 

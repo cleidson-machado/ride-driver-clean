@@ -1,8 +1,6 @@
-import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 import 'financial_history_platform_summary_dto.dart';
 
-@Entity(tableName: 'financial_history')
 class FinancialHistoryModel implements BaseModel {
   const FinancialHistoryModel({
     required this.id,
@@ -20,39 +18,28 @@ class FinancialHistoryModel implements BaseModel {
   });
 
   @override
-  @primaryKey
   final String id;
 
-  @ColumnInfo(name: 'trip_number')
   final String sku;
 
-  @ColumnInfo(name: 'work_date')
   final DateTime date;
 
-  @ColumnInfo(name: 'km_start')
   final int kmIn;
 
-  @ColumnInfo(name: 'km_end')
   final int? kmOut;
 
-  @ColumnInfo(name: 'fuel_cost')
   final double cashSpent;
 
-  @ColumnInfo(name: 'hodo2_is_zero')
   final bool hodo2IsZero;
 
-  @ColumnInfo(name: 'km_odometer')
   final int? hodo2Number;
 
-  @ColumnInfo(name: 'has_images')
   final bool hasImages;
 
-  @ColumnInfo(name: 'is_finished')
   final bool isFinished;
 
   final String notes;
 
-  @ignore
   final List<FinancialHistoryPlatformSummaryDTO> platforms;
 
   factory FinancialHistoryModel.blank({
@@ -148,3 +135,4 @@ class FinancialHistoryModel implements BaseModel {
     );
   }
 }
+

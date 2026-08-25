@@ -8,7 +8,7 @@
 // não persistido").
 //
 // ▶ POR QUE É UM DTO?
-//   - Não tem anotação @Entity → NÃO é persistido em nenhuma tabela SQLite.
+//   - Não é persistido em nenhuma tabela SQLite (é usado apenas em memória).
 //   - Sua ÚNICA função é TRANSFERIR dados prontos entre camadas:
 //     camada de dados (service) → controller → UI.
 //   - Carrega apenas o que a tela precisa (nome + totais), sem FK, sem campos crus.
@@ -19,9 +19,9 @@
 //   DTO de request/response de API genérico: é o formato de leitura/exibição.
 //
 // ▶ A REGRA DE OURO PARA NÃO CONFUNDIR:
-//   | Modelo                                   | É @Entity? | Persistido?  | Papel                    |
-//   | FinancialHistoryPlatformModel            | SIM        | SIM (SQLite) | Entidade associativa crua |
-//   | FinancialHistoryPlatformSummaryDTO       | NÃO        | NÃO          | DTO de visão p/ UI      |
+//   | Modelo                                   | Persistido? | Papel                    |
+//   | FinancialHistoryPlatformModel            | SIM (SQLite)| Entidade associativa crua |
+//   | FinancialHistoryPlatformSummaryDTO       | NÃO         | DTO de visão p/ UI       |
 //   Se tiver que SALVAR → use o *_PlatformModel e PlatformModel.
 //   Se for só EXIBIR na tela  → use ESTE DTO aqui.
 //
@@ -61,3 +61,4 @@ class FinancialHistoryPlatformSummaryDTO {
     );
   }
 }
+

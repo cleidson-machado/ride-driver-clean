@@ -1,46 +1,20 @@
-import 'package:floor/floor.dart';
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
-import 'package:ride_driver_app_1/features/financial_history/domain/financial_history_model.dart';
-import 'platform_model.dart';
-@Entity(
-  tableName: 'financial_history_platform',
-  foreignKeys: [
-    ForeignKey(
-      childColumns: ['financial_history_id'],
-      parentColumns: ['id'],
-      entity: FinancialHistoryModel,
-      onDelete: ForeignKeyAction.cascade,
-    ),
-    ForeignKey(
-      childColumns: ['platform_id'],
-      parentColumns: ['id'],
-      entity: PlatformModel,
-      onDelete: ForeignKeyAction.cascade,
-    ),
-  ],
-  indices: [
-    Index(value: ['financial_history_id']),
-    Index(value: ['platform_id']),
-  ],
-)
 class FinancialHistoryPlatformModel implements BaseModel {
   @override
-  @primaryKey
   final String id;
   
-  @ColumnInfo(name: 'financial_history_id') /// ################# FK para o registro diário (financial_history.id).
+  /// FK para o registro diário (financial_history.id).
   final String financialHistoryId;
   
-  @ColumnInfo(name: 'platform_id') /// ########################## FK para a plataforma (platform.id).
+  /// FK para a plataforma (platform.id).
   final String platformId;
   
-  @ColumnInfo(name: 'daily_earnings') /// ####################### Faturamento total do dia nessa plataforma, em euros.
+  /// Faturamento total do dia nessa plataforma, em euros.
   final double dailyEarnings;
 
-  @ColumnInfo(name: 'daily_trip_count') /// #################### Quantidade total de corridas do dia nessa plataforma.
+  /// Quantidade total de corridas do dia nessa plataforma.
   final int dailyTripCount;
-
   const FinancialHistoryPlatformModel({
     required this.id,
     required this.financialHistoryId,

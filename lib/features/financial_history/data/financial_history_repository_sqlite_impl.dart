@@ -16,8 +16,8 @@ class FinancialHistoryRepositorySqliteImpl
   // INICIO PERSISTÊNCIA DIRETA (financial_history + vínculos) ###############################
   @override
   Future<List<FinancialHistoryModel>> getAll() async {
-    final AppDatabase db = await openAppDatabase();
-    final rows = await db.database.rawQuery(
+    final sqflite.Database db = await openAppDatabase();
+    final rows = await db.rawQuery(
       'SELECT * FROM financial_history ORDER BY work_date DESC',
     );
     return rows.map((r) => FinancialHistoryModel.fromMap(r)).toList();
@@ -25,8 +25,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<FinancialHistoryModel?> getById(String id) async {
-    final AppDatabase db = await openAppDatabase();
-    final rows = await db.database.rawQuery(
+    final sqflite.Database db = await openAppDatabase();
+    final rows = await db.rawQuery(
       'SELECT * FROM financial_history WHERE id = ?',
       [id],
     );
@@ -36,8 +36,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<void> insert(FinancialHistoryModel model) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.insert(
+    final sqflite.Database db = await openAppDatabase();
+    await db.insert(
       'financial_history',
       model.toMap(),
       conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
@@ -46,8 +46,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<void> update(FinancialHistoryModel model) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.update(
+    final sqflite.Database db = await openAppDatabase();
+    await db.update(
       'financial_history',
       model.toMap(),
       where: 'id = ?',
@@ -58,8 +58,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<void> deleteById(String id) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.delete(
+    final sqflite.Database db = await openAppDatabase();
+    await db.delete(
       'financial_history',
       where: 'id = ?',
       whereArgs: [id],
@@ -69,8 +69,8 @@ class FinancialHistoryRepositorySqliteImpl
   @override
   Future<List<FinancialHistoryPlatformModel>>
   getPlatformLinksByFinancialHistoryId(String financialHistoryId) async {
-    final AppDatabase db = await openAppDatabase();
-    final rows = await db.database.rawQuery(
+    final sqflite.Database db = await openAppDatabase();
+    final rows = await db.rawQuery(
       'SELECT * FROM financial_history_platform '
       'WHERE financial_history_id = ?',
       [financialHistoryId],
@@ -82,8 +82,8 @@ class FinancialHistoryRepositorySqliteImpl
   Future<void> deletePlatformLinksByFinancialHistoryId(
     String financialHistoryId,
   ) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.delete(
+    final sqflite.Database db = await openAppDatabase();
+    await db.delete(
       'financial_history_platform',
       where: 'financial_history_id = ?',
       whereArgs: [financialHistoryId],
@@ -92,8 +92,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<void> insertPlatformLink(FinancialHistoryPlatformModel model) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.insert(
+    final sqflite.Database db = await openAppDatabase();
+    await db.insert(
       'financial_history_platform',
       model.toMap(),
       conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
@@ -102,8 +102,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<PlatformModel?> getPlatformById(String id) async {
-    final AppDatabase db = await openAppDatabase();
-    final rows = await db.database.rawQuery(
+    final sqflite.Database db = await openAppDatabase();
+    final rows = await db.rawQuery(
       'SELECT * FROM platform WHERE id = ?',
       [id],
     );
@@ -113,8 +113,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<List<PlatformModel>> getAllPlatforms() async {
-    final AppDatabase db = await openAppDatabase();
-    final rows = await db.database.rawQuery(
+    final sqflite.Database db = await openAppDatabase();
+    final rows = await db.rawQuery(
       'SELECT * FROM platform ORDER BY name ASC',
     );
     return rows.map((r) => PlatformModel.fromMap(r)).toList();
@@ -122,8 +122,8 @@ class FinancialHistoryRepositorySqliteImpl
 
   @override
   Future<void> insertPlatform(PlatformModel model) async {
-    final AppDatabase db = await openAppDatabase();
-    await db.database.insert(
+    final sqflite.Database db = await openAppDatabase();
+    await db.insert(
       'platform',
       model.toMap(),
       conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
@@ -132,3 +132,4 @@ class FinancialHistoryRepositorySqliteImpl
 
   // FIM PERSISTÊNCIA DIRETA #################################################################
 }
+
