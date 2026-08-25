@@ -15,12 +15,20 @@ class FinancialHistoryPlatformModel implements BaseModel {
 
   /// Quantidade total de corridas do dia nessa plataforma.
   final int dailyTripCount;
+
+  /// Nome legível da plataforma (ex.: "UBER"). Não é uma coluna de
+  /// `financial_history_platform` — o nome vive na tabela `platform`. É
+  /// populado apenas em memória pela service ao montar o estado de visualização
+  /// (getById) e pelo controller ao adicionar/editar plataformas no formulário.
+  final String name;
+
   const FinancialHistoryPlatformModel({
     required this.id,
     required this.financialHistoryId,
     required this.platformId,
     required this.dailyEarnings,
     required this.dailyTripCount,
+    this.name = '',
   });
 
   factory FinancialHistoryPlatformModel.fromMap(Map<String, dynamic> map) {
@@ -41,7 +49,25 @@ class FinancialHistoryPlatformModel implements BaseModel {
       'platform_id': platformId,
       'daily_earnings': dailyEarnings,
       'daily_trip_count': dailyTripCount,
+      // 'name' não é persistido: o nome fica na tabela `platform`.
     };
+  }
+
+  FinancialHistoryPlatformModel copyWith({
+    String? financialHistoryId,
+    String? platformId,
+    double? dailyEarnings,
+    int? dailyTripCount,
+    String? name,
+  }) {
+    return FinancialHistoryPlatformModel(
+      id: id,
+      financialHistoryId: financialHistoryId ?? this.financialHistoryId,
+      platformId: platformId ?? this.platformId,
+      dailyEarnings: dailyEarnings ?? this.dailyEarnings,
+      dailyTripCount: dailyTripCount ?? this.dailyTripCount,
+      name: name ?? this.name,
+    );
   }
 }
 

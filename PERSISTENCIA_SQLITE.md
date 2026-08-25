@@ -189,13 +189,16 @@ de plataforma automaticamente.
 
 > **Modelos envolvidos** (`features/financial_history/domain/`):
 > - `FinancialHistoryModel` → `financial_history`
-> - `FinancialHistoryPlatformModel` → `financial_history_platform`
+> - `FinancialHistoryPlatformModel` → `financial_history_platform` (usado também como
+>   **visão em memória** das plataformas do dia — o campo `name`, populado apenas em
+>   memória para exibição/edição, **não** é coluna de `financial_history_platform`: o
+>   nome vive na tabela `platform`)
 > - `PlatformModel` → `platform`
-> - `FinancialHistoryPlatformSummaryDTO` → **DTO de visão, não persistido**; apenas leitura/UI.
 >
 > Todos os modelos são **puros** (sem annotations de ORM); o mapeamento para as tabelas
-> é feito pelo SQL cru + `toMap`/`fromMap`. (`ExtraExpensesModel` foi removido por ser
-> código morto.)
+> é feito pelo SQL cru + `toMap`/`fromMap`. Não há **DTO de visão** separado para as
+> plataformas: a entidade associativa é reutilizada como visão. (`ExtraExpensesModel`
+> foi removido por ser código morto.)
 
 ---
 
@@ -217,7 +220,7 @@ de plataforma automaticamente.
 
 Para qualquer feature nova seguir o mesmo padrão:
 
-1. **`domain/`** — entidades **puras** (sem ORM), com `fromMap`/`toMap` para o SQL cru; DTOs de visão **não** são persistidos.
+1. **`domain/`** — entidades **puras** (sem ORM), com `fromMap`/`toMap` para o SQL cru. Para a **visão** de que a UI/controller precisam, **reuse as próprias entidades** (campos não persistidos, ex. `name` da plataforma) em vez de criar DTOs de visão avulsos.
 2. **`data/`** — **contrato** (`*RepositoryInterface`) + **implementação SQL cru** (`*RepositorySqliteImpl`) usando `openAppDatabase().rawQuery/insert/update/delete`.
 3. **`*_service.dart`** — regras de negócio, conhecendo **apenas a interface**.
 4. **`*_controller.dart`** — `ChangeNotifier` (estado da tela).
@@ -255,6 +258,7 @@ Para qualquer feature nova seguir o mesmo padrão:
 | 7 | **Índices `financial_history_platform`** | **Mantidos** | Tabela efetivamente usada pela feature nas consultas por `financial_history_id`/`platform_id`. |
 | 8 | **Cadeia repository → service → controller → injection** | **Mantida** | É a arquitetura padrão (feature modelo) e está funcional. A separação interface/impl segue o padrão DDD do projeto e facilita a futura troca de tecnologia. Não alterada para não quebrar o fluxo. |
 | 9 | **`lib/to_trash_bkp/` (backups `.bkp`)** | **Fora do código produtivo** | São backups/histórico, **não** importados por nenhum código de produção. Removidos de `lib/` para não poluir a árvore Dart; o histórico segue preservado (ver docs de fase). |
+| 10 | **`FinancialHistoryPlatformSummaryDTO` (DTO de visão)** | **Removido** | DTO de visão (nome+totais) que duplicava os campos de `FinancialHistoryPlatformModel` (`dailyEarnings`/`dailyTripCount`). Para uma POC era **indireção sem valor prático**. A entidade associativa passou a ser também a **visão em memória**, recebendo um campo `name` (não persistido — o nome vive na tabela `platform`). Service, controller e `FinancialHistoryPlatformModel` ajustados; o fluxo de salvar/editar/excluir/exibir plataformas permanece intacto. |
 
 **Resultado:** a camada de persistência ficou reduzida a **um único arquivo**
 (`app_database.dart`) com inicialização simples + DDL completo, sem ORM, **sem migrações

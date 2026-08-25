@@ -1,5 +1,5 @@
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
-import 'financial_history_platform_summary_dto.dart';
+import 'financial_history_platform_model.dart';
 
 class FinancialHistoryModel implements BaseModel {
   const FinancialHistoryModel({
@@ -40,7 +40,7 @@ class FinancialHistoryModel implements BaseModel {
 
   final String notes;
 
-  final List<FinancialHistoryPlatformSummaryDTO> platforms;
+  final List<FinancialHistoryPlatformModel> platforms;
 
   factory FinancialHistoryModel.blank({
     required String id,
@@ -58,14 +58,14 @@ class FinancialHistoryModel implements BaseModel {
       hasImages: false,
       isFinished: false,
       notes: '',
-      platforms: const <FinancialHistoryPlatformSummaryDTO>[],
+      platforms: const <FinancialHistoryPlatformModel>[],
     );
   }
 
   double get totalEarnings => platforms.fold(
     0,
-    (double sum, FinancialHistoryPlatformSummaryDTO platform) =>
-        sum + platform.totalValue,
+    (double sum, FinancialHistoryPlatformModel platform) =>
+        sum + platform.dailyEarnings,
   );
 
   double get profit => totalEarnings - cashSpent;
@@ -85,7 +85,7 @@ class FinancialHistoryModel implements BaseModel {
       hasImages: ((map['has_images'] as int?) ?? 0) == 1,
       isFinished: ((map['is_finished'] as int?) ?? 0) == 1,
       notes: map['notes'] as String,
-      platforms: const <FinancialHistoryPlatformSummaryDTO>[],
+      platforms: const <FinancialHistoryPlatformModel>[],
     );
   }
 
@@ -117,7 +117,7 @@ class FinancialHistoryModel implements BaseModel {
     bool? hasImages,
     bool? isFinished,
     String? notes,
-    List<FinancialHistoryPlatformSummaryDTO>? platforms,
+    List<FinancialHistoryPlatformModel>? platforms,
   }) {
     return FinancialHistoryModel(
       id: id,

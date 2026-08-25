@@ -29,9 +29,9 @@ O projeto adota **DDD Tático em camadas**, com a feature `financial_history` co
 
 ```
 feature/
-├── domain/                  → Entidades puras (models) — sem ORM; SQL cru via toMap/fromMap, ou DTOs de visão
-│   ├── <entidades>_model.dart        (persistidas via SQL cru no repositório)
-│   └── <...>_summary_model.dart      (DTO/visão de domínio, não persistido)
+├── domain/                  → Entidades puras (models) — sem ORM; SQL cru via toMap/fromMap
+│   └── <entidades>_model.dart        (persistidas via SQL cru no repositório; campos de
+│                                      visualização não persistidos, ex. name da plataforma)
 ├── data/                    → Contrato + implementação SQLite (SQL cru)
 │   ├── <feature>_repository_interface.dart
 │   └── <feature>_repository_sqlite_impl.dart
@@ -81,7 +81,7 @@ Entidades consumidas transversalmente pela feature modelo ficam no domínio de
 - `PlatformModel` → catálogo de plataformas (UBER, BOLT, PARTICULAR, …)
 
 Junto às demais entidades da feature (`FinancialHistoryModel`,
-`FinancialHistoryPlatformModel`, `FinancialHistoryPlatformSummaryDTO`).
+`FinancialHistoryPlatformModel`).
 
 ---
 
