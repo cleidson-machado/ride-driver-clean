@@ -172,6 +172,7 @@ class FinancialHistoryController extends ChangeNotifier {
     notifyListeners();
     if (_persisted) {
       await _service.addPlatformLink(
+        id: link.id,
         financialHistoryId: link.financialHistoryId,
         platformId: link.platformId,
         dailyEarnings: link.dailyEarnings,
@@ -243,6 +244,43 @@ class FinancialHistoryController extends ChangeNotifier {
         .toList();
   }
 
+  /// Garante que um report vazio receba os vínculos de plataforma base
+  /// (UBER, BOLT, PARTICULAR) zerados. Se o report já tiver qualquer vínculo
+  /// ou não existir, não duplica. Para reports já persistidos, grava imediata;
+  /// para novos (cadastro), os vínculos são persistidos no `save()`.
+  Future<void> ensureDefaultPlatforms() async {
+    if (_report.platforms.isNotEmpty) return;
+
+    final List<PlatformModel> bases = await _service.ensureBasePlatforms();
+    final List<FinancialHistoryPlatformModel> defaults = bases
+        .map(
+          (PlatformModel platform) => FinancialHistoryPlatformModel(
+            id: '${_report.id}_default_${platform.id}',
+            financialHistoryId: _report.id,
+            platformId: platform.id,
+            name: platform.name,
+            dailyEarnings: 0,
+            dailyTripCount: 0,
+          ),
+        )
+        .toList();
+
+    _report = _report.copyWith(platforms: defaults);
+    notifyListeners();
+
+    if (_persisted) {
+      for (final FinancialHistoryPlatformModel link in defaults) {
+        await _service.addPlatformLink(
+          id: link.id,
+          financialHistoryId: link.financialHistoryId,
+          platformId: link.platformId,
+          dailyEarnings: link.dailyEarnings,
+          dailyTripCount: link.dailyTripCount,
+        );
+      }
+    }
+  }
+
   // ── Persistência (ações assíncronas) ────────────────────────────────────
 
   /// Carrega um report existente pelo id — usado no modo edição.
@@ -259,6 +297,7 @@ class FinancialHistoryController extends ChangeNotifier {
       _report = loaded;
       _persisted = true;
       _lastError = null;
+      await ensureDefaultPlatforms();
       return true;
     } catch (error) {
       _lastError = 'Erro ao carregar o passeio: $error';

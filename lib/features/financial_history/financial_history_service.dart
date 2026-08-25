@@ -18,6 +18,15 @@ class FinancialHistoryService {
 
   final FinancialHistoryRepositoryInterface _storage;
 
+  /// Nomes das plataformas base criadas automaticamente para todo report
+  /// novo/vazio: UBER e BOLT (apps) + PARTICULAR (corridas avulsas e
+  /// pagamentos diretos em dinheiro, independentes de plataforma).
+  static const List<String> basePlatformNames = [
+    'UBER',
+    'BOLT',
+    'PARTICULAR',
+  ];
+
   // INICIO getById ###############################################################
   Future<FinancialHistoryModel?> getById(String id) async {
     final FinancialHistoryModel? entity = await _storage.getById(id);
@@ -85,8 +94,10 @@ class FinancialHistoryService {
     for (final FinancialHistoryPlatformModel platform in report.platforms) {
       final String platformId = await _ensurePlatform(platform.name);
       await _storage.insertPlatformLink(
+        // Reusa o id do vínculo em memória para manter a consistência entre o
+        // estado exibido e o banco após o save.
         FinancialHistoryPlatformModel(
-          id: _newId(),
+          id: platform.id,
           financialHistoryId: report.id,
           platformId: platformId,
           dailyEarnings: platform.dailyEarnings,
@@ -114,16 +125,51 @@ class FinancialHistoryService {
   /// Catálogo de plataformas disponíveis (tabela `platform`).
   Future<List<PlatformModel>> getAllPlatforms() => _storage.getAllPlatforms();
 
+  /// Garante que as plataformas base ([basePlatformNames]) existam no
+  /// catálogo, criando as ausentes (uma única vez). Retorna a lista base.
+  Future<List<PlatformModel>> ensureBasePlatforms() async {
+    final List<PlatformModel> existing = await _storage.getAllPlatforms();
+    final Set<String> existingNames = existing
+        .map((PlatformModel p) => p.name.trim().toUpperCase())
+        .toSet();
+
+    final List<PlatformModel> bases = <PlatformModel>[];
+    for (final String name in basePlatformNames) {
+      final String normalized = name.trim().toUpperCase();
+      final bool present = existingNames.contains(normalized);
+      final PlatformModel platform =
+          present
+              ? existing.firstWhere(
+                  (PlatformModel p) =>
+                      p.name.trim().toUpperCase() == normalized,
+                )
+              : PlatformModel(
+                  id: _basePlatformId(normalized),
+                  name: normalized,
+                );
+      if (!present) {
+        await _storage.insertPlatform(platform);
+      }
+      bases.add(platform);
+    }
+    return bases;
+  }
+
+  /// Id determinístico das plataformas base ("platform_uber", ...).
+  String _basePlatformId(String normalizedName) =>
+      'platform_${normalizedName.toLowerCase()}';
+
   /// Cria o vínculo de uma [platformId] existente ao report persistido.
   Future<void> addPlatformLink({
     required String financialHistoryId,
     required String platformId,
     required double dailyEarnings,
     required int dailyTripCount,
+    String? id,
   }) {
     return _storage.insertPlatformLink(
       FinancialHistoryPlatformModel(
-        id: _newId(),
+        id: id ?? _newId(),
         financialHistoryId: financialHistoryId,
         platformId: platformId,
         dailyEarnings: dailyEarnings,

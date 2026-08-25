@@ -32,6 +32,7 @@ Future<sqflite.Database> _open() async {
       },
       onCreate: (db, version) async {
         await createSchema(db);
+        await _seedBasePlatforms(db);
       },
       onUpgrade: _recreateSchema,
       onDowngrade: _recreateSchema,
@@ -47,6 +48,7 @@ Future<void> _recreateSchema(
 ) async {
   await _dropAllTables(db);
   await createSchema(db);
+  await _seedBasePlatforms(db);
 }
 
 /// Remove todas as tabelas conhecidas (ordem segura para as FKs).
@@ -54,6 +56,26 @@ Future<void> _dropAllTables(sqflite.Database db) async {
   await db.execute('DROP TABLE IF EXISTS `financial_history_platform`');
   await db.execute('DROP TABLE IF EXISTS `financial_history`');
   await db.execute('DROP TABLE IF EXISTS `platform`');
+}
+
+/// Nomes das plataformas base do catálogo, garantidas na abertura do banco.
+/// UBER e BOLT (apps) + PARTICULAR (corridas avulsas / pagamentos em dinheiro).
+const Map<String, String> basePlatformSeeds = {
+  'platform_uber': 'UBER',
+  'platform_bolt': 'BOLT',
+  'platform_particular': 'PARTICULAR',
+};
+
+/// Insere as plataformas base no catálogo (uma única vez). Usa `INSERT OR
+/// IGNORE` com IDs fixos: se a linha já existir, nada é duplicado.
+Future<void> _seedBasePlatforms(sqflite.Database db) async {
+  for (final MapEntry<String, String> entry in basePlatformSeeds.entries) {
+    await db.execute(
+      'INSERT OR IGNORE INTO `platform` (`id`, `name`, `is_active`) '
+      'VALUES (?, ?, 1)',
+      [entry.key, entry.value],
+    );
+  }
 }
 
 /// Define o schema completo do banco (única fonte de verdade do DDL).

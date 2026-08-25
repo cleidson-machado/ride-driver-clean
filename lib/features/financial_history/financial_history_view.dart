@@ -62,6 +62,9 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     // Controller resolvida via container de DI (get_it); a view não conhece
     // a infraestrutura nem a composição concreta das dependências.
     _controller = getIt<FinancialHistoryController>();
+    // Garante que um report vazio (novo cadastro) já exiba as plataformas
+    // base (UBER, BOLT, PARTICULAR) zeradas.
+    _controller.ensureDefaultPlatforms();
   }
 
   @override
