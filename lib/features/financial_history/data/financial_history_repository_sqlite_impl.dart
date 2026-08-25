@@ -101,6 +101,32 @@ class FinancialHistoryRepositorySqliteImpl
   }
 
   @override
+  Future<void> updatePlatformLink(FinancialHistoryPlatformModel model) async {
+    final sqflite.Database db = await openAppDatabase();
+    // Atualiza apenas os valores do vínculo (id fixo); as FKs não mudam.
+    await db.update(
+      'financial_history_platform',
+      {
+        'daily_earnings': model.dailyEarnings,
+        'daily_trip_count': model.dailyTripCount,
+      },
+      where: 'id = ?',
+      whereArgs: [model.id],
+      conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
+    );
+  }
+
+  @override
+  Future<void> deletePlatformLink(String id) async {
+    final sqflite.Database db = await openAppDatabase();
+    await db.delete(
+      'financial_history_platform',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
   Future<PlatformModel?> getPlatformById(String id) async {
     final sqflite.Database db = await openAppDatabase();
     final rows = await db.rawQuery(

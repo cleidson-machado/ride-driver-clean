@@ -109,6 +109,52 @@ class FinancialHistoryService {
     return created.id;
   }
 
+  // INICIO PERSISTÊNCIA DIRETA DE VÍNCULO (financial_history_platform) ########
+
+  /// Catálogo de plataformas disponíveis (tabela `platform`).
+  Future<List<PlatformModel>> getAllPlatforms() => _storage.getAllPlatforms();
+
+  /// Cria o vínculo de uma [platformId] existente ao report persistido.
+  Future<void> addPlatformLink({
+    required String financialHistoryId,
+    required String platformId,
+    required double dailyEarnings,
+    required int dailyTripCount,
+  }) {
+    return _storage.insertPlatformLink(
+      FinancialHistoryPlatformModel(
+        id: _newId(),
+        financialHistoryId: financialHistoryId,
+        platformId: platformId,
+        dailyEarnings: dailyEarnings,
+        dailyTripCount: dailyTripCount,
+      ),
+    );
+  }
+
+  /// Atualiza os valores (earnings/trip count) de um vínculo já persistido.
+  Future<void> updatePlatformLink({
+    required String id,
+    required double dailyEarnings,
+    required int dailyTripCount,
+  }) {
+    return _storage.updatePlatformLink(
+      FinancialHistoryPlatformModel(
+        id: id,
+        financialHistoryId: '',
+        platformId: '',
+        dailyEarnings: dailyEarnings,
+        dailyTripCount: dailyTripCount,
+      ),
+    );
+  }
+
+  /// Remove o vínculo persistido.
+  Future<void> deletePlatformLink(String id) {
+    return _storage.deletePlatformLink(id);
+  }
+  // FIM PERSISTÊNCIA DIRETA DE VÍNCULO ########################################
+
   /// Gera o próximo SKU legível ("PASSEIO 001", "PASSEIO 002", ...).
   Future<String> _nextSku() async {
     final int count = (await _storage.getAll()).length;

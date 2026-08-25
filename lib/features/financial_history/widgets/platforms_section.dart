@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/helper/ride_formatters.dart';
+import '../domain/financial_history_platform_model.dart';
+
 // ─── Secção plataformas ├──────────────────────────────────────────────────────
 // Bloco que lista as plataformas usadas no dia em um carrossel paginado. Cada
 // página exibe 2 cartões (plataforma OU slot de "adicionar", quando sobra
-// posição) e um indicador de dots para navegar entre as páginas.
+// posição) e um indicador de dots para navegar entre as páginas. Os dados vêm
+// do report ativo (in-memory, via controller) — não há mock aqui.
 class PlatformsSectionWidget extends StatefulWidget {
-  const PlatformsSectionWidget({super.key, required this.onAddPlatform});
+  const PlatformsSectionWidget({
+    super.key,
+    required this.platforms,
+    required this.onEditPlatform,
+    required this.onAddPlatform,
+  });
 
+  /// Vínculos de plataforma do report ativo.
+  final List<FinancialHistoryPlatformModel> platforms;
+
+  /// Abre o fluxo de edição/remoção de uma plataforma existente.
+  final ValueChanged<FinancialHistoryPlatformModel> onEditPlatform;
+
+  /// Abre o fluxo de adicionar uma nova plataforma.
   final VoidCallback onAddPlatform;
 
   @override
@@ -15,19 +31,15 @@ class PlatformsSectionWidget extends StatefulWidget {
 
 // ─── Secção plataformas base — estado ─────────────────────────────────────────
 class _PlatformsSectionWidgetState extends State<PlatformsSectionWidget> {
-  // Dados mock — uma plataforma por página do carrossel (máx. 3).
-  static const List<({String name, String totalValue, String totalRides})>
-  _platforms = [
-    (name: 'UBER', totalValue: '€ 55,89', totalRides: '06'),
-    (name: 'BOLT', totalValue: '€ 10,09', totalRides: '06'),
-    (name: 'FREENOW', totalValue: '€ 0,00', totalRides: '00'),
-  ];
-
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // 2 plataformas por página do carrossel.
-  int get _pageCount => (_platforms.length + 1) ~/ 2;
+  /// Nº total de slots ocupados: cada plataforma + 1 slot do card "ADD".
+  /// O card ADD ocupa o próximo slot livre e, se necessário, abre nova página.
+  int get _totalSlots => widget.platforms.length + 1;
+
+  // 2 slots por página do carrossel (mín. 1 página com o card ADD).
+  int get _pageCount => (_totalSlots + 1) ~/ 2;
 
   @override
   void dispose() {
@@ -35,15 +47,19 @@ class _PlatformsSectionWidgetState extends State<PlatformsSectionWidget> {
     super.dispose();
   }
 
-  Widget _buildCardSlot(int platformIndex) {
-    if (platformIndex >= _platforms.length) {
+  Widget _buildCardSlot(int slotIndex) {
+    // Slot fora do total ocupado: preenche com vazio (evita cartões extras).
+    if (slotIndex >= _totalSlots) {
+      return const SizedBox.shrink();
+    }
+    // Slot reservado ao card "ADD - PLATAFORMA" (sempre o último).
+    if (slotIndex >= widget.platforms.length) {
       return AddPlatformCardWidget(onTap: widget.onAddPlatform);
     }
-    final platform = _platforms[platformIndex];
+    final FinancialHistoryPlatformModel platform = widget.platforms[slotIndex];
     return PlatformCardWidget(
-      name: platform.name,
-      totalValue: platform.totalValue,
-      totalRides: platform.totalRides,
+      platform: platform,
+      onTap: () => widget.onEditPlatform(platform),
     );
   }
 
@@ -224,84 +240,101 @@ class _PageDotsIndicatorWidget extends StatelessWidget {
 
 // ─── Cartão de plataforma ─────────────────────────────────────────────────────
 // Apresenta o nome da plataforma, o valor total do dia e o total de corridas,
-// cada um dentro de um mini-container com borda arredondada.
+// cada um dentro de um mini-container com borda arredondada. Ao tocar, dispara
+// o callback de edição/remoção fornecido pela view.
 class PlatformCardWidget extends StatelessWidget {
   const PlatformCardWidget({
     super.key,
-    required this.name,
-    required this.totalValue,
-    required this.totalRides,
+    required this.platform,
+    required this.onTap,
   });
 
-  final String name;
-  final String totalValue;
-  final String totalRides;
+  final FinancialHistoryPlatformModel platform;
+  final VoidCallback onTap;
+
+  String get _formattedEarnings =>
+      RideFormatters.formatCurrency(platform.dailyEarnings);
+
+  String get _formattedTrips =>
+      platform.dailyTripCount.toString().padLeft(2, '0');
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
+    return Material(
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colorScheme.outlineVariant),
-        color: colorScheme.surface,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Nome da plataforma
-          Center(
-            child: Text(
-              name,
-              style: textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w900,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colorScheme.outlineVariant),
+            color: colorScheme.surface,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Nome da plataforma
+              Center(
+                child: Text(
+                  platform.name.toUpperCase(),
+                  style: textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                'Valor total dia:',
+                textAlign: TextAlign.center,
+                style: textTheme.labelSmall,
+              ),
+              const SizedBox(height: 4),
+              // valor do dia
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  border: Border.all(color: colorScheme.outlineVariant),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _formattedEarnings,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Corridas total dia:',
+                textAlign: TextAlign.center,
+                style: textTheme.labelSmall,
+              ),
+              const SizedBox(height: 4),
+              // total de corridas
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  border: Border.all(color: colorScheme.outlineVariant),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _formattedTrips,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Valor total dia:',
-            textAlign: TextAlign.center,
-            style: textTheme.labelSmall,
-          ),
-          const SizedBox(height: 4),
-          // placeholder valor
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            decoration: BoxDecoration(
-              border: Border.all(color: colorScheme.outlineVariant),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              totalValue,
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Corridas total dia:',
-            textAlign: TextAlign.center,
-            style: textTheme.labelSmall,
-          ),
-          const SizedBox(height: 4),
-          // placeholder corridas
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            decoration: BoxDecoration(
-              border: Border.all(color: colorScheme.outlineVariant),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              totalRides,
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

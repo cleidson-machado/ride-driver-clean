@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/di/service_locator.dart';
 import '../../app/helper/ride_formatters.dart';
 import 'financial_history_controller.dart';
+import 'domain/financial_history_platform_model.dart';
+import 'domain/platform_model.dart';
 import 'widgets/action_buttons.dart';
 import 'widgets/form_fields.dart';
 import 'widgets/notes_field.dart';
@@ -185,6 +187,57 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     if (confirmed == true && mounted) _showSnack('Report excluído (mock).');
   }
 
+  // ─── Fluxo de plataformas ────────────────────────────────────────────────
+
+  /// Abre o seletor de plataformas do catálogo e cria o vínculo no report.
+  Future<void> _handleAddPlatform() async {
+    final List<PlatformModel> available = await _controller
+        .getAvailablePlatforms();
+    if (!mounted) return;
+    if (available.isEmpty) {
+      _showSnack('Nenhuma plataforma disponível no catálogo.');
+      return;
+    }
+    final result = await showPlatformPickerDialog(context, available);
+    if (!mounted) return;
+    if (result == null) return;
+    await _controller.addPlatform(
+      platformId: result.platform.id,
+      name: result.platform.name,
+      dailyEarnings: result.dailyEarnings,
+      dailyTripCount: result.dailyTripCount,
+    );
+    if (mounted) {
+      _showSnack('Plataforma ${result.platform.name} adicionada.');
+    }
+  }
+
+  /// Abre o diálogo de edição/remoção de uma plataforma existente.
+  Future<void> _handleEditPlatform(
+    FinancialHistoryPlatformModel platform,
+  ) async {
+    final PlatformEditResult? result = await showPlatformEditDialog(
+      context,
+      platform,
+    );
+    if (result == null || !mounted) return;
+
+    if (result.remove) {
+      await _controller.removePlatform(platform.id);
+      if (mounted) _showSnack('Plataforma ${platform.name} removida.');
+      return;
+    }
+
+    await _controller.updatePlatform(
+      platform.id,
+      dailyEarnings: result.dailyEarnings,
+      dailyTripCount: result.dailyTripCount,
+    );
+    if (mounted) {
+      _showSnack('Plataforma ${platform.name} atualizada.');
+    }
+  }
+
   // ─── Colunas da grelha superior ──────────────────────────────────────────
   // Montam as colunas esquerda e direita dos próximos campos extraídos
   // (FieldSlotWidget/DateFieldWidget/StepperFieldWidget/BinaryFieldWidget). Como leem estado local e
@@ -301,9 +354,15 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                     ),
                     const SizedBox(height: 26),
 
-                    PlatformsSectionWidget( // ########################################################## 3. Secção plataformas base
-                      onAddPlatform: () =>
-                          _showSnack('Adicionar plataforma — em breve (mock).'),
+                    ListenableBuilder(
+                      listenable: _controller,
+                      builder: (BuildContext context, Widget? child) {
+                        return PlatformsSectionWidget(
+                          platforms: _controller.report.platforms,
+                          onEditPlatform: _handleEditPlatform,
+                          onAddPlatform: _handleAddPlatform,
+                        );
+                      },
                     ),
                     const SizedBox(height: 26),
 
@@ -314,8 +373,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                           setState(() => _hasImages = value),
                       onIsFinishedChanged: (bool value) =>
                           setState(() => _isFinished = value),
-                      onAddPlatform: () =>
-                          _showSnack('Adicionar plataforma — em breve (mock).'),
+                      onAddPlatform: _handleAddPlatform,
                     ),
                     const SizedBox(height: 26),
 

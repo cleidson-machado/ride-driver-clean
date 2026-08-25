@@ -22,6 +22,9 @@ abstract class FinancialHistoryRepositoryInterface {
 
   Future<void> insertPlatformLink(FinancialHistoryPlatformModel model);
 
+  Future<void> updatePlatformLink(FinancialHistoryPlatformModel model);
+  Future<void> deletePlatformLink(String id);
+
   Future<PlatformModel?> getPlatformById(String id);
 
   Future<List<PlatformModel>> getAllPlatforms();

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'domain/financial_history_model.dart';
 import 'domain/financial_history_platform_model.dart';
+import 'domain/platform_model.dart';
 import 'financial_history_service.dart';
 
 export 'financial_history_service.dart' show FinancialHistoryValidationException;
@@ -33,6 +34,10 @@ class FinancialHistoryController extends ChangeNotifier {
   /// montada num ponto de composição dedicado — nunca nesta camada.
   final FinancialHistoryService _service;
   FinancialHistoryModel _report;
+
+  /// Indica se o report já existe no banco (false em cadastro). Plataformas de
+  /// um report não persistido só serão gravadas no `save()` (FK exige o pai).
+  bool _persisted = false;
 
   // ── Estado exposto à view ────────────────────────────────────────────────
 
@@ -144,56 +149,98 @@ class FinancialHistoryController extends ChangeNotifier {
 
   // ── Plataformas ──────────────────────────────────────────────────────────
 
-  /// Adiciona uma plataforma com os valores informados, usando
-  /// [FinancialHistoryPlatformModel] como visão em memória do dia (o id do
-  /// vínculo e o `platformId` são resolvidos no momento do save pela service).
-  void addPlatform({
+  /// Adiciona um vínculo de plataforma ao report, com persistência imediata
+  /// quando o report já está no banco (senão, a gravação é inserida no `save()`).
+  Future<void> addPlatform({
+    required String platformId,
     required String name,
-    required double totalValue,
-    required int totalRides,
-  }) {
-    final List<FinancialHistoryPlatformModel> updated =
-        List<FinancialHistoryPlatformModel>.of(_report.platforms)
-          ..add(
-            FinancialHistoryPlatformModel(
-              id: _newId(),
-              financialHistoryId: _report.id,
-              platformId: '',
-              name: name,
-              dailyEarnings: totalValue < 0 ? 0 : totalValue,
-              dailyTripCount: totalRides < 0 ? 0 : totalRides,
-            ),
-          );
-    _report = _report.copyWith(platforms: updated);
+    required double dailyEarnings,
+    required int dailyTripCount,
+  }) async {
+    final FinancialHistoryPlatformModel link =
+        FinancialHistoryPlatformModel(
+          id: _newId(),
+          financialHistoryId: _report.id,
+          platformId: platformId,
+          name: name,
+          dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
+          dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
+        );
+    _report = _report.copyWith(
+      platforms: <FinancialHistoryPlatformModel>[..._report.platforms, link],
+    );
     notifyListeners();
+    if (_persisted) {
+      await _service.addPlatformLink(
+        financialHistoryId: link.financialHistoryId,
+        platformId: link.platformId,
+        dailyEarnings: link.dailyEarnings,
+        dailyTripCount: link.dailyTripCount,
+      );
+    }
   }
 
-  /// Atualiza a plataforma no índice [index] com novos valores.
-  void updatePlatform(
-    int index, {
-    String? name,
-    double? totalValue,
-    int? totalRides,
-  }) {
+  /// Atualiza valores de um vínculo (identificado pelo [linkId]) e persiste
+  /// imediatamente quando o report já está no banco.
+  Future<void> updatePlatform(
+    String linkId, {
+    required double dailyEarnings,
+    required int dailyTripCount,
+  }) async {
+    final int index = _report.platforms.indexWhere(
+      (FinancialHistoryPlatformModel p) => p.id == linkId,
+    );
+    if (index < 0) return;
+
     final List<FinancialHistoryPlatformModel> updated =
         List<FinancialHistoryPlatformModel>.of(_report.platforms);
     updated[index] = updated[index].copyWith(
-      name: name,
-      dailyEarnings: totalValue,
-      dailyTripCount: totalRides,
+      dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
+      dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
     );
     _report = _report.copyWith(platforms: updated);
     notifyListeners();
+
+    if (_persisted) {
+      await _service.updatePlatformLink(
+        id: linkId,
+        dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
+        dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
+      );
+    }
   }
 
-  /// Remove a plataforma no índice [index], se existir.
-  void removePlatform(int index) {
-    if (index < 0 || index >= _report.platforms.length) return;
+  /// Remove o vínculo de plataforma [linkId] e persiste a exclusão quando o
+  /// report já está no banco.
+  Future<void> removePlatform(String linkId) async {
+    final int index = _report.platforms.indexWhere(
+      (FinancialHistoryPlatformModel p) => p.id == linkId,
+    );
+    if (index < 0) return;
+
     final List<FinancialHistoryPlatformModel> updated =
         List<FinancialHistoryPlatformModel>.of(_report.platforms)
           ..removeAt(index);
     _report = _report.copyWith(platforms: updated);
     notifyListeners();
+
+    if (_persisted) {
+      await _service.deletePlatformLink(linkId);
+    }
+  }
+
+  /// Plataformas do catálogo (`platform`) ainda não vinculadas ao report atual.
+  Future<List<PlatformModel>> getAvailablePlatforms() async {
+    final List<PlatformModel> all = await _service.getAllPlatforms();
+    final Set<String> linked = _report.platforms
+        .map((FinancialHistoryPlatformModel p) => p.platformId)
+        .toSet();
+    return all
+        .where(
+          (PlatformModel platform) =>
+              platform.isActive && !linked.contains(platform.id),
+        )
+        .toList();
   }
 
   // ── Persistência (ações assíncronas) ────────────────────────────────────
@@ -210,6 +257,7 @@ class FinancialHistoryController extends ChangeNotifier {
         return false;
       }
       _report = loaded;
+      _persisted = true;
       _lastError = null;
       return true;
     } catch (error) {
@@ -232,6 +280,7 @@ class FinancialHistoryController extends ChangeNotifier {
     );
     try {
       _report = await _service.save(_report);
+      _persisted = true;
       _lastError = null;
       debugPrint('[SAVE][controller] concluído → sku=${_report.sku}');
     } catch (error) {
@@ -249,6 +298,7 @@ class FinancialHistoryController extends ChangeNotifier {
     _setBusy(true);
     try {
       await _service.delete(_report.id);
+      _persisted = false;
       _lastError = null;
     } catch (error) {
       _lastError = 'Erro ao excluir o passeio: $error';
