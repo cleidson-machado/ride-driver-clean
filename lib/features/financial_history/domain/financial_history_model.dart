@@ -52,14 +52,6 @@ class FinancialHistoryModel implements BaseModel {
     );
   }
 
-  double get totalEarnings => platforms.fold(
-    0,
-    (double sum, FinancialHistoryPlatformModel platform) =>
-        sum + platform.dailyEarnings,
-  );
-
-  double get profit => totalEarnings - cashSpent;
-
   factory FinancialHistoryModel.fromMap(Map<String, dynamic> map) {
     final int kmEnd = map['km_end'] as int;
     final int kmOdometer = map['km_odometer'] as int;
@@ -79,22 +71,13 @@ class FinancialHistoryModel implements BaseModel {
     );
   }
 
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'work_date': date.millisecondsSinceEpoch,
-      'trip_number': sku,
-      'fuel_cost': cashSpent,
-      'km_start': kmIn,
-      'km_end': kmOut ?? 0,
-      'km_odometer': hodo2Number ?? 0,
-      'notes': notes,
-      'hodo2_is_zero': hodo2IsZero ? 1 : 0,
-      'has_images': hasImages ? 1 : 0,
-      'is_finished': isFinished ? 1 : 0,
-    };
-  }
+  double get totalEarnings => platforms.fold(
+    0,
+    (double sum, FinancialHistoryPlatformModel platform) =>
+        sum + platform.dailyEarnings,
+  );
+
+  double get profit => totalEarnings - cashSpent;
 
   FinancialHistoryModel copyWith({
     String? sku,
@@ -124,5 +107,30 @@ class FinancialHistoryModel implements BaseModel {
       platforms: platforms ?? this.platforms,
     );
   }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'work_date': date.millisecondsSinceEpoch,
+      'trip_number': sku,
+      'fuel_cost': cashSpent,
+      'km_start': kmIn,
+      'km_end': kmOut ?? 0,
+      'km_odometer': hodo2Number ?? 0,
+      'notes': notes,
+      'hodo2_is_zero': hodo2IsZero ? 1 : 0,
+      'has_images': hasImages ? 1 : 0,
+      'is_finished': isFinished ? 1 : 0,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || other is FinancialHistoryModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 

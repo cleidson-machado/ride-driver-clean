@@ -21,6 +21,18 @@ class PlatformModel implements BaseModel {
     );
   }
 
+  PlatformModel copyWith({
+    String? id,
+    String? name,
+    bool? isActive,
+  }) {
+    return PlatformModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+    );
+  }
+
   @override
   Map<String, dynamic> toMap() {
     return {
@@ -30,5 +42,13 @@ class PlatformModel implements BaseModel {
       // SQLite não tem BOOLEAN nativo: persiste como INTEGER 0/1.
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || other is PlatformModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 

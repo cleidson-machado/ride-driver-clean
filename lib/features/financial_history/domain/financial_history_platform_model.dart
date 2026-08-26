@@ -29,18 +29,6 @@ class FinancialHistoryPlatformModel implements BaseModel {
     );
   }
 
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'financial_history_id': financialHistoryId,
-      'platform_id': platformId,
-      'daily_earnings': dailyEarnings,
-      'daily_trip_count': dailyTripCount,
-      // 'name' não é persistido: o nome fica na tabela `platform`.
-    };
-  }
-
   FinancialHistoryPlatformModel copyWith({
     String? financialHistoryId,
     String? platformId,
@@ -57,5 +45,26 @@ class FinancialHistoryPlatformModel implements BaseModel {
       name: name ?? this.name,
     );
   }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'financial_history_id': financialHistoryId,
+      'platform_id': platformId,
+      'daily_earnings': dailyEarnings,
+      'daily_trip_count': dailyTripCount,
+      // 'name' não é persistido: o nome fica na tabela `platform`.
+    };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is FinancialHistoryPlatformModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
