@@ -615,7 +615,7 @@ class _RecentRideDataTableCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           // Esquerda: ícone + número curto do passeio, data abaixo.
           Expanded(
@@ -647,23 +647,23 @@ class _RecentRideDataTableCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  RideFormatters.formatDateLabel(item.date),
+                  RideFormatters.formatDateShort(item.date),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          VerticalDivider(width: 12, thickness: 1, color: colorScheme.outlineVariant),
-          // Centro: valor em euros e KM IN/OUT.
+          // Centro: valor em euros e KM IN/OUT, centralizados no bloco.
           Expanded(
             flex: 4,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Text(
                   RideFormatters.formatCurrency(item.cashSpent),
@@ -694,7 +694,6 @@ class _RecentRideDataTableCard extends StatelessWidget {
               ],
             ),
           ),
-          VerticalDivider(width: 12, thickness: 1, color: colorScheme.outlineVariant),
           // Direita: "Trip Stats" + HOD, alinhados à direita.
           Expanded(
             flex: 3,
