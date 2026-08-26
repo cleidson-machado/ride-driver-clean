@@ -169,6 +169,20 @@ class FinancialHistoryRepositorySqliteImpl
     );
   }
 
+  @override
+  Future<void> deactivatePlatform(String id) async {
+    final sqflite.Database db = await openAppDatabase();
+    // Soft delete: apenas marca como inativa. O registro permanece para
+    // preservar os vínculos (FK) de reports antigos que o referenciam.
+    await db.update(
+      'platform',
+      {'is_active': 0},
+      where: 'id = ?',
+      whereArgs: [id],
+      conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
+    );
+  }
+
   // FIM PERSISTÊNCIA DIRETA #################################################################
 }
 

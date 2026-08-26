@@ -99,23 +99,31 @@ InputDecoration _platformNameDecoration() => const InputDecoration(
   counterText: '',
 );
 
+// ─── Escopo de remoção de plataforma ─────────────────────────────────────────
+// Deixa explícito ao usuário a intenção da ação de remoção:
+//  - `fromReport`: apenas desvincula do report atual (catálogo permanece ativo);
+//  - `fromCatalog`: desvincula e inativa a plataforma no catálogo (não será
+//    oferecida em novos reports).
+enum PlatformRemovalScope { none, fromReport, fromCatalog }
+
 // ─── Resultado do diálogo de edição de plataforma ────────────────────────────
 // [FinancialHistoryPlatformModel] carregado no momento da abertura. A função
-// retorna um [PlatformEditResult]: `remove: true` indica exclusão do vínculo;
-// caso contrário traz o novo `name` e os novos
-// `dailyEarnings`/`dailyTripCount`. `null` = cancelar.
+// retorna um [PlatformEditResult]. Quando o usuário remove, o [scope] indica o
+// alcance da remoção ([PlatformRemovalScope.fromReport] ou ...fromCatalog);
+// caso contrário (salvar) o `scope` é `none` e traz os novos
+// `name`/`dailyEarnings`/`dailyTripCount`. `null` = cancelar.
 class PlatformEditResult {
   const PlatformEditResult({
     required this.name,
     required this.dailyEarnings,
     required this.dailyTripCount,
-    this.remove = false,
+    this.scope = PlatformRemovalScope.none,
   });
 
   final String name;
   final double dailyEarnings;
   final int dailyTripCount;
-  final bool remove;
+  final PlatformRemovalScope scope;
 }
 
 /// Abre o diálogo para editar uma plataforma existente: permite renomear a
@@ -184,15 +192,27 @@ Future<PlatformEditResult?> showPlatformEditDialog(
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(dialogContext).colorScheme.error,
               ),
-              // Remove o vínculo — sinalizado via `remove: true`.
-              onPressed: () => Navigator.of(dialogContext).pop(
-                PlatformEditResult(
-                  name: platform.name,
-                  dailyEarnings: platform.dailyEarnings,
-                  dailyTripCount: platform.dailyTripCount,
-                  remove: true,
-                ),
-              ),
+              // Abre o sub-diálogo de confirmação de remoção com escopo claro.
+              onPressed: () async {
+                final PlatformRemovalScope? scope =
+                    await showPlatformRemovalDialog(
+                      dialogContext,
+                      platform.name,
+                    );
+                if (scope == null || scope == PlatformRemovalScope.none) {
+                  return; // cancelou: mantém o diálogo de edição aberto.
+                }
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop(
+                    PlatformEditResult(
+                      name: platform.name,
+                      dailyEarnings: platform.dailyEarnings,
+                      dailyTripCount: platform.dailyTripCount,
+                      scope: scope,
+                    ),
+                  );
+                }
+              },
               child: const Text('REMOVER'),
             ),
             TextButton(
@@ -226,6 +246,78 @@ Future<PlatformEditResult?> showPlatformEditDialog(
           ],
         );
       },
+    ),
+  );
+}
+
+/// Abre o sub-diálogo de confirmação de remoção de plataforma, com escopo
+/// explícito e efeito de cada opção bem definido:
+///
+///  - "Remover deste report": remove apenas o vínculo do report atual;
+///  - "Excluir do catálogo": remove do report **e** inativa a plataforma no
+///    catálogo (ação destrutiva, destacada com as cores de erro do tema).
+///
+/// Retorna o [PlatformRemovalScope] escolhido, ou `null`/`none` se o usuário
+/// cancelar. O carrossel volta a oferecer a plataforma apenas se ela
+/// permanecer ativa no catálogo.
+Future<PlatformRemovalScope?> showPlatformRemovalDialog(
+  BuildContext context,
+  String platformName,
+) {
+  return showDialog<PlatformRemovalScope>(
+    context: context,
+    builder: (BuildContext dialogContext) => AlertDialog(
+      title: Text('Remover ${platformName.toUpperCase()}?'),
+      content: const Text(
+        'Escolha como deseja remover esta plataforma:',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('CANCELAR'),
+        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FilledButton.tonal(
+              // Remoção não destrutiva: somente o vínculo do report atual.
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(PlatformRemovalScope.fromReport),
+              child: const Text(
+                'Remover deste report',
+                // Explica que a plataforma continua no catálogo.
+                semanticsLabel:
+                    'Remover apenas deste report, mantendo no catálogo',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Permanece no catálogo — volta a aparecer em novos reports.',
+              style: Theme.of(dialogContext).textTheme.labelSmall,
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              // Ação destrutiva: inativa a plataforma no catálogo.
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+              ),
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(PlatformRemovalScope.fromCatalog),
+              child: const Text('Excluir do catálogo'),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Deixa de ser oferecida em novos reports (reports antigos '
+              'permanecem intactos).',
+              style: Theme.of(dialogContext).textTheme.labelSmall,
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }

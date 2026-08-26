@@ -247,14 +247,23 @@ class FinancialHistoryController extends ChangeNotifier {
     return UpdatePlatformOutcome.success;
   }
 
-  /// Remove o vínculo de plataforma [linkId] e persiste a exclusão quando o
-  /// report já está no banco.
-  Future<void> removePlatform(String linkId) async {
+  /// Remove a plataforma do report, com escopo explícito de remoção:
+  ///
+  ///  - `fromCatalog == false`: apenas desvincula do report atual (mantém a
+  ///    plataforma ativa no catálogo, reaparecendo em novos reports);
+  ///  - `fromCatalog == true`: desvincula do report **e** faz soft delete no
+  ///    catálogo (`is_active = 0`), deixando de ser oferecida em novos reports.
+  ///    Reports antigos que a referenciam permanecem intactos (FK preservada).
+  Future<RemovePlatformOutcome> removePlatform(
+    String linkId, {
+    required bool fromCatalog,
+  }) async {
     final int index = _report.platforms.indexWhere(
       (FinancialHistoryPlatformModel p) => p.id == linkId,
     );
-    if (index < 0) return;
+    if (index < 0) return RemovePlatformOutcome.notFound;
 
+    final FinancialHistoryPlatformModel link = _report.platforms[index];
     final List<FinancialHistoryPlatformModel> updated =
         List<FinancialHistoryPlatformModel>.of(_report.platforms)
           ..removeAt(index);
@@ -264,6 +273,12 @@ class FinancialHistoryController extends ChangeNotifier {
     if (_persisted) {
       await _service.deletePlatformLink(linkId);
     }
+
+    if (fromCatalog) {
+      await _service.deactivatePlatform(link.platformId);
+      return RemovePlatformOutcome.removedFromReportAndCatalog;
+    }
+    return RemovePlatformOutcome.removedFromReport;
   }
 
   /// Plataformas do catálogo (`platform`) ainda não vinculadas ao report atual.
@@ -431,4 +446,16 @@ enum UpdatePlatformOutcome {
 
   /// A mesma plataforma (nome case-insensitive) já está vinculada ao report.
   duplicate,
+}
+
+/// Resultado de [FinancialHistoryController.removePlatform].
+enum RemovePlatformOutcome {
+  /// Apenas o vínculo foi removido do report (catálogo permanece ativo).
+  removedFromReport,
+
+  /// O vínculo foi removido e a plataforma foi inativada no catálogo.
+  removedFromReportAndCatalog,
+
+  /// Vínculo não encontrado no report.
+  notFound,
 }

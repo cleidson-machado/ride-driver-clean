@@ -208,6 +208,12 @@ class FinancialHistoryService {
   Future<void> deletePlatformLink(String id) {
     return _storage.deletePlatformLink(id);
   }
+
+  /// Soft delete do catálogo: inativa a plataforma ([id]) para novos reports.
+  /// Reports antigos que a referenciam permanecem intactos (FK preservada).
+  Future<void> deactivatePlatform(String id) {
+    return _storage.deactivatePlatform(id);
+  }
   // FIM PERSISTÊNCIA DIRETA DE VÍNCULO ########################################
 
   /// Gera o próximo SKU legível ("PASSEIO 001", "PASSEIO 002", ...).

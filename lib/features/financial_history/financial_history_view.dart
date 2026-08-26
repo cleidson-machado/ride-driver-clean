@@ -243,9 +243,22 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     );
     if (result == null || !mounted) return;
 
-    if (result.remove) {
-      await _controller.removePlatform(platform.id);
-      if (mounted) _showSnack('Plataforma ${platform.name} removida.');
+    if (result.scope != PlatformRemovalScope.none) {
+      // Remoção com escopo explícito: apenas do report ou também do catálogo.
+      final RemovePlatformOutcome outcome = await _controller.removePlatform(
+        platform.id,
+        fromCatalog: result.scope == PlatformRemovalScope.fromCatalog,
+      );
+      if (!mounted) return;
+      final String message = switch (outcome) {
+        RemovePlatformOutcome.removedFromReport =>
+          'Plataforma ${platform.name} removida deste report.',
+        RemovePlatformOutcome.removedFromReportAndCatalog =>
+          'Plataforma ${platform.name} removida deste report e '
+              'excluída do catálogo.',
+        RemovePlatformOutcome.notFound => 'Plataforma não encontrada.',
+      };
+      _showSnack(message);
       return;
     }
 

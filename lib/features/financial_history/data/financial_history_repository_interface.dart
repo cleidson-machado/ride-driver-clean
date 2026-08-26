@@ -35,5 +35,13 @@ abstract class FinancialHistoryRepositoryInterface {
 
   /// Renomeia uma plataforma existente do catálogo (tabela `platform`).
   Future<void> updatePlatformName(String id, String name);
+
+  /// Soft delete do catálogo: marca a plataforma como inativa (`is_active = 0`).
+  ///
+  /// Escolha deliberada em vez de `DELETE` físico: preserva a integridade dos
+  /// reports antigos que referenciam a plataforma (FK não é apagada) e apenas
+  /// a deixa de oferecer em novos reports (os filtros de catálogo já leem
+  /// `is_active`).
+  Future<void> deactivatePlatform(String id);
 }
 
