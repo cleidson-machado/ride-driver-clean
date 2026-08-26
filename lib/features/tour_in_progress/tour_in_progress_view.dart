@@ -648,20 +648,56 @@ class _RecentRideDataTableCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  RideFormatters.formatDateShort(item.date),
+                  RideFormatters.formatDateLabel(item.date),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          // Centro: valor em euros e KM IN/OUT, centralizados no bloco.
+          // Centro: valor em euros e KM IN/OUT.
           Expanded(
             flex: 4,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  RideFormatters.formatCurrency(item.cashSpent),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'KM IN: ${RideFormatters.formatKm(item.kmIn)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  'OUT: ${RideFormatters.formatKm(item.kmOut)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Direita: "Trip Stats" + HOD, alinhados à direita.
+          Expanded(
+            flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
