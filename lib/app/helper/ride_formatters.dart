@@ -45,6 +45,15 @@ abstract final class RideFormatters {
     return '${date.day} ${_monthNames[date.month - 1]} ${date.year}';
   }
 
+  /// Rótulo de data do dispositivo no formato `"26 de AGOSTO - 2026"`, com o
+  /// mês em caixa alta.
+  ///
+  /// Ex.: `DateTime(2026, DateTime.august, 26)` → `"26 de AGOSTO - 2026"`.
+  static String formatCurrentDateLabel(DateTime date) {
+    final String month = _monthNames[date.month - 1].toUpperCase();
+    return '${date.day} de $month - ${date.year}';
+  }
+
   /// Retorna a data no formato compacto `DD/MM/AA`, usado nos cards de
   /// histórico. Ex.: `16/07/26`.
   static String formatDateShort(DateTime date) {
@@ -61,6 +70,19 @@ abstract final class RideFormatters {
   static String shortSku(String sku) {
     final Match? match = RegExp(r'\d+').firstMatch(sku);
     return match?.group(0) ?? sku;
+  }
+
+  /// Formata uma duração como cronômetro de contagem `HH:MM:SS`.
+  ///
+  /// Ex.: `Duration(hours: 3, minutes: 5, seconds: 9)` → `"03:05:09"`.
+  /// Valores negativos (relógio fora de sincronia) são tratados como `00:00:00`.
+  static String formatDuration(Duration duration) {
+    final int totalSeconds = duration.inSeconds < 0 ? 0 : duration.inSeconds;
+    final int hours = totalSeconds ~/ 3600;
+    final int minutes = (totalSeconds % 3600) ~/ 60;
+    final int seconds = totalSeconds % 60;
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${two(hours)}:${two(minutes)}:${two(seconds)}';
   }
 }
 

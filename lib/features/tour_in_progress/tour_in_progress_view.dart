@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../app/di/service_locator.dart';
@@ -160,7 +162,7 @@ class _TourInProgressViewState extends State<TourInProgressView> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(context, active),
+                _buildHeader(context),
                 Divider(color: colorScheme.outline, height: 1),
                 Expanded(
                   child: Padding(
@@ -193,16 +195,12 @@ class _TourInProgressViewState extends State<TourInProgressView> {
     );
   }
 
-  Widget _buildHeader(
-    BuildContext context,
-    TourInProgressModel? active,
-  ) {
+  Widget _buildHeader(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final String dateLabel = active != null
-        ? RideFormatters.formatDateLabel(active.date)
-        : 'PASSEIO EM CURSO';
 
+    // Cabeçalho estático: o cronômetro do passeio em curso é exibido no topo
+    // do card (veja [_CurrentRideCard]), não aqui.
     return SizedBox(
       height: 48,
       child: Stack(
@@ -219,7 +217,8 @@ class _TourInProgressViewState extends State<TourInProgressView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              dateLabel,
+              // Data atual do dispositivo, ex.: "26 de AGOSTO - 2026".
+              RideFormatters.formatCurrentDateLabel(DateTime.now()),
               textAlign: TextAlign.center,
               style: textTheme.titleSmall?.copyWith(
                 fontStyle: FontStyle.italic,
@@ -230,6 +229,58 @@ class _TourInProgressViewState extends State<TourInProgressView> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Cronômetro estético do tempo em que o passeio está "em curso" (HH:MM:SS).
+///
+/// Conta o tempo decorrido desde [start] (a data de criação do report em
+/// curso, persistida no banco). Mantém um `Timer.periodic` próprio e só existe
+/// enquanto há um passeio em curso — o pai deixa de construí-lo assim que
+/// `activeReport` fica nulo (então o timer para/desaparece).
+///
+/// Como o ponto de partida está persistido ([start]), o tempo **continua
+/// correto** ao sair e reentrar na tela: cada nova montagem recalcula o
+/// decorrido a partir do mesmo instante de origem — nenhum estado é perdido.
+class _ElapsedTimerText extends StatefulWidget {
+  const _ElapsedTimerText({required this.start});
+
+  final DateTime start;
+
+  @override
+  State<_ElapsedTimerText> createState() => _ElapsedTimerTextState();
+}
+
+class _ElapsedTimerTextState extends State<_ElapsedTimerText> {
+  Timer? _ticker;
+  late Duration _elapsed = _compute();
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() => _elapsed = _compute());
+    });
+  }
+
+  Duration _compute() {
+    final Duration diff = DateTime.now().difference(widget.start);
+    // Durações negativas (relógio levemente adiantado) são tratadas como 0.
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      RideFormatters.formatDuration(_elapsed),
+      textAlign: TextAlign.center,
     );
   }
 }
@@ -254,7 +305,8 @@ class _CurrentRideZone extends StatelessWidget {
     }
     return _CurrentRideCard(
       rideSku: report!.sku,
-      dateLabel: RideFormatters.formatDateLabel(report!.date),
+      // Data de criação do report: âncora do cronômetro exibido no card.
+      startTime: report!.date,
       fuelValue: RideFormatters.formatCurrency(report!.cashSpent),
       kmInValue: RideFormatters.formatKm(report!.kmIn),
       onClose: onClose,
@@ -342,7 +394,7 @@ class _EmptyStateCard extends StatelessWidget {
 class _CurrentRideCard extends StatelessWidget {
   const _CurrentRideCard({
     required this.rideSku,
-    required this.dateLabel,
+    required this.startTime,
     required this.fuelValue,
     required this.kmInValue,
     required this.onClose,
@@ -350,7 +402,7 @@ class _CurrentRideCard extends StatelessWidget {
   });
 
   final String rideSku;
-  final String dateLabel;
+  final DateTime startTime;
   final String fuelValue;
   final String kmInValue;
   final VoidCallback? onClose;
@@ -388,11 +440,9 @@ class _CurrentRideCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(
-            dateLabel,
-            textAlign: TextAlign.center,
-            style: textTheme.titleSmall?.copyWith(fontStyle: FontStyle.italic),
-          ),
+          // Cronômetro (HH:MM:SS) do passeio em curso, no topo do card,
+          // substituindo a data estática.
+          _ElapsedTimerText(start: startTime),
           const SizedBox(height: 10),
           Row(
             children: <Widget>[
