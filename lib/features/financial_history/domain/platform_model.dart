@@ -1,8 +1,5 @@
-import 'package:ride_driver_app_1/app/generic/base_model.dart';
+class PlatformModel {
 
-class PlatformModel implements BaseModel {
-
-  @override
   final String id;
   final String name;
   final bool isActive;
@@ -22,18 +19,16 @@ class PlatformModel implements BaseModel {
   }
 
   PlatformModel copyWith({
-    String? id,
     String? name,
     bool? isActive,
   }) {
     return PlatformModel(
-      id: id ?? this.id,
+      id: id,
       name: name ?? this.name,
       isActive: isActive ?? this.isActive,
     );
   }
 
-  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -50,5 +45,10 @@ class PlatformModel implements BaseModel {
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'PlatformModel(id: $id, name: $name, isActive: $isActive)';
+  }
 }
 

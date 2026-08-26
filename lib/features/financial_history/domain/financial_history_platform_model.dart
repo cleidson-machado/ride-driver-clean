@@ -1,8 +1,5 @@
-import 'package:ride_driver_app_1/app/generic/base_model.dart';
+class FinancialHistoryPlatformModel {
 
-class FinancialHistoryPlatformModel implements BaseModel {
-
-  @override
   final String id;
   final String name;
   final String financialHistoryId;
@@ -46,7 +43,6 @@ class FinancialHistoryPlatformModel implements BaseModel {
     );
   }
 
-  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -66,5 +62,13 @@ class FinancialHistoryPlatformModel implements BaseModel {
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'FinancialHistoryPlatformModel('
+        'id: $id, name: $name, financialHistoryId: $financialHistoryId, '
+        'platformId: $platformId, dailyEarnings: $dailyEarnings, '
+        'dailyTripCount: $dailyTripCount)';
+  }
 }
 

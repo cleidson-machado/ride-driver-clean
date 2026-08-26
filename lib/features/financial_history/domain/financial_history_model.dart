@@ -1,9 +1,7 @@
-import 'package:ride_driver_app_1/app/generic/base_model.dart';
 import 'financial_history_platform_model.dart';
 
-class FinancialHistoryModel implements BaseModel {
+class FinancialHistoryModel {
 
-  @override
   final String id;
   final String sku;
   final DateTime date;
@@ -108,7 +106,6 @@ class FinancialHistoryModel implements BaseModel {
     );
   }
 
-  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -132,5 +129,14 @@ class FinancialHistoryModel implements BaseModel {
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'FinancialHistoryModel('
+        'id: $id, sku: $sku, date: $date, kmIn: $kmIn, kmOut: $kmOut, '
+        'cashSpent: $cashSpent, hodo2IsZero: $hodo2IsZero, '
+        'hodo2Number: $hodo2Number, hasImages: $hasImages, '
+        'isFinished: $isFinished, notes: $notes, platforms: $platforms)';
+  }
 }
 
