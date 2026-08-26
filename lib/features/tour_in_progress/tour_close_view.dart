@@ -209,7 +209,10 @@ class _TourCloseViewState extends State<TourCloseView> {
                       onPressed: _busy ? null : _confirmClose,
                       child: Text(
                         _busy ? 'Encerrando...' : 'CONFIRMAR FECHAMENTO',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
