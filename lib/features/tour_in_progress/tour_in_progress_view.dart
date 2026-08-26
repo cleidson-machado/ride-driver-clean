@@ -615,13 +615,14 @@ class _RecentRideDataTableCard extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           // Esquerda: ícone + número curto do passeio, data abaixo.
           Expanded(
             flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
@@ -658,13 +659,13 @@ class _RecentRideDataTableCard extends StatelessWidget {
               ],
             ),
           ),
-          // Centro: valor em euros e KM IN/OUT.
+          // Centro: valor em euros e KM IN/OUT, centralizados no bloco.
           Expanded(
             flex: 4,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Text(
                   RideFormatters.formatCurrency(item.cashSpent),
@@ -700,7 +701,7 @@ class _RecentRideDataTableCard extends StatelessWidget {
             flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Text(
