@@ -596,8 +596,7 @@ class _RecentRideDataTableCard extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 88),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -615,7 +614,7 @@ class _RecentRideDataTableCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Esquerda: ícone + número curto do passeio, data abaixo.
           Expanded(
