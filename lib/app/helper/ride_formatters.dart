@@ -44,5 +44,23 @@ abstract final class RideFormatters {
   static String formatDateLabel(DateTime date) {
     return '${date.day} ${_monthNames[date.month - 1]} ${date.year}';
   }
+
+  /// Retorna a data no formato compacto `DD/MM/AA`, usado nos cards de
+  /// histórico. Ex.: `16/07/26`.
+  static String formatDateShort(DateTime date) {
+    final String day = date.day.toString().padLeft(2, '0');
+    final String month = date.month.toString().padLeft(2, '0');
+    final String year = (date.year % 100).toString().padLeft(2, '0');
+    return '$day/$month/$year';
+  }
+
+  /// Extrai apenas o número do SKU legível para exibição compacta.
+  ///
+  /// Ex.: `"PASSEIO 011"` → `"011"`. Retorna o [sku] original quando não há
+  /// dígitos a extrair.
+  static String shortSku(String sku) {
+    final Match? match = RegExp(r'\d+').firstMatch(sku);
+    return match?.group(0) ?? sku;
+  }
 }
 
