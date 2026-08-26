@@ -108,16 +108,25 @@ class FinancialHistoryService {
   }
 
   Future<String> _ensurePlatform(String name) async {
+    final PlatformModel resolved = await resolvePlatform(name);
+    return resolved.id;
+  }
+
+  /// Resolve um nome de plataforma para o catálogo: retorna a existente cujo
+  /// nome bate (case-insensitive, ignorando espaços) ou cria uma nova no
+  /// catálogo (`platform`) e a retorna. O catálogo nunca bloqueia quando chega
+  /// ao fim — plataformas novas são persistidas e reutilizadas depois.
+  Future<PlatformModel> resolvePlatform(String name) async {
     final String normalized = name.trim().toUpperCase();
     final List<PlatformModel> all = await _storage.getAllPlatforms();
     for (final PlatformModel platform in all) {
       if (platform.name.trim().toUpperCase() == normalized) {
-        return platform.id;
+        return platform;
       }
     }
     final PlatformModel created = PlatformModel(id: _newId(), name: normalized);
     await _storage.insertPlatform(created);
-    return created.id;
+    return created;
   }
 
   // INICIO PERSISTÊNCIA DIRETA DE VÍNCULO (financial_history_platform) ########

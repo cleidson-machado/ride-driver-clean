@@ -140,8 +140,9 @@ class FinancialHistoryRepositorySqliteImpl
   @override
   Future<List<PlatformModel>> getAllPlatforms() async {
     final sqflite.Database db = await openAppDatabase();
+    // `rowid` reflete a ordem de inserção no catálogo ("ordem de criação no banco").
     final rows = await db.rawQuery(
-      'SELECT * FROM platform ORDER BY name ASC',
+      'SELECT * FROM platform ORDER BY rowid ASC',
     );
     return rows.map((r) => PlatformModel.fromMap(r)).toList();
   }
@@ -152,6 +153,18 @@ class FinancialHistoryRepositorySqliteImpl
     await db.insert(
       'platform',
       model.toMap(),
+      conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
+    );
+  }
+
+  @override
+  Future<void> updatePlatformName(String id, String name) async {
+    final sqflite.Database db = await openAppDatabase();
+    await db.update(
+      'platform',
+      {'name': name},
+      where: 'id = ?',
+      whereArgs: [id],
       conflictAlgorithm: sqflite.ConflictAlgorithm.abort,
     );
   }

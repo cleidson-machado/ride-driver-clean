@@ -88,28 +88,47 @@ Future<bool?> showDeleteReportDialog(BuildContext context) {
   );
 }
 
+/// Comprimento máximo (em caracteres) para o nome de uma plataforma.
+const int _maxPlatformNameLength = 15;
+
+/// Constrói um [InputDecoration] reutilizável para o nome da plataforma.
+InputDecoration _platformNameDecoration() => const InputDecoration(
+  labelText: 'Nome da plataforma',
+  hintText: 'Ex.: UBER, BOLT, 99, PARTICULAR…',
+  border: OutlineInputBorder(),
+  counterText: '',
+);
+
 // ─── Resultado do diálogo de edição de plataforma ────────────────────────────
 // [FinancialHistoryPlatformModel] carregado no momento da abertura. A função
 // retorna um [PlatformEditResult]: `remove: true` indica exclusão do vínculo;
-// caso contrário traz os novos `dailyEarnings`/`dailyTripCount`. `null` = cancelar.
+// caso contrário traz o novo `name` e os novos
+// `dailyEarnings`/`dailyTripCount`. `null` = cancelar.
 class PlatformEditResult {
   const PlatformEditResult({
+    required this.name,
     required this.dailyEarnings,
     required this.dailyTripCount,
     this.remove = false,
   });
 
+  final String name;
   final double dailyEarnings;
   final int dailyTripCount;
   final bool remove;
 }
 
-/// Abre o diálogo para editar uma plataforma existente: permite alterar o
-/// faturamento diário e a quantidade de corridas, ou remover o vínculo.
+/// Abre o diálogo para editar uma plataforma existente: permite renomear a
+/// plataforma (qualquer combinação de maiúsculas/minúsculas, até 15
+/// caracteres), alterar o faturamento diário e a quantidade de corridas, ou
+/// remover o vínculo.
 Future<PlatformEditResult?> showPlatformEditDialog(
   BuildContext context,
   FinancialHistoryPlatformModel platform,
 ) {
+  final TextEditingController nameController = TextEditingController(
+    text: platform.name,
+  );
   final TextEditingController earningsController = TextEditingController(
     text: platform.dailyEarnings == platform.dailyEarnings.roundToDouble()
         ? platform.dailyEarnings.round().toString()
@@ -121,87 +140,112 @@ Future<PlatformEditResult?> showPlatformEditDialog(
 
   return showDialog<PlatformEditResult>(
     context: context,
-    builder: (BuildContext dialogContext) => AlertDialog(
-      title: Text('Plataforma — ${platform.name.toUpperCase()}'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: earningsController,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Faturamento do dia (€)',
-              border: OutlineInputBorder(),
+    builder: (BuildContext dialogContext) => StatefulBuilder(
+      builder: (BuildContext innerContext, StateSetter setDialogState) {
+        return AlertDialog(
+          title: Text('Plataforma — ${platform.name.toUpperCase()}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  maxLength: _maxPlatformNameLength,
+                  decoration: _platformNameDecoration(),
+                  textCapitalization: TextCapitalization.characters,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: earningsController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Faturamento do dia (€)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: tripsController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Corridas do dia',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: tripsController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Corridas do dia',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor: Theme.of(dialogContext).colorScheme.error,
-          ),
-          // Remove o vínculo — sinalizado via `remove: true`.
-          onPressed: () => Navigator.of(dialogContext).pop(
-            PlatformEditResult(
-              dailyEarnings: platform.dailyEarnings,
-              dailyTripCount: platform.dailyTripCount,
-              remove: true,
-            ),
-          ),
-          child: const Text('REMOVER'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('CANCELAR'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
-          onPressed: () {
-            final double? earnings = double.tryParse(
-              earningsController.text.trim().replaceAll(',', '.'),
-            );
-            final int? trips = int.tryParse(tripsController.text.trim());
-            if (earnings == null || trips == null) {
-              return; // entradas inválidas: mantém o diálogo aberto.
-            }
-            Navigator.of(dialogContext).pop(
-              PlatformEditResult(
-                dailyEarnings: earnings,
-                dailyTripCount: trips,
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.error,
               ),
-            );
-          },
-          child: const Text('SALVAR'),
-        ),
-      ],
+              // Remove o vínculo — sinalizado via `remove: true`.
+              onPressed: () => Navigator.of(dialogContext).pop(
+                PlatformEditResult(
+                  name: platform.name,
+                  dailyEarnings: platform.dailyEarnings,
+                  dailyTripCount: platform.dailyTripCount,
+                  remove: true,
+                ),
+              ),
+              child: const Text('REMOVER'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('CANCELAR'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
+              onPressed: () {
+                final String name = nameController.text.trim();
+                final double? earnings = double.tryParse(
+                  earningsController.text.trim().replaceAll(',', '.'),
+                );
+                final int? trips = int.tryParse(tripsController.text.trim());
+                if (name.isEmpty ||
+                    earnings == null ||
+                    trips == null ||
+                    name.length > _maxPlatformNameLength) {
+                  return; // entradas inválidas: mantém o diálogo aberto.
+                }
+                Navigator.of(dialogContext).pop(
+                  PlatformEditResult(
+                    name: name,
+                    dailyEarnings: earnings,
+                    dailyTripCount: trips,
+                  ),
+                );
+              },
+              child: const Text('SALVAR'),
+            ),
+          ],
+        );
+      },
     ),
   );
 }
 
-/// Abre o diálogo para vincular uma plataforma do catálogo ao report: o
-/// usuário escolhe uma [PlatformModel] entre as disponíveis e informa o
-/// faturamento e as corridas do dia. Retorna `null` se cancelado.
-Future<({PlatformModel platform, double dailyEarnings, int dailyTripCount})?>
+/// Abre o diálogo para adicionar uma plataforma ao report: o usuário digita o
+/// nome livremente (qualquer combinação de maiúsculas/minúsculas, até 15
+/// caracteres) e informa o faturamento e as corridas do dia. As plataformas do
+/// catálogo ainda não vinculadas são oferecidas como sugestões. O catálogo
+/// nunca bloqueia — nomes novos são criados/persistidos pelo controller.
+///
+/// Retorna o nome digitado e os valores, ou `null` se cancelado.
+Future<({String name, double dailyEarnings, int dailyTripCount})?>
 showPlatformPickerDialog(BuildContext context, List<PlatformModel> options) {
-  PlatformModel? selected = options.isNotEmpty ? options.first : null;
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController earningsController = TextEditingController();
   final TextEditingController tripsController = TextEditingController();
 
   return showDialog<
     ({
-      PlatformModel platform,
+      String name,
       double dailyEarnings,
       int dailyTripCount,
     })
@@ -211,52 +255,69 @@ showPlatformPickerDialog(BuildContext context, List<PlatformModel> options) {
       builder: (BuildContext innerContext, StateSetter setDialogState) {
         return AlertDialog(
           title: const Text('ADD - PLATAFORMA'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (options.isEmpty)
-                const Text('Nenhuma plataforma disponível no catálogo.')
-              else
-                DropdownButtonFormField<PlatformModel>(
-                  initialValue: selected,
-                  isExpanded: true,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  maxLength: _maxPlatformNameLength,
+                  decoration: _platformNameDecoration(),
+                  textCapitalization: TextCapitalization.characters,
+                ),
+                if (options.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  // Sugestões: plataformas do catálogo ainda não vinculadas.
+                  Text(
+                    'Sugestões do catálogo (toque para preencher):',
+                    style: Theme.of(
+                      innerContext,
+                    ).textTheme.labelSmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: options
+                        .map(
+                          (PlatformModel platform) => ActionChip(
+                            label: Text(platform.name.toUpperCase()),
+                            onPressed: () => setDialogState(() {
+                              nameController.text = platform.name;
+                              nameController.selection =
+                                  TextSelection.collapsed(
+                                    offset: nameController.text.length,
+                                  );
+                            }),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                TextField(
+                  controller: earningsController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
-                    labelText: 'Plataforma',
+                    labelText: 'Faturamento do dia (€)',
                     border: OutlineInputBorder(),
                   ),
-                  items: options
-                      .map(
-                        (PlatformModel platform) => DropdownMenuItem<
-                          PlatformModel
-                        >(value: platform, child: Text(platform.name)),
-                      )
-                      .toList(),
-                      onChanged: (PlatformModel? value) => setDialogState(
-                        () => selected = value,
-                      ),
                 ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: earningsController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+                const SizedBox(height: 12),
+                TextField(
+                  controller: tripsController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Corridas do dia',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                decoration: const InputDecoration(
-                  labelText: 'Faturamento do dia (€)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: tripsController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Corridas do dia',
-                  border: OutlineInputBorder(),
-                ),
-              ),
             ],
+            ),
           ),
           actions: [
             TextButton(
@@ -265,22 +326,24 @@ showPlatformPickerDialog(BuildContext context, List<PlatformModel> options) {
             ),
             FilledButton(
               style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
-              onPressed: selected == null
-                  ? null
-                  : () {
-                      final double? earnings = double.tryParse(
-                        earningsController.text.trim().replaceAll(',', '.'),
-                      );
-                      final int? trips = int.tryParse(
-                        tripsController.text.trim(),
-                      );
-                      if (earnings == null || trips == null) return;
-                      Navigator.of(dialogContext).pop((
-                        platform: selected!,
-                        dailyEarnings: earnings,
-                        dailyTripCount: trips,
-                      ));
-                    },
+              onPressed: () {
+                final String name = nameController.text.trim();
+                final double? earnings = double.tryParse(
+                  earningsController.text.trim().replaceAll(',', '.'),
+                );
+                final int? trips = int.tryParse(tripsController.text.trim());
+                if (name.isEmpty ||
+                    earnings == null ||
+                    trips == null ||
+                    name.length > _maxPlatformNameLength) {
+                  return; // entradas inválidas: mantém o diálogo aberto.
+                }
+                Navigator.of(dialogContext).pop((
+                  name: name,
+                  dailyEarnings: earnings,
+                  dailyTripCount: trips,
+                ));
+              },
               child: const Text('CONFIRMAR'),
             ),
           ],

@@ -192,27 +192,45 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
   // ─── Fluxo de plataformas ────────────────────────────────────────────────
 
-  /// Abre o seletor de plataformas do catálogo e cria o vínculo no report.
+  /// Abre o seletor de plataformas (digitação livre + sugestões do catálogo) e
+  /// cria o vínculo no report. Nunca bloqueia quando o catálogo está esgotado.
   Future<void> _handleAddPlatform() async {
+    // Limite de exibição do carrossel: não permite vincular além de 10.
+    if (_controller.report.platforms.length >= FinancialHistoryController.maxPlatforms) {
+      if (mounted) {
+        _showSnack(
+          'Limite de ${FinancialHistoryController.maxPlatforms} plataformas '
+          'por report atingido.',
+        );
+      }
+      return;
+    }
     final List<PlatformModel> available = await _controller
         .getAvailablePlatforms();
     if (!mounted) return;
-    if (available.isEmpty) {
-      _showSnack('Nenhuma plataforma disponível no catálogo.');
-      return;
-    }
-    final result = await showPlatformPickerDialog(context, available);
+    final result = await showPlatformPickerDialog(
+      context,
+      available,
+    );
     if (!mounted) return;
     if (result == null) return;
-    await _controller.addPlatform(
-      platformId: result.platform.id,
-      name: result.platform.name,
+    final AddPlatformOutcome outcome = await _controller.addPlatform(
+      name: result.name,
       dailyEarnings: result.dailyEarnings,
       dailyTripCount: result.dailyTripCount,
     );
-    if (mounted) {
-      _showSnack('Plataforma ${result.platform.name} adicionada.');
-    }
+    if (!mounted) return;
+    final String message = switch (outcome) {
+      AddPlatformOutcome.success => 'Plataforma "${result.name.trim()}" '
+          'adicionada.',
+      AddPlatformOutcome.duplicate =>
+        'A plataforma "${result.name.trim()}" já está neste report.',
+      AddPlatformOutcome.maxReached =>
+        'Limite de ${FinancialHistoryController.maxPlatforms} plataformas '
+            'por report atingido.',
+      AddPlatformOutcome.emptyName => 'Informe o nome da plataforma.',
+    };
+    _showSnack(message);
   }
 
   /// Abre o diálogo de edição/remoção de uma plataforma existente.
@@ -231,14 +249,22 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
       return;
     }
 
-    await _controller.updatePlatform(
+    final UpdatePlatformOutcome outcome = await _controller.updatePlatform(
       platform.id,
+      name: result.name,
       dailyEarnings: result.dailyEarnings,
       dailyTripCount: result.dailyTripCount,
     );
-    if (mounted) {
-      _showSnack('Plataforma ${platform.name} atualizada.');
-    }
+    if (!mounted) return;
+    final String message = switch (outcome) {
+      UpdatePlatformOutcome.success => 'Plataforma "${result.name.trim()}" '
+          'atualizada.',
+      UpdatePlatformOutcome.duplicate =>
+        'A plataforma "${result.name.trim()}" já existe neste report.',
+      UpdatePlatformOutcome.notFound => 'Plataforma não encontrada.',
+      UpdatePlatformOutcome.emptyName => 'Informe o nome da plataforma.',
+    };
+    _showSnack(message);
   }
 
   // ─── Colunas da grelha superior ──────────────────────────────────────────

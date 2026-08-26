@@ -32,5 +32,8 @@ abstract class FinancialHistoryRepositoryInterface {
   Future<List<PlatformModel>> getAllPlatforms();
 
   Future<void> insertPlatform(PlatformModel model);
+
+  /// Renomeia uma plataforma existente do catálogo (tabela `platform`).
+  Future<void> updatePlatformName(String id, String name);
 }
 

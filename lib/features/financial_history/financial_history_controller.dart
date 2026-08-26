@@ -53,6 +53,9 @@ class FinancialHistoryController extends ChangeNotifier {
   /// Se o report ainda não foi persistido (modo cadastro).
   bool get isNew => _report.id.isEmpty;
 
+  /// Nº máximo de cartões de plataforma exibidos por report no carrossel.
+  static const int maxPlatforms = 10;
+
   // ── Factory ───────────────────────────────────────────────────────────────
 
   static FinancialHistoryModel _buildBlankReport() {
@@ -149,23 +152,43 @@ class FinancialHistoryController extends ChangeNotifier {
 
   // ── Plataformas ──────────────────────────────────────────────────────────
 
-  /// Adiciona um vínculo de plataforma ao report, com persistência imediata
-  /// quando o report já está no banco (senão, a gravação é inserida no `save()`).
-  Future<void> addPlatform({
-    required String platformId,
+  /// `true` se já existe um vínculo no report com o mesmo [name]
+  /// (case-insensitive, ignorando espaços), excetuando [excludeLinkId].
+  bool _hasPlatformNamed(String name, {String? excludeLinkId}) {
+    final String normalized = name.trim().toUpperCase();
+    return _report.platforms.any(
+      (FinancialHistoryPlatformModel p) =>
+          p.id != excludeLinkId && p.name.trim().toUpperCase() == normalized,
+    );
+  }
+
+  /// Adiciona um vínculo de plataforma ao report a partir do [name] livre
+  /// (nunca bloqueia quando o catálogo está esgotado — a plataforma é criada
+  /// no catálogo caso não exista). Respeita o limite de [maxPlatforms] e não
+  /// duplica a mesma plataforma (nome case-insensitive) no report.
+  Future<AddPlatformOutcome> addPlatform({
     required String name,
     required double dailyEarnings,
     required int dailyTripCount,
   }) async {
-    final FinancialHistoryPlatformModel link =
-        FinancialHistoryPlatformModel(
-          id: _newId(),
-          financialHistoryId: _report.id,
-          platformId: platformId,
-          name: name,
-          dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
-          dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
-        );
+    final String trimmed = name.trim();
+    if (trimmed.isEmpty) return AddPlatformOutcome.emptyName;
+    if (_report.platforms.length >= maxPlatforms) {
+      return AddPlatformOutcome.maxReached;
+    }
+    if (_hasPlatformNamed(trimmed)) return AddPlatformOutcome.duplicate;
+
+    // Resolve/cria a plataforma no catálogo (tabela `platform`).
+    final PlatformModel catalog =
+        await _service.resolvePlatform(trimmed);
+    final FinancialHistoryPlatformModel link = FinancialHistoryPlatformModel(
+      id: _newId(),
+      financialHistoryId: _report.id,
+      platformId: catalog.id,
+      name: catalog.name,
+      dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
+      dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
+    );
     _report = _report.copyWith(
       platforms: <FinancialHistoryPlatformModel>[..._report.platforms, link],
     );
@@ -179,23 +202,33 @@ class FinancialHistoryController extends ChangeNotifier {
         dailyTripCount: link.dailyTripCount,
       );
     }
+    return AddPlatformOutcome.success;
   }
 
-  /// Atualiza valores de um vínculo (identificado pelo [linkId]) e persiste
-  /// imediatamente quando o report já está no banco.
-  Future<void> updatePlatform(
+  /// Atualiza nome e valores de um vínculo (identificado pelo [linkId]) e
+  /// persiste imediatamente quando o report já está no banco. Não duplica a
+  /// mesma plataforma (nome case-insensitive) no report.
+  Future<UpdatePlatformOutcome> updatePlatform(
     String linkId, {
+    required String name,
     required double dailyEarnings,
     required int dailyTripCount,
   }) async {
+    final String trimmed = name.trim();
+    if (trimmed.isEmpty) return UpdatePlatformOutcome.emptyName;
+
     final int index = _report.platforms.indexWhere(
       (FinancialHistoryPlatformModel p) => p.id == linkId,
     );
-    if (index < 0) return;
+    if (index < 0) return UpdatePlatformOutcome.notFound;
+    if (_hasPlatformNamed(trimmed, excludeLinkId: linkId)) {
+      return UpdatePlatformOutcome.duplicate;
+    }
 
     final List<FinancialHistoryPlatformModel> updated =
         List<FinancialHistoryPlatformModel>.of(_report.platforms);
     updated[index] = updated[index].copyWith(
+      name: trimmed,
       dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
       dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
     );
@@ -208,7 +241,10 @@ class FinancialHistoryController extends ChangeNotifier {
         dailyEarnings: dailyEarnings < 0 ? 0 : dailyEarnings,
         dailyTripCount: dailyTripCount < 0 ? 0 : dailyTripCount,
       );
+      // O novo nome é reconciliado no catálogo no próximo `save()` via
+      // `_replacePlatformLinks` (resolveOrCreate).
     }
+    return UpdatePlatformOutcome.success;
   }
 
   /// Remove o vínculo de plataforma [linkId] e persiste a exclusão quando o
@@ -244,15 +280,25 @@ class FinancialHistoryController extends ChangeNotifier {
         .toList();
   }
 
-  /// Garante que um report vazio receba os vínculos de plataforma base
-  /// (UBER, BOLT, PARTICULAR) zerados. Se o report já tiver qualquer vínculo
-  /// ou não existir, não duplica. Para reports já persistidos, grava imediata;
-  /// para novos (cadastro), os vínculos são persistidos no `save()`.
+  /// Garante que um report vazio receba os vínculos de plataforma zerados.
+  ///
+  /// Preenche o report novo com **todas** as plataformas ativas do catálogo
+  /// (as 3 base + qualquer uma já criada em reports anteriores), zeradas, na
+  /// ordem de criação no banco, respeitando o limite de exibição de
+  /// [maxPlatforms]. Requisito: ao abrir a view, as plataformas já criadas no
+  /// banco reaparecem como cards de valores zerados. Se o report já tiver
+  /// qualquer vínculo ou não existir, não duplica. Para reports já
+  /// persistidos, grava imediata; para novos (cadastro), no `save()`.
   Future<void> ensureDefaultPlatforms() async {
     if (_report.platforms.isNotEmpty) return;
 
-    final List<PlatformModel> bases = await _service.ensureBasePlatforms();
-    final List<FinancialHistoryPlatformModel> defaults = bases
+    await _service.ensureBasePlatforms();
+    final List<PlatformModel> all = await _service.getAllPlatforms();
+    final List<PlatformModel> targets = all
+        .where((PlatformModel platform) => platform.isActive)
+        .take(maxPlatforms)
+        .toList();
+    final List<FinancialHistoryPlatformModel> defaults = targets
         .map(
           (PlatformModel platform) => FinancialHistoryPlatformModel(
             id: '${_report.id}_default_${platform.id}',
@@ -355,4 +401,34 @@ class FinancialHistoryController extends ChangeNotifier {
   }
 
   int _nonNegative(int value) => value < 0 ? 0 : value;
+}
+
+/// Resultado de [FinancialHistoryController.addPlatform].
+enum AddPlatformOutcome {
+  /// Plataforma vinculada com sucesso.
+  success,
+
+  /// Nome vazio informado.
+  emptyName,
+
+  /// A mesma plataforma (nome case-insensitive) já está vinculada ao report.
+  duplicate,
+
+  /// O report já atingiu o limite de [FinancialHistoryController.maxPlatforms].
+  maxReached,
+}
+
+/// Resultado de [FinancialHistoryController.updatePlatform].
+enum UpdatePlatformOutcome {
+  /// Vínculo atualizado com sucesso.
+  success,
+
+  /// Nome vazio informado.
+  emptyName,
+
+  /// Vínculo não encontrado no report.
+  notFound,
+
+  /// A mesma plataforma (nome case-insensitive) já está vinculada ao report.
+  duplicate,
 }
