@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../features/financial_history/financial_history_injection.dart';
+import '../../features/tour_in_progress/tour_in_progress_injection.dart';
 
 /// Container de DI global do app (padrão service locator via `get_it`).
 ///
@@ -14,4 +15,6 @@ final GetIt getIt = GetIt.instance;
 /// `main()`, antes de `runApp`.
 void setupServiceLocator() {
   registerFinancialHistoryDependencies(getIt);
+  registerTourInProgressDependencies(getIt);
 }
+

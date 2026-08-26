@@ -3,20 +3,29 @@ import 'package:flutter/material.dart';
 // ─── Header ───────────────────────────────────────────────────────────────────
 // Barra superior da tela: botão de voltar à esquerda e, ao centro, o SKU do
 // report atual seguido do pill de status do passeio (EM CURSO / CONCLUÍDO).
+// Em modo edição ([showEditBadge] true) o SKU é seguido do rótulo "(EM EDIÇÃO)".
 class RideHeaderWidget extends StatelessWidget {
   const RideHeaderWidget({
     super.key,
     required this.rideSku,
     required this.isRideInProgress,
+    this.showEditBadge = false,
   });
 
   final String rideSku;
   final bool isRideInProgress;
 
+  /// Exibe o rótulo "(EM EDIÇÃO)" após o SKU (modo edição da FinancialHistoryView).
+  final bool showEditBadge;
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final String title = showEditBadge
+        ? 'Report: $rideSku (EM EDIÇÃO)'
+        : 'Report: $rideSku';
 
     return SizedBox(
       height: 48,
@@ -37,7 +46,7 @@ class RideHeaderWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Report: $rideSku',
+                  title,
                   textAlign: TextAlign.center,
                   style: textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -94,3 +103,4 @@ class _RideStatusPillWidget extends StatelessWidget {
     );
   }
 }
+

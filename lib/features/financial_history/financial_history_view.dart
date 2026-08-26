@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/di/service_locator.dart';
 import '../../app/helper/ride_formatters.dart';
+import '../tour_in_progress/tour_in_progress_view.dart';
 import 'financial_history_controller.dart';
 import 'domain/financial_history_platform_model.dart';
 import 'domain/platform_model.dart';
@@ -16,8 +17,16 @@ import 'widgets/terms_legend.dart';
 import 'widgets/top_data_grid.dart';
 
 /// Tela de cadastro/edicao de passeio — skeleton M3 responsivo.
+///
+/// Recebe um [reportId] opcional: quando informado, abre em **modo edição**
+/// (carrega o report e o título exibe o SKU seguido de "(EM EDIÇÃO)"). Quando
+/// nulo, abre em modo cadastro (report novo/em branco).
 class FinancialHistoryView extends StatefulWidget {
-  const FinancialHistoryView({super.key});
+  const FinancialHistoryView({super.key, this.reportId});
+
+  /// Id do report a carregar em modo edição. Quando `null`, a tela abre em
+  /// modo cadastro (report novo/em branco).
+  final String? reportId;
 
   @override
   State<FinancialHistoryView> createState() => _FinancialHistoryViewState();
@@ -65,6 +74,35 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
     // Garante que um report vazio (novo cadastro) já exiba as plataformas
     // base (UBER, BOLT, PARTICULAR) zeradas.
     _controller.ensureDefaultPlatforms();
+    final String? reportId = widget.reportId;
+    if (reportId != null) {
+      // Modo edição: carrega o report existente e preenche o formulário.
+      _loadReportForEdit(reportId);
+    }
+  }
+
+  /// Carrega o report ([id]) para edição e espelha seus valores no estado
+  /// local do formulário (ponte temporária enquanto a view não observa o
+  /// controller diretamente).
+  Future<void> _loadReportForEdit(String id) async {
+    final bool loaded = await _controller.load(id);
+    if (!mounted) return;
+    if (!loaded) {
+      _showSnack(_controller.lastError ?? 'Não foi possível carregar o passeio.');
+      return;
+    }
+    final report = _controller.report;
+    setState(() {
+      _rideDate = report.date;
+      _kmIn = report.kmIn;
+      _kmOut = report.kmOut;
+      _cashSpent = report.cashSpent;
+      _hodo2IsZero = report.hodo2IsZero;
+      _hodo2Number = report.hodo2Number;
+      _hasImages = report.hasImages;
+      _isFinished = report.isFinished;
+      _notesController.text = report.notes;
+    });
   }
 
   @override
@@ -154,6 +192,14 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
           // Reflete o SKU gerado para reports novos no header.
           setState(() {});
           _showSnack('Passeio salvo com sucesso (${_controller.report.sku}).');
+          // Parte 4: report recém-criado (novo cadastro) → redireciona para a
+          // TourInProgressView passando o id, para o card de "em curso".
+          if (widget.reportId == null) {
+            _redirectToTourInProgress(_controller.report.id);
+          } else {
+            // Em modo edição, volta para a tela anterior.
+            Navigator.of(context).maybePop();
+          }
         })
         .catchError((Object error) {
           if (!mounted) return;
@@ -162,6 +208,17 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
               : _controller.lastError ?? 'Erro ao salvar o passeio.';
           _showSnack(message);
         });
+  }
+
+  /// Navega para a tela de passeio em curso, exibindo o report ([reportId])
+  /// recém-criado no card de "em curso" (trocando a rota atual pelo
+  /// TourInProgressView — a volta vai para a Home).
+  void _redirectToTourInProgress(String reportId) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => TourInProgressView(reportId: reportId),
+      ),
+    );
   }
 
   /// Copia o estado atual do formulário para o FinancialHistoryModel do controller.
@@ -379,6 +436,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
             RideHeaderWidget( // ######################################################################## 1. Header
               rideSku: _controller.report.sku,
               isRideInProgress: !_isFinished,
+              showEditBadge: widget.reportId != null,
             ),
             Divider(color: colorScheme.outlineVariant, height: 1),
             Expanded( // ############################################################################### Scrollable body
@@ -421,12 +479,12 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
                     NotesFieldWidget( // ############################################################### 5. Campo de notas
                       controller: _notesController,
-                    ), 
+                    ),
                     const SizedBox(height: 26),
 
                     SaveButtonWidget( // ############################################################## 6. Footer — botão salvar
                       onPressed: _actionSaveRide,
-                    ), 
+                    ),
                     const SizedBox(height: 20),
 
                     FuelPaymentButtonWidget( // ####################################################### 7. Footer — botão combustível (forma de pagamento)
