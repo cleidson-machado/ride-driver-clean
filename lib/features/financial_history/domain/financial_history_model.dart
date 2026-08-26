@@ -2,6 +2,21 @@ import 'package:ride_driver_app_1/app/generic/base_model.dart';
 import 'financial_history_platform_model.dart';
 
 class FinancialHistoryModel implements BaseModel {
+
+  @override
+  final String id;
+  final String sku;
+  final DateTime date;
+  final int kmIn;
+  final int? kmOut;
+  final double cashSpent;
+  final bool hodo2IsZero;
+  final int? hodo2Number;
+  final bool hasImages;
+  final bool isFinished;
+  final String notes;
+  final List<FinancialHistoryPlatformModel> platforms;
+
   const FinancialHistoryModel({
     required this.id,
     required this.sku,
@@ -16,31 +31,6 @@ class FinancialHistoryModel implements BaseModel {
     required this.notes,
     required this.platforms,
   });
-
-  @override
-  final String id;
-
-  final String sku;
-
-  final DateTime date;
-
-  final int kmIn;
-
-  final int? kmOut;
-
-  final double cashSpent;
-
-  final bool hodo2IsZero;
-
-  final int? hodo2Number;
-
-  final bool hasImages;
-
-  final bool isFinished;
-
-  final String notes;
-
-  final List<FinancialHistoryPlatformModel> platforms;
 
   factory FinancialHistoryModel.blank({
     required String id,

@@ -1,20 +1,10 @@
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
-/// Entidade que representa uma plataforma de corridas (catálogo).
-///
-/// Ex: UBER, BOLT, PARTICULAR (corridas avulsas) ou qualquer outra
-/// adicionada pelo usuário via botão "+ PLATAFORMA".
-///
-/// Modelo de domínio puro: o mapeamento para a tabela `platform` é feito
-/// pelo SQL cru no repositório (via [BaseModel.toMap]/[fromMap]).
 class PlatformModel implements BaseModel {
+
   @override
   final String id;
-
-  /// Nome da plataforma. Ex: "UBER", "BOLT", "PARTICULAR".
   final String name;
-
-  /// Indica se a plataforma está ativa/disponível para novos registros.
   final bool isActive;
 
   const PlatformModel({
@@ -36,8 +26,8 @@ class PlatformModel implements BaseModel {
     return {
       'id': id,
       'name': name,
+      'is_active': isActive ? 1 : 0, 
       // SQLite não tem BOOLEAN nativo: persiste como INTEGER 0/1.
-      'is_active': isActive ? 1 : 0,
     };
   }
 }

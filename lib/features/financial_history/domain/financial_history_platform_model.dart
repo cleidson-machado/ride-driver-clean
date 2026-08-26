@@ -1,26 +1,14 @@
 import 'package:ride_driver_app_1/app/generic/base_model.dart';
 
 class FinancialHistoryPlatformModel implements BaseModel {
+
   @override
   final String id;
-  
-  /// FK para o registro diário (financial_history.id).
-  final String financialHistoryId;
-  
-  /// FK para a plataforma (platform.id).
-  final String platformId;
-  
-  /// Faturamento total do dia nessa plataforma, em euros.
-  final double dailyEarnings;
-
-  /// Quantidade total de corridas do dia nessa plataforma.
-  final int dailyTripCount;
-
-  /// Nome legível da plataforma (ex.: "UBER"). Não é uma coluna de
-  /// `financial_history_platform` — o nome vive na tabela `platform`. É
-  /// populado apenas em memória pela service ao montar o estado de visualização
-  /// (getById) e pelo controller ao adicionar/editar plataformas no formulário.
   final String name;
+  final String financialHistoryId;
+  final String platformId;
+  final double dailyEarnings;
+  final int dailyTripCount;
 
   const FinancialHistoryPlatformModel({
     required this.id,
