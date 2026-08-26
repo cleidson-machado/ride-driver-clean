@@ -616,8 +616,9 @@ class _RecentRideDataTableCard extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
+          // Esquerda: ícone + número curto do passeio, data abaixo.
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -628,37 +629,37 @@ class _RecentRideDataTableCard extends StatelessWidget {
                   children: <Widget>[
                     Icon(
                       Icons.directions_car_rounded,
-                      size: 18,
+                      size: 16,
                       color: colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Flexible(
                       child: Text(
-                        item.sku,
+                        RideFormatters.shortSku(item.sku),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: textTheme.titleLarge?.copyWith(
+                        style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   RideFormatters.formatDateLabel(item.date),
-                  textAlign: TextAlign.start,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
           ),
-          VerticalDivider(width: 16, thickness: 1, color: colorScheme.outlineVariant),
+          // Centro: valor em euros e KM IN/OUT.
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -668,38 +669,59 @@ class _RecentRideDataTableCard extends StatelessWidget {
                   RideFormatters.formatCurrency(item.cashSpent),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleLarge?.copyWith(
+                  style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'KM IN: ${RideFormatters.formatKm(item.kmIn)}   '
+                  'KM IN: ${RideFormatters.formatKm(item.kmIn)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
                   'OUT: ${RideFormatters.formatKm(item.kmOut)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium?.copyWith(
+                  style: textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          VerticalDivider(width: 16, thickness: 1, color: colorScheme.outlineVariant),
-          SizedBox(
-            width: 74,
+          // Direita: "Trip Stats" + HOD, alinhados à direita.
+          Expanded(
+            flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  'Resumo',
-                  style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  'Trip Stats',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
-                Icon(Icons.touch_app_rounded, size: 18, color: colorScheme.primary),
+                Text(
+                  'HOD',
+                  maxLines: 1,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  RideFormatters.formatKm(item.kmOdometer),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),

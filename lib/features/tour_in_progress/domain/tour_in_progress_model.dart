@@ -17,6 +17,9 @@ class TourInProgressModel {
   /// (ainda não encerrado). Preenchido e >= [kmIn] ao encerrar.
   final int? kmOut;
 
+  /// Hodômetro do trajeto (`km_odometer`), exibido como "HOD" nos cards.
+  final int kmOdometer;
+
   /// Gasto total em combustível/energia no passeio. Sempre >= 0.
   final double cashSpent;
 
@@ -29,6 +32,7 @@ class TourInProgressModel {
     required this.date,
     required this.kmIn,
     required this.kmOut,
+    required this.kmOdometer,
     required this.cashSpent,
     required this.isFinished,
   });
@@ -45,6 +49,7 @@ class TourInProgressModel {
       date: DateTime.fromMillisecondsSinceEpoch(map['work_date'] as int),
       kmIn: map['km_start'] as int,
       kmOut: kmEnd == 0 ? null : kmEnd,
+      kmOdometer: map['km_odometer'] as int? ?? 0,
       cashSpent: (map['fuel_cost'] as num).toDouble(),
       isFinished: ((map['is_finished'] as int?) ?? 0) == 1,
     );
@@ -55,6 +60,7 @@ class TourInProgressModel {
     DateTime? date,
     int? kmIn,
     int? Function()? kmOut,
+    int? kmOdometer,
     double? cashSpent,
     bool? isFinished,
   }) {
@@ -64,6 +70,7 @@ class TourInProgressModel {
       date: date ?? this.date,
       kmIn: kmIn ?? this.kmIn,
       kmOut: kmOut != null ? kmOut() : this.kmOut,
+      kmOdometer: kmOdometer ?? this.kmOdometer,
       cashSpent: cashSpent ?? this.cashSpent,
       isFinished: isFinished ?? this.isFinished,
     );
@@ -81,6 +88,6 @@ class TourInProgressModel {
   String toString() {
     return 'TourInProgressModel('
         'id: $id, sku: $sku, date: $date, kmIn: $kmIn, kmOut: $kmOut, '
-        'cashSpent: $cashSpent, isFinished: $isFinished)';
+        'kmOdometer: $kmOdometer, cashSpent: $cashSpent, isFinished: $isFinished)';
   }
 }

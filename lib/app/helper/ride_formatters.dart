@@ -44,5 +44,14 @@ abstract final class RideFormatters {
   static String formatDateLabel(DateTime date) {
     return '${date.day} ${_monthNames[date.month - 1]} ${date.year}';
   }
+
+  /// Extrai apenas o número do SKU legível para exibição compacta.
+  ///
+  /// Ex.: `"PASSEIO 011"` → `"011"`. Retorna o [sku] original quando não há
+  /// dígitos a extrair.
+  static String shortSku(String sku) {
+    final Match? match = RegExp(r'\d+').firstMatch(sku);
+    return match?.group(0) ?? sku;
+  }
 }
 
