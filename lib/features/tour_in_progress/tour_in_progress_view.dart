@@ -615,14 +615,13 @@ class _RecentRideDataTableCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Esquerda: ícone + número curto do passeio, data abaixo.
           Expanded(
             flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
@@ -658,12 +657,12 @@ class _RecentRideDataTableCard extends StatelessWidget {
               ],
             ),
           ),
+          VerticalDivider(width: 12, thickness: 1, color: colorScheme.outlineVariant),
           // Centro: valor em euros e KM IN/OUT.
           Expanded(
             flex: 4,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
@@ -695,49 +694,12 @@ class _RecentRideDataTableCard extends StatelessWidget {
               ],
             ),
           ),
+          VerticalDivider(width: 12, thickness: 1, color: colorScheme.outlineVariant),
           // Direita: "Trip Stats" + HOD, alinhados à direita.
           Expanded(
             flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  RideFormatters.formatCurrency(item.cashSpent),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'KM IN: ${RideFormatters.formatKm(item.kmIn)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  'OUT: ${RideFormatters.formatKm(item.kmOut)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Direita: "Trip Stats" + HOD, alinhados à direita.
-          Expanded(
-            flex: 3,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Text(
