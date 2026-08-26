@@ -40,8 +40,8 @@ class TourCloseView extends StatefulWidget {
 }
 
 class _TourCloseViewState extends State<TourCloseView> {
+  
   late bool _busy;
-
   late int _kmOut;
   late double _cashSpent;
   late DateTime _date;
