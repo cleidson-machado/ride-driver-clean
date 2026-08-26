@@ -10,6 +10,13 @@ class TourInProgressModel {
   final String sku;
   final DateTime date;
 
+  /// Instante real de criação do passeio no aparelho (coluna `created_at`).
+  ///
+  /// Diferente de [date] (data do passeio, inserida/alterável pelo utilizador,
+  /// podendo ser anos no passado). Usado como âncora do cronômetro de "em
+  /// curso" — o timer conta a partir do verdadeiro momento de criação.
+  final DateTime createdAt;
+
   /// Odômetro registrado na abertura do passeio.
   final int kmIn;
 
@@ -30,6 +37,7 @@ class TourInProgressModel {
     required this.id,
     required this.sku,
     required this.date,
+    required this.createdAt,
     required this.kmIn,
     required this.kmOut,
     required this.kmOdometer,
@@ -47,6 +55,7 @@ class TourInProgressModel {
       id: map['id'] as String,
       sku: map['trip_number'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['work_date'] as int),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       kmIn: map['km_start'] as int,
       kmOut: kmEnd == 0 ? null : kmEnd,
       kmOdometer: map['km_odometer'] as int? ?? 0,
@@ -68,6 +77,8 @@ class TourInProgressModel {
       id: id,
       sku: sku ?? this.sku,
       date: date ?? this.date,
+      // createdAt é imutável: preserva o instante real de criação do passeio.
+      createdAt: createdAt,
       kmIn: kmIn ?? this.kmIn,
       kmOut: kmOut != null ? kmOut() : this.kmOut,
       kmOdometer: kmOdometer ?? this.kmOdometer,
@@ -87,7 +98,9 @@ class TourInProgressModel {
   @override
   String toString() {
     return 'TourInProgressModel('
-        'id: $id, sku: $sku, date: $date, kmIn: $kmIn, kmOut: $kmOut, '
-        'kmOdometer: $kmOdometer, cashSpent: $cashSpent, isFinished: $isFinished)';
+        'id: $id, sku: $sku, date: $date, createdAt: $createdAt, '
+        'kmIn: $kmIn, kmOut: $kmOut, kmOdometer: $kmOdometer, '
+        'cashSpent: $cashSpent, isFinished: $isFinished)';
   }
 }
+

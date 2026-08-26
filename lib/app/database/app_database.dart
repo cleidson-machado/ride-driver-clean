@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 /// [createSchema]) mudar basta **incrementar [schemaVersion]**. O
 /// `onUpgrade`/`onDowngrade` descarta o banco antigo (drop de todas as
 /// tabelas) e o recria do zero — como não há dados reais a preservar.
-const int schemaVersion = 1;
+const int schemaVersion = 2;
 
 /// Abre o banco SQLite da aplicação (uma única vez — singleton lazy).
 ///
@@ -89,6 +89,7 @@ Future<void> createSchema(sqflite.Database db) async {
       `hodo2_is_zero` INTEGER NOT NULL DEFAULT 1,
       `has_images` INTEGER NOT NULL DEFAULT 0,
       `is_finished` INTEGER NOT NULL DEFAULT 0,
+      `created_at` INTEGER NOT NULL,
       PRIMARY KEY (`id`)
     )
   ''');

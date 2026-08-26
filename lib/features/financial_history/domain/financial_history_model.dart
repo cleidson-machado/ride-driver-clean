@@ -1,10 +1,10 @@
 import 'financial_history_platform_model.dart';
 
 class FinancialHistoryModel {
-
   final String id;
   final String sku;
   final DateTime date;
+  final DateTime createdAt;
   final int kmIn;
   final int? kmOut;
   final double cashSpent;
@@ -19,6 +19,7 @@ class FinancialHistoryModel {
     required this.id,
     required this.sku,
     required this.date,
+    required this.createdAt,
     required this.kmIn,
     required this.kmOut,
     required this.cashSpent,
@@ -38,6 +39,10 @@ class FinancialHistoryModel {
       id: id,
       sku: 'PASSEIO —',
       date: date,
+      // Instante real de criação do passeio no aparelho: âncora do cronômetro
+      // de "em curso". Diferente de [date] (data do passeio, de domínio do
+      // utilizador, editável). O modelo [TourInProgressModel] usa este campo.
+      createdAt: DateTime.now(),
       kmIn: 0,
       kmOut: null,
       cashSpent: 0,
@@ -57,6 +62,7 @@ class FinancialHistoryModel {
       id: map['id'] as String,
       sku: map['trip_number'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['work_date'] as int),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       kmIn: map['km_start'] as int,
       kmOut: kmEnd == 0 ? null : kmEnd,
       cashSpent: (map['fuel_cost'] as num).toDouble(),
@@ -68,7 +74,6 @@ class FinancialHistoryModel {
       platforms: const <FinancialHistoryPlatformModel>[],
     );
   }
-
   double get totalEarnings => platforms.fold(
     0,
     (double sum, FinancialHistoryPlatformModel platform) =>
@@ -94,6 +99,9 @@ class FinancialHistoryModel {
       id: id,
       sku: sku ?? this.sku,
       date: date ?? this.date,
+      // createdAt é imutável após a criação do report: nunca é reiniciado por
+      // copyWith — preserva o instante real de criação como âncora do timer.
+      createdAt: createdAt,
       kmIn: kmIn ?? this.kmIn,
       kmOut: kmOut != null ? kmOut() : this.kmOut,
       cashSpent: cashSpent ?? this.cashSpent,
@@ -110,6 +118,7 @@ class FinancialHistoryModel {
     return {
       'id': id,
       'work_date': date.millisecondsSinceEpoch,
+      'created_at': createdAt.millisecondsSinceEpoch,
       'trip_number': sku,
       'fuel_cost': cashSpent,
       'km_start': kmIn,
@@ -133,10 +142,11 @@ class FinancialHistoryModel {
   @override
   String toString() {
     return 'FinancialHistoryModel('
-        'id: $id, sku: $sku, date: $date, kmIn: $kmIn, kmOut: $kmOut, '
-        'cashSpent: $cashSpent, hodo2IsZero: $hodo2IsZero, '
-        'hodo2Number: $hodo2Number, hasImages: $hasImages, '
-        'isFinished: $isFinished, notes: $notes, platforms: $platforms)';
+        'id: $id, sku: $sku, date: $date, createdAt: $createdAt, '
+        'kmIn: $kmIn, kmOut: $kmOut, cashSpent: $cashSpent, '
+        'hodo2IsZero: $hodo2IsZero, hodo2Number: $hodo2Number, '
+        'hasImages: $hasImages, isFinished: $isFinished, notes: $notes, '
+        'platforms: $platforms)';
   }
 }
 

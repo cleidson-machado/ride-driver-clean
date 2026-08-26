@@ -305,8 +305,9 @@ class _CurrentRideZone extends StatelessWidget {
     }
     return _CurrentRideCard(
       rideSku: report!.sku,
-      // Data de criação do report: âncora do cronômetro exibido no card.
-      startTime: report!.date,
+      // Instante real de criação do report (coluna `created_at`): âncora do
+      // cronômetro do card (não o `report.date`, que pode ser anos no passado).
+      startTime: report!.createdAt,
       fuelValue: RideFormatters.formatCurrency(report!.cashSpent),
       kmInValue: RideFormatters.formatKm(report!.kmIn),
       onClose: onClose,
