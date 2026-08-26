@@ -112,11 +112,23 @@ class _TourInProgressViewState extends State<TourInProgressView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(
-            label,
-            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
-          Text(value, style: textTheme.bodyMedium),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodyMedium,
+            ),
+          ),
         ],
       ),
     );
@@ -364,12 +376,16 @@ class _CurrentRideCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      rideSku,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.error,
-                        fontStyle: FontStyle.italic,
+                    Flexible(
+                      child: Text(
+                        rideSku,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.error,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ),
                   ],
@@ -600,8 +616,8 @@ class _RecentRideDataTableCard extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          SizedBox(
-            width: 112,
+          Expanded(
+            flex: 2,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -616,11 +632,15 @@ class _RecentRideDataTableCard extends StatelessWidget {
                       color: colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      item.sku,
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.2,
+                    Flexible(
+                      child: Text(
+                        item.sku,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
                   ],
@@ -629,6 +649,8 @@ class _RecentRideDataTableCard extends StatelessWidget {
                 Text(
                   RideFormatters.formatDateLabel(item.date),
                   textAlign: TextAlign.start,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
@@ -636,6 +658,7 @@ class _RecentRideDataTableCard extends StatelessWidget {
           ),
           VerticalDivider(width: 16, thickness: 1, color: colorScheme.outlineVariant),
           Expanded(
+            flex: 3,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -643,6 +666,8 @@ class _RecentRideDataTableCard extends StatelessWidget {
               children: <Widget>[
                 Text(
                   RideFormatters.formatCurrency(item.cashSpent),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: colorScheme.primary,
@@ -652,6 +677,8 @@ class _RecentRideDataTableCard extends StatelessWidget {
                 Text(
                   'KM IN: ${RideFormatters.formatKm(item.kmIn)}   '
                   'OUT: ${RideFormatters.formatKm(item.kmOut)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
