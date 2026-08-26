@@ -300,6 +300,39 @@ class _EmptyStateCard extends StatelessWidget {
               color: colorScheme.onSurfaceVariant,
             ),
           ),
+          const SizedBox(height: 16),
+          // Botão discreto no padrão dos demais FilledButton da
+          // FinancialHistoryView: abre o cadastro (modo criação) de um novo
+          // report — mesmo fluxo do "Add PASSEIO" da Home.
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              backgroundColor: colorScheme.primaryContainer,
+              foregroundColor: colorScheme.onPrimaryContainer,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: colorScheme.outlineVariant),
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const FinancialHistoryView(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add_road_rounded, size: 18),
+            label: Text(
+              'ADD PASSEIO',
+              textAlign: TextAlign.center,
+              style: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ),
         ],
       ),
     );

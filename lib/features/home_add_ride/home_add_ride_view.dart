@@ -119,7 +119,7 @@ class _HomeAddRideViewState extends State<HomeAddRideView> {
                 ButtonSegment<_RideAction>(
                   value: _RideAction.viewInProgressRide,
                   icon: Icon(Icons.visibility_rounded),
-                  label: Text('PASSEIOS em CURSO'), // TODO add o termo: "PASSEIOS Listagem",QUANDO NÃO HOUVER PASSEIOS EM CURSO, MOSTRAR "PASSEIOS em CURSO"...QUANDO  CONTRARIO...
+                  label: Text('Ver PASSEIOS'), // TODO add o termo: "PASSEIOS Listagem",QUANDO NÃO HOUVER PASSEIOS EM CURSO, MOSTRAR "PASSEIOS em CURSO"...QUANDO  CONTRARIO...
                 ),
               ],
               selected: _selectedRideAction,
