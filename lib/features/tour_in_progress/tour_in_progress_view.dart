@@ -292,14 +292,6 @@ class _EmptyStateCard extends StatelessWidget {
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Crie um novo passeio para vê-lo aqui.',
-            textAlign: TextAlign.center,
-            style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
           const SizedBox(height: 16),
           // Botão discreto no padrão dos demais FilledButton da
           // FinancialHistoryView: abre o cadastro (modo criação) de um novo
@@ -331,6 +323,14 @@ class _EmptyStateCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.4,
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'O PASSEIO em CURSO será exibido AQUI!',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
