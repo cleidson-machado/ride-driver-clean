@@ -16,16 +16,9 @@ import 'widgets/ride_header.dart';
 import 'widgets/terms_legend.dart';
 import 'widgets/top_data_grid.dart';
 
-/// Tela de cadastro/edicao de passeio — skeleton M3 responsivo.
-///
-/// Recebe um [reportId] opcional: quando informado, abre em **modo edição**
-/// (carrega o report e o título exibe o SKU seguido de "(EM EDIÇÃO)"). Quando
-/// nulo, abre em modo cadastro (report novo/em branco).
 class FinancialHistoryView extends StatefulWidget {
   const FinancialHistoryView({super.key, this.reportId});
 
-  /// Id do report a carregar em modo edição. Quando `null`, a tela abre em
-  /// modo cadastro (report novo/em branco).
   final String? reportId;
 
   @override
@@ -33,25 +26,12 @@ class FinancialHistoryView extends StatefulWidget {
 }
 
 // Inicio da classe _FinancialHistoryViewState ########################################
-// Essa é a view principal da tela de histórico financeiro.
-// Ela é um StatefulWidget que mantém o estado do formulário e interage
-// com o FinancialHistoryController para gerenciar os dados do passeio.
-// A view é composta por várias seções, incluindo campos de entrada para data,
-// quilometragem, gastos em dinheiro, hodômetro, imagens e notas,
-// além de botões para salvar, adicionar plataformas e excluir o passeio.
-//
-// Os widgets de UI foram extraídos para `widgets/` (header, campos, grelha,
-// plataformas, opções rápidas, notas, botões, legenda e diálogos) — este arquivo
-// concentra somente estado, handlers, diálogos invocados e a composição do layout.
 class _FinancialHistoryViewState extends State<FinancialHistoryView> {
-  // Controller (application layer): dono do FinancialHistoryModel e da persistência.
+
   late final FinancialHistoryController _controller;
 
   // INÍCIO das variáveis de estado local da view. #######################################
-  // Aqui começa o estado local da view (formulário) — será sincronizado com o controller.
-  // Essas variáveis representam os campos do formulário e são atualizadas pelo usuário.
-  /// Data do passeio (inicia numa data mock de dia de trabalho).
-  DateTime _rideDate = DateTime(2016, 7, 16);
+  DateTime _rideDate = DateTime.now();
   int? _kmIn;
   int? _kmOut;
   double? _cashSpent;
@@ -67,23 +47,19 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
 
   @override
   void initState() {
+  
     super.initState();
-    // Controller resolvida via container de DI (get_it); a view não conhece
-    // a infraestrutura nem a composição concreta das dependências.
     _controller = getIt<FinancialHistoryController>();
-    // Garante que um report vazio (novo cadastro) já exiba as plataformas
-    // base (UBER, BOLT, PARTICULAR) zeradas.
     _controller.ensureDefaultPlatforms();
     final String? reportId = widget.reportId;
+    
+    // START do Modo edição: carrega o report existente e preenche o formulário.
     if (reportId != null) {
-      // Modo edição: carrega o report existente e preenche o formulário.
-      _loadReportForEdit(reportId);
+      _loadReportForEdit(reportId); 
     }
+    //END do Modo edição: carrega o report existente e preenche o formulário.
   }
 
-  /// Carrega o report ([id]) para edição e espelha seus valores no estado
-  /// local do formulário (ponte temporária enquanto a view não observa o
-  /// controller diretamente).
   Future<void> _loadReportForEdit(String id) async {
     final bool loaded = await _controller.load(id);
     if (!mounted) return;
@@ -436,6 +412,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
             RideHeaderWidget( // ######################################################################## 1. Header
               rideSku: _controller.report.sku,
               isRideInProgress: !_isFinished,
+              isNewReport: widget.reportId == null,
               showEditBadge: widget.reportId != null,
             ),
             Divider(color: colorScheme.outlineVariant, height: 1),
