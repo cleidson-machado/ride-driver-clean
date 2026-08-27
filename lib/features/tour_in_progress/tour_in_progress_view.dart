@@ -289,9 +289,38 @@ class _ElapsedTimerTextState extends State<_ElapsedTimerText> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      RideFormatters.formatDuration(_elapsed),
-      textAlign: TextAlign.center,
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    // Cronômetro destacado: grande, grosso e com contraste do tema, dentro de
+    // uma "pílula" sutil que o torna o elemento visual dominante do card
+    // enquanto o passeio está em curso.
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withValues(alpha: 0.30),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.30)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withValues(alpha: 0.16),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        RideFormatters.formatDuration(_elapsed),
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        style: textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w500,
+          letterSpacing: 2.5,
+          fontFeatures: const [FontFeature.tabularFigures()],
+          color: colorScheme.onPrimaryContainer,
+        ),
+      ),
     );
   }
 }
