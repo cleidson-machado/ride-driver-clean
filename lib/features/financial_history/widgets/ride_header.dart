@@ -29,9 +29,20 @@ class RideHeaderWidget extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    final String title = showEditBadge
-        ? 'Report: $rideSku (EM EDIÇÃO)'
-        : 'Report: $rideSku';
+    // Estilo base do título (SKU do report) — negrito, cor onSurface.
+    final TextStyle baseStyle = (textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: colorScheme.onSurface,
+        )) ??
+        const TextStyle();
+
+    // Estilo do rótulo "|Edição|" — cor de destaque, tamanho menor que o texto
+    // principal da linha, e sem negrito (report em fase de edição).
+    final TextStyle editBadgeStyle = baseStyle.copyWith(
+      fontSize: (baseStyle.fontSize ?? textTheme.titleSmall?.fontSize ?? 14) - 1,
+      fontWeight: FontWeight.w400, // sem negrito
+      color: colorScheme.primary, // cor de destaque
+    );
 
     return SizedBox(
       height: 48,
@@ -44,21 +55,29 @@ class RideHeaderWidget extends StatelessWidget {
               tooltip: 'Voltar',
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const BackButtonIcon(),
-            ),
           ),
+        ),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: colorScheme.onSurface,
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Report: $rideSku ',
+                        style: baseStyle,
+                      ),
+                      if (showEditBadge)
+                        TextSpan(
+                          text: '|Edição|',
+                          style: editBadgeStyle,
+                        ),
+                    ],
                   ),
-                ),
+                  textAlign: TextAlign.center,
+      ),
                 const SizedBox(width: 8),
                 _RideStatusPillWidget(
                   isInProgress: isRideInProgress,
