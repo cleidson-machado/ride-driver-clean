@@ -30,16 +30,23 @@ class RideHeaderWidget extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     // Estilo base do título (SKU do report) — negrito, cor onSurface.
-    final TextStyle baseStyle = (textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: colorScheme.onSurface,
+    final TextStyle baseStyle =
+        (textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: colorScheme.onSurface,
         )) ??
         const TextStyle();
+
+    // Estilo do rótulo "Report:" — sem negrito, mesmo tamanho/cor do título.
+    final TextStyle labelStyle = baseStyle.copyWith(
+      fontWeight: FontWeight.w400, // sem negrito
+    );
 
     // Estilo do rótulo "|Edição|" — cor de destaque, tamanho menor que o texto
     // principal da linha, e sem negrito (report em fase de edição).
     final TextStyle editBadgeStyle = baseStyle.copyWith(
-      fontSize: (baseStyle.fontSize ?? textTheme.titleSmall?.fontSize ?? 14) - 1,
+      fontSize:
+          (baseStyle.fontSize ?? textTheme.titleSmall?.fontSize ?? 14) - 1,
       fontWeight: FontWeight.w400, // sem negrito
       color: colorScheme.primary, // cor de destaque
     );
@@ -55,8 +62,8 @@ class RideHeaderWidget extends StatelessWidget {
               tooltip: 'Voltar',
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const BackButtonIcon(),
+            ),
           ),
-        ),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Row(
@@ -65,19 +72,15 @@ class RideHeaderWidget extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(
-                        text: 'Report: $rideSku ',
-                        style: baseStyle,
-                      ),
+                      TextSpan(text: 'Report: ', style: labelStyle),
+                      TextSpan(text: rideSku, style: baseStyle),
                       if (showEditBadge)
-                        TextSpan(
-                          text: '|Edição|',
-                          style: editBadgeStyle,
-                        ),
+                        TextSpan(text: ' |Edição|', style: editBadgeStyle),
                     ],
                   ),
                   textAlign: TextAlign.center,
-      ),
+                ),
+
                 const SizedBox(width: 8),
                 _RideStatusPillWidget(
                   isInProgress: isRideInProgress,
@@ -114,23 +117,26 @@ class _RideStatusPillWidget extends StatelessWidget {
     //  - EM CRIAÇÃO  → secondary (tom neutro/rascunho)
     //  - EM CURSO    → tertiary (tom azulado/ativa)
     //  - CONCLUIDO   → primary  (verde forte/concluído)
-    final (Color backgroundColor, Color foregroundColor, String label) =
-        switch ((isNewReport, isInProgress)) {
+    final (
+      Color backgroundColor,
+      Color foregroundColor,
+      String label,
+    ) = switch ((isNewReport, isInProgress)) {
       (true, _) => (
-          colorScheme.secondaryContainer,
-          colorScheme.onSecondaryContainer,
-          'EM CRIAÇÃO',
-        ),
+        colorScheme.secondaryContainer,
+        colorScheme.onSecondaryContainer,
+        'EM CRIAÇÃO',
+      ),
       (_, true) => (
-          colorScheme.tertiaryContainer,
-          colorScheme.onTertiaryContainer,
-          'EM CURSO',
-        ),
+        colorScheme.tertiaryContainer,
+        colorScheme.onTertiaryContainer,
+        'EM CURSO',
+      ),
       _ => (
-          colorScheme.primaryContainer,
-          colorScheme.onPrimaryContainer,
-          'CONCLUIDO',
-        ),
+        colorScheme.primaryContainer,
+        colorScheme.onPrimaryContainer,
+        'CONCLUIDO',
+      ),
     };
 
     return Container(
@@ -151,4 +157,3 @@ class _RideStatusPillWidget extends StatelessWidget {
     );
   }
 }
-
