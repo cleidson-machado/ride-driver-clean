@@ -137,15 +137,26 @@ class _TourInProgressViewState extends State<TourInProgressView> {
   }
 
   /// Abre a tela de encerramento (consolidação) do report ativo ([report]).
-  void _openCloseFlow(TourInProgressModel report) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+  ///
+  /// Ao retornar com `true` (encerramento confirmado), recarrega o estado a
+  /// partir do banco para que o passeio recém-finalizado saia do card "em
+  /// curso" e passe a figurar no topo do histórico de recentes — sem precisar
+  /// sair e reentrar na tela.
+  Future<void> _openCloseFlow(TourInProgressModel report) async {
+    final bool? closed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => TourCloseView(
           controller: _controller,
           report: report,
         ),
       ),
     );
+    // Refaz apenas quando o passeio foi efetivamente encerrado. Como o
+    // `finish()` já zerou `activeReport`, o refresh traz o banco consistente
+    // (sem card em curso + novo finalizado no topo do histórico).
+    if (closed == true) {
+      await _controller.refresh();
+    }
   }
 
   @override
