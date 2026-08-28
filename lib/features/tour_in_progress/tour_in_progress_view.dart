@@ -92,12 +92,9 @@ class _TourInProgressViewState extends State<TourInProgressView> {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 // Navega para a FinancialHistoryView em modo edição (SKU + "(EM
-                // EDIÇÃO)") abrindo o report pelo id.
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => FinancialHistoryView(reportId: report.id),
-                  ),
-                );
+                // EDIÇÃO)") abrindo o report pelo id. Ao voltar, recarrega do
+                // banco para refletir as edições salvas na lista/card atual.
+                _openEditor(FinancialHistoryView(reportId: report.id));
               },
               child: const Text('Editar'),
             ),
@@ -105,6 +102,20 @@ class _TourInProgressViewState extends State<TourInProgressView> {
         );
       },
     );
+  }
+
+  /// Abre a [FinancialHistoryView] (criação ou edição de passeio) e, ao seu
+  /// retorno, recarrega o estado a partir do banco.
+  ///
+  /// Garante que qualquer edição/cadastro salvo dentro da tela de histórico
+  /// financeiro seja refletido no card "em curso" e no datatable de recentes
+  /// — sem exigir sair e reentrar na tela.
+  Future<void> _openEditor(FinancialHistoryView editor) async {
+    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+      builder: (_) => editor,
+    ));
+    if (!mounted) return;
+    await _controller.refresh();
   }
 
   Widget _summaryRow(String label, String value) {
@@ -187,6 +198,7 @@ class _TourInProgressViewState extends State<TourInProgressView> {
                           onClose: active == null
                               ? null
                               : () => _openCloseFlow(active),
+                          onAddRide: () => _openEditor(const FinancialHistoryView()),
                         ),
                         const SizedBox(height: 16),
                         _RecentRidesSection(
@@ -332,16 +344,18 @@ class _CurrentRideZone extends StatelessWidget {
     required this.report,
     required this.busy,
     required this.onClose,
+    required this.onAddRide,
   });
 
   final TourInProgressModel? report;
   final bool busy;
   final VoidCallback? onClose;
+  final VoidCallback onAddRide;
 
   @override
   Widget build(BuildContext context) {
     if (report == null) {
-      return const _EmptyStateCard();
+      return _EmptyStateCard(onAddRide: onAddRide);
     }
     return _CurrentRideCard(
       rideSku: report!.sku,
@@ -357,7 +371,9 @@ class _CurrentRideZone extends StatelessWidget {
 }
 
 class _EmptyStateCard extends StatelessWidget {
-  const _EmptyStateCard();
+  const _EmptyStateCard({required this.onAddRide});
+
+  final VoidCallback onAddRide;
 
   @override
   Widget build(BuildContext context) {
@@ -401,13 +417,9 @@ class _EmptyStateCard extends StatelessWidget {
                 side: BorderSide(color: colorScheme.outlineVariant),
               ),
             ),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const FinancialHistoryView(),
-                ),
-              );
-            },
+            // Mantém o padrão dos demais fluxos: ao voltar (novo passeio salvo
+            // ou não), recarrega do banco para refletir em curso/recentes.
+            onPressed: onAddRide,
             icon: const Icon(Icons.add_road_rounded, size: 18),
             label: Text(
               'ADD PASSEIO',
