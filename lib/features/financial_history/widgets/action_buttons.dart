@@ -55,18 +55,30 @@ class _FooterActionButtonWidget extends StatelessWidget {
 // ─── Footer — botão salvar ────────────────────────────────────────────────────
 class SaveButtonWidget extends StatelessWidget {
 
-  const SaveButtonWidget({super.key, required this.onPressed});
+  const SaveButtonWidget({
+    super.key,
+    required this.isEditing,
+    required this.onPressed,
+  });
 
+  final bool isEditing;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final bool editing = isEditing;
     return _FooterActionButtonWidget(
-      backgroundColor: colorScheme.primaryContainer,
-      foregroundColor: colorScheme.onPrimaryContainer,
-      icon: const Icon(Icons.save_rounded),
-      label: 'SALVAR / ATUALIZAR esse PASSEIO?',
+      backgroundColor: editing
+          ? colorScheme.tertiaryContainer
+          : colorScheme.primaryContainer,
+      foregroundColor: editing
+          ? colorScheme.onTertiaryContainer
+          : colorScheme.onPrimaryContainer,
+      icon: editing
+          ? const Icon(Icons.update_rounded)
+          : const Icon(Icons.save_rounded),
+      label: editing ? 'ATUALIZAR esse PASSEIO!' : 'SALVAR esse PASSEIO!',
       onPressed: onPressed,
     );
   }

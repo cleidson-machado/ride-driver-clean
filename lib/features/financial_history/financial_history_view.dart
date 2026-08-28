@@ -474,6 +474,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
                     const SizedBox(height: 26),
 
                     SaveButtonWidget( // ############################################################## 6. Footer — botão salvar
+                      isEditing: widget.reportId != null,
                       onPressed: _actionSaveRide,
                     ),
                     const SizedBox(height: 20),
