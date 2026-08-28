@@ -205,11 +205,18 @@ class StepperFieldWidget extends StatelessWidget {
 }
 
 // ─── Binary row ───────────────────────────────────────────────────────────────
-// Campo de resposta binária (YES/NO) usado pelo "Hodo-2 - is ZERO?" — tocar
-// alterna o valor e os dois indicadores visuais (radio + quadrado) refletem o
-// estado atual.
+// Campo de resposta binária (YES/NO) usado pelo "Hodo-2 - is ZERO?".
+// Refatorado para um alternador segmentado (estilo M3 segmented button):
+// dois segmentos destacam o estado ativo com a cor primária, mantendo a mesma
+// altura (48px), o mesmo raio/borda e o equilíbrio visual dos demais campos da
+// grelha (DateFieldWidget/StepperFieldWidget). Tocar num segmento alterna o
+// valor; não dispara persistência própria, apenas atualiza o estado local.
 class BinaryFieldWidget extends StatelessWidget {
-  const BinaryFieldWidget({super.key, required this.value, required this.onChanged});
+  const BinaryFieldWidget({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
 
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -217,70 +224,105 @@ class BinaryFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Container(
       height: 48,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
-      child: Semantics(
-        toggled: value,
-        label: 'Hodômetro 2 zerado',
-        child: InkWell(
-          onTap: () => onChanged(!value),
-          borderRadius: BorderRadius.circular(12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Tooltip(
-                  message: 'Alternar status zerado',
-                  child: Icon(
-                    value ? Icons.radio_button_checked : Icons.circle_outlined,
-                    size: 18,
-                    color: value
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+      child: Row(
+        children: [
+          Expanded(
+            child: _BinarySegment(
+              label: 'NO',
+              isActive: !value,
+              activeColor: colorScheme.onSurfaceVariant,
+              iconData: Icons.do_not_disturb_on_outlined,
+              onTap: () => onChanged(false),
+            ),
+          ),
+          const SizedBox(width: 3),
+          Expanded(
+            child: _BinarySegment(
+              label: 'YES',
+              isActive: value,
+              activeColor: colorScheme.primary,
+              iconData: Icons.event_available,
+              onTap: () => onChanged(true),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Segmento individual do [BinaryFieldWidget]. Utiliza `AnimatedContainer`
+/// (M3) para a transição suave de cor/preenchimento em cada estado.
+class _BinarySegment extends StatelessWidget {
+  const _BinarySegment({
+    required this.label,
+    required this.isActive,
+    required this.activeColor,
+    required this.iconData,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final Color activeColor;
+  final IconData iconData;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    final Color background = isActive ? activeColor : Colors.transparent;
+    final Color foreground = isActive
+        ? colorScheme.onPrimary
+        : colorScheme.onSurfaceVariant;
+
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: '$label — ${isActive ? 'ativo' : 'inativo'}',
+      child: Tooltip(
+        message: isActive ? '$label está marcado' : 'Marcar como $label',
+        child: Material(
+          color: background,
+          borderRadius: BorderRadius.circular(9),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(9),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    iconData,
+                    size: 15,
+                    color: foreground,
                   ),
-                ),
-              ),
-              VerticalDivider(
-                width: 1,
-                thickness: 1,
-                color: colorScheme.outlineVariant,
-              ),
-              Expanded(
-                flex: 3,
-                child: Center(
-                  child: Text(
-                    value ? 'YES' : 'NO',
-                    style: textTheme.bodyMedium?.copyWith(
+                  const SizedBox(width: 5),
+                  Text(
+                    label,
+                    style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w800,
+                      color: foreground,
                     ),
                   ),
-                ),
+                ],
               ),
-              VerticalDivider(
-                width: 1,
-                thickness: 1,
-                color: colorScheme.outlineVariant,
-              ),
-              Expanded(
-                child: Tooltip(
-                  message: 'Status alternativo',
-                  child: Icon(
-                    value ? Icons.square : Icons.square_outlined,
-                    size: 18,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
