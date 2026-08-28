@@ -41,9 +41,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   bool _isFinished = false;
   // FIM das variáveis de estado local da view. ##########################################
 
-  final TextEditingController _notesController = TextEditingController(
-    text: 'USANDO ABASTECIMENTO DO DIA / PASSEIO ANTERIOR NESSE MOMENTO',
-  );
+  final TextEditingController _notesController = TextEditingController();
 
   @override
   void initState() {
