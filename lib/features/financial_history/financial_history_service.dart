@@ -27,6 +27,27 @@ class FinancialHistoryService {
     'PARTICULAR',
   ];
 
+  // --------------------------------------------------------------------------
+  // VALIDAÇÃO DO "HODO-2 - IS ZERO?" NO FLUXO DE SALVAMENTO.
+  //
+  // 🔧 Configuração (futuro painel de parâmetros / feature flag):
+  // Alterar este flag para `false` **desativa** esta validação de negócio.
+  // Quando desativado, a Service ignora o estado do "Hodo-2" e o Save
+  // prossegue normalmente (sem bloquear nem exigir zeragem). A mudança é
+  // feita aqui, num único ponto, sem tocar na UI nem na regra de negócio.
+  static const bool isHodo2ValidationActive = true;
+
+  /// Valida o estado do "Hodo-2 - is ZERO?" antes de persistir ([report]).
+  ///
+  /// - Retorna `true`  → o salvamento pode prosseguir (estado ON, ou
+  ///   validação desativada por [isHodo2ValidationActive]).
+  /// - Retorna `false` → o salvamento deve ser bloqueado (estado OFF), pois
+  ///   o motorista ainda não confirmou a zeragem do Hodômetro 2.
+  bool validateHodo2BeforeSave(FinancialHistoryModel report) {
+    if (!isHodo2ValidationActive) return true;
+    return report.hodo2IsZero;
+  }
+
   // INICIO getById ###############################################################
   Future<FinancialHistoryModel?> getById(String id) async {
     final FinancialHistoryModel? entity = await _storage.getById(id);
@@ -57,6 +78,14 @@ class FinancialHistoryService {
   /// atender às regras.
   Future<FinancialHistoryModel> save(FinancialHistoryModel report) async {
     _validate(report);
+
+    // Valida o lembrete do "Hodo-2 - is ZERO?" antes de persistir. Se o estado
+    // estiver OFF (e a validação ativa), bloqueia o salvamento lançando
+    // [Hodo2NotZeroException] — a UI exibe um aviso obrigatório lembrando de
+    // zerar o Hodômetro 2.
+    if (!validateHodo2BeforeSave(report)) {
+      throw const Hodo2NotZeroException();
+    }
 
     final bool exists = await _storage.getById(report.id) != null;
 
@@ -264,4 +293,20 @@ class FinancialHistoryValidationException implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// Erro de validação específico do lembrete "Hodo-2 - is ZERO?".
+///
+/// Lançado pela Service quando o estado está OFF (motorista ainda não
+/// confirmou a zeragem do Hodômetro 2) e a validação está ativa
+/// ([FinancialHistoryService.isHodo2ValidationActive]). Substitui
+/// [FinancialHistoryValidationException] para que a UI identifique este caso
+/// e possa exibir o modal obrigatório de zeragem (com a opção de confirmar e
+/// salvar em um único clique).
+class Hodo2NotZeroException extends FinancialHistoryValidationException {
+  const Hodo2NotZeroException()
+    : super(
+        'O Hodômetro 2 precisa estar zerado antes de salvar. '
+        'Lembre-se de zerar o Hodo-2 antes de sair para trabalhar.',
+      );
 }

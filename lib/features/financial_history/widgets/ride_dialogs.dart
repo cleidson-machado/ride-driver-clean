@@ -88,6 +88,58 @@ Future<bool?> showDeleteReportDialog(BuildContext context) {
   );
 }
 
+/// Abre o modal obrigatório de lembrete do "Hodo-2 - is ZERO?".
+///
+/// Exibido quando o usuário tenta salvar com o Hodo-2 ainda **OFF** (não
+/// confirmou que zerou o Hodômetro 2). Em vez de apenas bloquear, oferece a
+/// opção conveniente **"Confirmar zeragem e salvar"**, que marca o botão como
+/// ON e conclui o salvamento em um único clique.
+///
+/// Retorno:
+///  - `true`  → o usuário confirmou a zeragem ("Confirmar zeragem e salvar");
+///  - `false` → apenas fechou (botão "OK") — o motorista deve zerar/alternar
+///    o botão manualmente antes de tentar salvar novamente.
+Future<bool?> showHodo2NotZeroDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) => AlertDialog(
+      icon: Icon(
+        Icons.speed,
+        size: 40,
+        color: Theme.of(dialogContext).colorScheme.primary,
+      ),
+      title: const Text(
+        'OPS! O Hodômetro \n NÃO FOI ZERADO!',
+        textAlign: TextAlign.center,
+      ),
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          'Antes de sair para trabalhar!\n Lembre-se de ZERAR!'
+          '\n seu Hodômetro no veículo!!',
+          textAlign: TextAlign.center,
+          style: Theme.of(dialogContext).textTheme.bodyLarge?.copyWith(
+            height: 1.4,
+            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: const Text('OK'),
+        ),
+        FilledButton.icon(
+          style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
+          icon: const Icon(Icons.event_available, size: 18),
+          label: const Text('Confirmar zeragem e salvar'),
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Comprimento máximo (em caracteres) para o nome de uma plataforma.
 const int _maxPlatformNameLength = 15;
 

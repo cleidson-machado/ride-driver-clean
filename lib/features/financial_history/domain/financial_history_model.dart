@@ -46,7 +46,9 @@ class FinancialHistoryModel {
       kmIn: 0,
       kmOut: null,
       cashSpent: 0,
-      hodo2IsZero: true,
+      // Estado padrão do lembrete "Hodo-2 - is ZERO?" = OFF: o motorista deve
+      // confirmar (ON) antes de salvar, conforme regra da Service.
+      hodo2IsZero: false,
       hodo2Number: null,
       hasImages: false,
       isFinished: false,
@@ -66,7 +68,7 @@ class FinancialHistoryModel {
       kmIn: map['km_start'] as int,
       kmOut: kmEnd == 0 ? null : kmEnd,
       cashSpent: (map['fuel_cost'] as num).toDouble(),
-      hodo2IsZero: ((map['hodo2_is_zero'] as int?) ?? 1) == 1,
+      hodo2IsZero: ((map['hodo2_is_zero'] as int?) ?? 0) == 1,
       hodo2Number: kmOdometer == 0 ? null : kmOdometer,
       hasImages: ((map['has_images'] as int?) ?? 0) == 1,
       isFinished: ((map['is_finished'] as int?) ?? 0) == 1,

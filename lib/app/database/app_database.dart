@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 /// [createSchema]) mudar basta **incrementar [schemaVersion]**. O
 /// `onUpgrade`/`onDowngrade` descarta o banco antigo (drop de todas as
 /// tabelas) e o recria do zero — como não há dados reais a preservar.
-const int schemaVersion = 2;
+const int schemaVersion = 3;
 
 /// Abre o banco SQLite da aplicação (uma única vez — singleton lazy).
 ///
@@ -86,7 +86,7 @@ Future<void> createSchema(sqflite.Database db) async {
       `trip_number` TEXT NOT NULL, `fuel_cost` REAL NOT NULL,
       `km_start` INTEGER NOT NULL, `km_end` INTEGER NOT NULL,
       `km_odometer` INTEGER NOT NULL, `notes` TEXT NOT NULL,
-      `hodo2_is_zero` INTEGER NOT NULL DEFAULT 1,
+      `hodo2_is_zero` INTEGER NOT NULL DEFAULT 0,
       `has_images` INTEGER NOT NULL DEFAULT 0,
       `is_finished` INTEGER NOT NULL DEFAULT 0,
       `created_at` INTEGER NOT NULL,
@@ -124,4 +124,5 @@ Future<void> createSchema(sqflite.Database db) async {
     'ON `financial_history_platform` (`platform_id`)',
   );
 }
+
 

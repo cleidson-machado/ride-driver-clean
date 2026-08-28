@@ -35,7 +35,7 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
   int? _kmIn;
   int? _kmOut;
   double? _cashSpent;
-  bool _hodo2IsZero = true;
+  bool _hodo2IsZero = false;
   int? _hodo2Number;
   bool _hasImages = true;
   bool _isFinished = false;
@@ -177,8 +177,24 @@ class _FinancialHistoryViewState extends State<FinancialHistoryView> {
             Navigator.of(context).maybePop();
           }
         })
-        .catchError((Object error) {
+        .catchError((Object error) async {
           if (!mounted) return;
+          // "Hodo-2 - is ZERO?" OFF: mostra o lembrete obrigatório de zeragem.
+          // A decisão de bloquear/validar fica na Service
+          // (validateHodo2BeforeSave); aqui só tratamos a UX do aviso.
+          if (error is Hodo2NotZeroException) {
+            final bool? confirm = await showHodo2NotZeroDialog(context);
+            if (!mounted) return;
+            if (confirm == true) {
+              // "Confirmar zeragem e salvar": marca como ON e conclui em um
+              // único clique re-disparando o salvamento.
+              setState(() => _hodo2IsZero = true);
+              _actionSaveRide();
+            }
+            // Se apenas "OK", o modal fecha e o usuário deve alternar o botão
+            // manualmente (o estado permanece OFF e o save segue bloqueado).
+            return;
+          }
           final String message = error is FinancialHistoryValidationException
               ? error.message
               : _controller.lastError ?? 'Erro ao salvar o passeio.';

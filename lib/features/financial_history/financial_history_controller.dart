@@ -5,7 +5,8 @@ import 'domain/financial_history_platform_model.dart';
 import 'domain/platform_model.dart';
 import 'financial_history_service.dart';
 
-export 'financial_history_service.dart' show FinancialHistoryValidationException;
+export 'financial_history_service.dart'
+    show FinancialHistoryValidationException, Hodo2NotZeroException;
 
 /// Controller (ChangeNotifier) da tela de cadastro/edição de passeio.
 ///
