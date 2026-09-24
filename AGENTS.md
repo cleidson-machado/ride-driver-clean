@@ -1,32 +1,31 @@
-# ride_driver_app_1 — Agent Instructions
+# ride_driver_app_1 - Agent Instructions
 
-Flutter app for ride-share drivers, in early development. Much of the scaffolding (routing, theme, helpers) is still placeholder `todo.dart` files — expect to build things out, not just modify.
+Flutter app for ride-share drivers. Use the feature-based architecture described in [README.md](README.md); detailed architectural decisions are recorded in [CONSOLIDACAO_ARQUITETURAL_FINAL.md](CONSOLIDACAO_ARQUITETURAL_FINAL.md).
 
-## Toolchain (FVM required)
+## Toolchain
 
-Flutter is pinned to **3.44.7** via [.fvmrc](.fvmrc). Always prefix flutter/dart commands with `fvm`:
+- Flutter is pinned to `3.44.7` in [.fvmrc](.fvmrc). Prefix every Flutter or Dart command with `fvm`.
+- Run `fvm flutter pub get` after editing [pubspec.yaml](pubspec.yaml), `fvm dart format <paths>` for formatting, and `fvm flutter analyze` for static analysis.
+- `fvm flutter test` is valid but the project currently has no committed test files. Add focused tests for new behavior.
+- Keep dependencies minimal. The current runtime packages are `sqflite`, `path`, and `get_it`; ask before introducing state-management or routing packages.
 
-- **Dependencies**: keep minimal — currently `sqflite`, `path`, `get_it`. Add to [pubspec.yaml](pubspec.yaml) and run `fvm flutter pub get`.
-## Database (SQLite, SQL cru)
+## Application Structure
 
-This project uses **sqflite** with **raw SQL** (SQL cru) for local SQLite persistence.
-**Não há** ORM/Floor nem geração de código (`@dao`, `@Database`, `build_runner`). O schema
-é definido manualmente em `lib/app/database/app_database.dart` (`createSchema`), e não há
-migrações (POC: bancos locais são recriados).
-### Current schema
+- [lib/main.dart](lib/main.dart) initializes Flutter bindings and the service locator, then starts `RideDriverApp` with the M3 light/dark themes.
+- Implement features under `lib/features/<feature>/`. Domain models are pure Dart and implement `BaseModel`; data repositories perform storage; services own business rules; `ChangeNotifier` controllers serve the UI.
+- Register feature dependencies in `lib/features/<feature>/<feature>_injection.dart` and call the registration from [lib/app/di/service_locator.dart](lib/app/di/service_locator.dart). Repositories and services are lazy singletons; controllers are factories.
+- Views resolve controllers via `getIt<Controller>()`. Do not instantiate concrete repositories or services in views.
+- Use English for feature directories, files, and class names. SQLite identifiers use `snake_case`.
 
-Tables defined in `lib/app/database/app_database.dart` (`createSchema`):
+## Persistence
 
-- `financial_history` (registro diário)
-- `financial_history_platform` (tabela associativa com FKs)
-- `platform` (catálogo de plataformas: UBER, BOLT, …)
-Relationships:
-- `financial_history` 1 ──< `financial_history_platform` >── 1 `platform`
+- SQLite uses `sqflite` with raw SQL. The single schema source is [lib/app/database/app_database.dart](lib/app/database/app_database.dart); do not add an ORM, Floor annotations, DAOs, or code generation.
+- This POC recreates the database on schema changes rather than preserving data through incremental migrations. Keep foreign-key relationships and platform seeding consistent with the schema.
+- See [PERSISTENCIA_SQLITE.md](PERSISTENCIA_SQLITE.md) for database rules and [DOCUMENTACAO_FINANCIAL_HISTORY_PLATFORM.md](DOCUMENTACAO_FINANCIAL_HISTORY_PLATFORM.md) for the financial-history model.
 
-### Regenerating code
+## Existing Guidance
 
-- [lib/main.dart](lib/main.dart) is still the default counter app; [test/widget_test.dart](test/widget_test.dart) is the default smoke test tied to it. Replacing `main.dart` will break that test — update it together.
-- `lib/app/{helper,routing,theme}/todo.dart` are empty placeholders awaiting implementation.
-- State management and routing approaches are not yet chosen — ask before introducing a new package (e.g. provider/riverpod/go_router).
-- **Naming convention**: feature folders, classes, and files are in **English**. Table names in SQLite are in `snake_case`.
+- Use [.github/skills/material3-flutter-ui/SKILL.md](.github/skills/material3-flutter-ui/SKILL.md) for Flutter UI, Material 3, accessibility, and responsive-layout work.
+- Use [.github/skills/ride-driver-flutter-data/SKILL.md](.github/skills/ride-driver-flutter-data/SKILL.md) for SQLite, financial history, repositories, and data-flow work.
+- Consult [LIMPEZA_VALIDACAO_FASE_3.md](LIMPEZA_VALIDACAO_FASE_3.md) before restoring legacy persistence or generic CRUD abstractions that were intentionally removed.
 
