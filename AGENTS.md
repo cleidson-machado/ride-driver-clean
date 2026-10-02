@@ -4,7 +4,7 @@ Flutter app for ride-share drivers. Use the feature-based architecture described
 
 ## Toolchain
 
-- Flutter is pinned to `3.44.7` in [.fvmrc](.fvmrc). Prefix every Flutter or Dart command with `fvm`.
+- Flutter is pinned to `3.47.6` in [.fvmrc](.fvmrc). Prefix every Flutter or Dart command with `fvm`.
 - Run `fvm flutter pub get` after editing [pubspec.yaml](pubspec.yaml), `fvm dart format <paths>` for formatting, and `fvm flutter analyze` for static analysis.
 - `fvm flutter test` is valid but the project currently has no committed test files. Add focused tests for new behavior.
 - Keep dependencies minimal. The current runtime packages are `sqflite`, `path`, and `get_it`; ask before introducing state-management or routing packages.
